@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 
 // Stable TypeWriter component to avoid resets on parent re-renders
-const TypeWriter: React.FC<{ text: string; speed?: number; className?: string }> = ({ text, speed = 18, className }) => {
+const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; delayMs?: number }> = ({ text, speed = 18, className, delayMs = 0 }) => {
   const [display, setDisplay] = useState('');
   const indexRef = useRef(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const delayRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // reset only when text changes
@@ -14,28 +15,41 @@ const TypeWriter: React.FC<{ text: string; speed?: number; className?: string }>
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    if (delayRef.current) {
+      clearTimeout(delayRef.current);
+      delayRef.current = null;
+    }
     setDisplay('');
     indexRef.current = 0;
-    timerRef.current = setInterval(() => {
-      indexRef.current += 1;
-      setDisplay(prev => {
-        const next = text.slice(0, indexRef.current);
-        return next;
-      });
-      if (indexRef.current >= text.length && timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    }, speed);
+    const start = () => {
+      timerRef.current = setInterval(() => {
+        indexRef.current += 1;
+        setDisplay(prev => {
+          const next = text.slice(0, indexRef.current);
+          return next;
+        });
+        if (indexRef.current >= text.length && timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      }, speed);
+    };
+    if (delayMs > 0) {
+      delayRef.current = setTimeout(start, delayMs);
+    } else {
+      start();
+    }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (delayRef.current) clearTimeout(delayRef.current);
       timerRef.current = null;
     };
-  }, [text, speed]);
+  }, [text, speed, delayMs]);
 
   return <div className={className} dangerouslySetInnerHTML={{ __html: display.replace(/\n/g, '<br/>') }} />;
 };
 import { Presentation, PresentationSlide } from '@/data/presentations';
+import { getAssetUrl } from '@/config/assets';
 
 interface PresentationViewerProps {
   presentation: Presentation;
@@ -124,18 +138,25 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
       clearTimeout(advanceTimeoutRef.current);
       advanceTimeoutRef.current = null;
     }
-    // Run a transition and change the slide at half duration
+    // Run a transition; for 'prezoom' we switch immediately so the pre-image overlays the next slide
     const next = (slideIndex + presentation.slides.length) % presentation.slides.length;
     const type = pickTransitionForSlide(next);
     // Shorter default durations; showcase slide-10 prezoom much slower
     const duration = type === 'checkerboard' ? 1000 : type === 'zoom-fade' ? 900 : type === 'prezoom' ? 3500 : 800;
     setTransition({ active: true, type, duration });
     setPendingSlide(next);
-    setTimeout(() => {
+    if (type === 'prezoom') {
+      // Immediately switch underlying content to next slide
       setCurrentSlide(next);
       setProgress(0);
       slideStartRef.current = Date.now();
-    }, Math.floor(duration / 2));
+    } else {
+      setTimeout(() => {
+        setCurrentSlide(next);
+        setProgress(0);
+        slideStartRef.current = Date.now();
+      }, Math.floor(duration / 2));
+    }
     setTimeout(() => {
       setTransition(prev => ({ ...prev, active: false }));
     }, duration);
@@ -334,7 +355,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
               {slide.backgroundGif && (
                 <img 
                   key={`${slide.id}-${currentSlide}`}
-                  src={slide.backgroundGif}
+                  src={getAssetUrl(slide.backgroundGif)}
                   alt=""
                   style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
                 />
@@ -363,7 +384,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
               <div className="hero-camera-layer">
                 <video
                   key={`intro-video-${currentSlide}`}
-                  src={'/assets/presentation1/image1.mp4'}
+                  src={getAssetUrl('/assets/presentation1/image1.mp4')}
                   autoPlay
                   muted
                   loop
@@ -378,7 +399,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
 
             {/* Zinzino logo pop-in (top-left) */}
             <img
-              src="/assets/presentation1/zinzinoLogo.png"
+              src={getAssetUrl('/assets/presentation1/zinzinoLogo.png')}
               alt="Zinzino Logo"
               className="intro-logo"
               style={{ position: 'absolute', top: 22, left: 28, height: 64, zIndex: 4 }}
@@ -569,20 +590,71 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
           return (
             <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
               {slide.backgroundGif && (
-                <img src={slide.backgroundGif} alt="bg" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:1 }} />
+                <img src={getAssetUrl(slide.backgroundGif)} alt="bg" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:1 }} />
               )}
-              <img src="/assets/presentation1/zinzinoFinalLogo.png" alt="Zinzino" style={{ position:'relative', zIndex:2, maxWidth: '28%', height: 'auto' }} />
+              <img src={getAssetUrl('/assets/presentation1/zinzinoFinalLogo.png')} alt="Zinzino" style={{ position:'relative', zIndex:2, maxWidth: '28%', height: 'auto' }} />
             </div>
           );
         }
-        // Special rendering for slide-25: background as provided with centered small logo overlay
-        if ((slide as any).id === 'slide-25') {
+        // Special rendering for slide-7: image slides in, 2/3 height, labels on bottom third
+        if ((slide as any).id === 'slide-7' && slide.backgroundGif) {
+          return (
+            <div className="w-full h-full relative overflow-hidden flex flex-col" style={{ background: '#ffffff' }}>
+              <div className="flex-1" style={{ height: '66.666%' }}>
+                <img
+                  src={getAssetUrl(slide.backgroundGif)}
+                  alt="slide 7"
+                  className="slide7-img top-in"
+                  style={{ position:'absolute', left:0, right:0, top:'-10%', bottom:'auto', margin:'0 auto', width:'100%', height:'auto', objectFit:'contain', zIndex:1 }}
+                />
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 h-1/3 z-10 flex items-center justify-between px-10">
+                {[
+                  { label: '1:1', color: '#10b981', sub: 'Formación del ADN' },
+                  { label: '3:1', color: '#10b981', sub: 'La ciencia recomienda' },
+                  { label: '4:1', color: '#facc15', sub: 'El punto de inflexión' },
+                  { label: '25:1', color: '#ef4444', sub: 'Aumento por década (EE.UU.)' },
+                  { label: '?40:1?', color: '#ef4444', sub: '' },
+                ].map((item,i)=> (
+                  <div key={i} className="text-center" style={{ opacity: 0.95 }}>
+                    <div className="font-semibold overlay-sub" style={{ color: item.color }}>{item.label}</div>
+                    {item.sub && <div className="mt-1 text-black/80 overlay-body" style={{ fontSize: 'clamp(.7rem, .9vw, .9rem)' }}>{item.sub}</div>}
+                  </div>
+                ))}
+              </div>
+
+              <style>{`
+                .slide7-img{ opacity: 0; }
+                .top-in{ animation: slideFromTop 900ms cubic-bezier(.22,.61,.36,1) 120ms forwards; }
+                @keyframes slideFromTop{ 0%{ transform: translateY(-24px); opacity:0; } 100%{ transform: translateY(0); opacity:1; } }
+              `}</style>
+            </div>
+          );
+        }
+        // Slide-25 uses normal hero rendering with text top-left; no logo overlay
+        // Special rendering for slide-20: stronger retro gradient overlay on full background
+        if ((slide as any).id === 'slide-20' && slide.backgroundGif) {
           return (
             <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
-              {slide.backgroundGif && (
-                <img src={slide.backgroundGif} alt="bg" style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', zIndex:1 }} />
+              <img 
+                key={`${slide.id}-${currentSlide}`}
+                src={getAssetUrl(slide.backgroundGif)}
+                alt=""
+                className="kb-slow"
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
+              />
+              <div className="absolute inset-0 retro-strong" aria-hidden="true" />
+              {(slide as any).id && (slide.title || slide.subtitle || slide.content) && (
+                <div className="absolute z-10 left-1/2 -translate-x-1/2 top-14 px-6 text-center" style={{ width: '90vw', maxWidth: '90vw' }}>
+                  {slide.title && (
+                    <TypeWriter text={applyHighlights((slide as any).id, slide.title)} className="text-black overlay-sub" />
+                  )}
+                </div>
               )}
-              <img src="/assets/presentation1/zinzinoFinalLogo.png" alt="Zinzino" style={{ position:'relative', zIndex:2, maxWidth:'38%', height:'auto' }} />
+              <style>{`
+                .retro-strong{ mix-blend-mode: hard-light; opacity:.85; background: conic-gradient(from 0deg at 50% 50%, #ff006e, #ffbe0b, #0affef, #80ff00, #ff006e 360deg); filter: saturate(1.35) contrast(1.12) hue-rotate(6deg); animation: retroSpin 6s linear infinite; }
+                @keyframes retroSpin{ 0%{ transform: rotate(0deg) scale(1.02);} 50%{ transform: rotate(180deg) scale(1.06);} 100%{ transform: rotate(360deg) scale(1.02);} }
+              `}</style>
             </div>
           );
         }
@@ -592,14 +664,16 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             <div className="w-full h-full flex items-center justify-center relative overflow-hidden">
               <div className="relative z-10 max-w-5xl w-full px-6">
                 <div
-                  className="mx-auto rounded-2xl shadow-2xl border border-gray-200 overflow-hidden bg-white"
+                  className="mx-auto rounded-2xl shadow-2xl border border-gray-200 overflow-hidden bg-white retro-container stamp-card"
                   style={{ maxWidth: '1100px' }}
                 >
                   <img
-                    src={slide.backgroundGif}
+                    src={getAssetUrl(slide.backgroundGif)}
                     alt=""
                     style={{ width: '100%', height: 'auto', display: 'block' }}
                   />
+                  {/* Retro gradient animation overlay */}
+                  <div className="retro-gradient" aria-hidden="true" />
                 </div>
               </div>
               {(slide as any).title && (
@@ -607,6 +681,40 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                   <TypeWriter text={(slide as any).title} className="text-white text-3xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]" />
                 </div>
               )}
+              {/* Local styles for retro overlay */}
+              <style>{`
+                .retro-container{ position: relative; }
+                .retro-gradient{ position:absolute; inset:0; pointer-events:none; mix-blend-mode:overlay; opacity:.55; background: conic-gradient(from 180deg at 50% 50%, #ff0080, #ffd300, #00e0ff, #7cff00, #ff0080 360deg); filter: saturate(1.15) contrast(1.05); animation: retroShift 8s linear infinite; }
+                @keyframes retroShift{ 0%{ transform: rotate(0deg); } 50%{ transform: rotate(180deg) scale(1.02); } 100%{ transform: rotate(360deg); } }
+                /* Stamp + zoom and background color change */
+                .stamp-card{ transform: scale(0.85) translateY(18px); opacity: 0; animation: stampIn 380ms cubic-bezier(.34,1.56,.64,1) 80ms forwards, settleGrow 1200ms ease-in-out 480ms forwards; }
+                @keyframes stampIn{ 0%{ transform: scale(0.6) translateY(40px); opacity:0; } 100%{ transform: scale(1.0) translateY(0); opacity:1; } }
+                @keyframes settleGrow{ 0%{ box-shadow: 0 0 0 rgba(0,0,0,0); } 60%{ transform: scale(1.06); background:#e8f7ee; } 100%{ transform: scale(1.03); background:#e8f7ee; }
+                }
+              `}</style>
+            </div>
+          );
+        }
+        // Special rendering for slide-32: light salmon bg, left-half centered image (image103.jpeg)
+        if ((slide as any).id === 'slide-32') {
+          return (
+            <div className="w-full h-full relative overflow-hidden" style={{ background: '#ffe6de' }}>
+              <div className="absolute inset-0 grid grid-cols-1 md:grid-cols-2">
+                <div className="flex items-center justify-center p-8">
+                  {slide.backgroundGif && (
+                    <img src={getAssetUrl(slide.backgroundGif)} alt="slide 32" style={{ maxWidth:'88%', height:'auto', objectFit:'contain' }} />
+                  )}
+                </div>
+                <div className="flex items-start justify-center p-10">
+                  {(slide.title || slide.subtitle || slide.content) && (
+                    <div className="w-full">
+                      {slide.title && <TypeWriter text={applyHighlights((slide as any).id, slide.title)} className="text-black overlay-sub" />}
+                      {slide.subtitle && <TypeWriter text={applyHighlights((slide as any).id, slide.subtitle)} className="text-black/80 mt-3 overlay-body" />}
+                      {slide.content && <TypeWriter text={applyHighlights((slide as any).id, slide.content)} className="text-black/70 mt-4 overlay-body" />}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           );
         }
@@ -616,7 +724,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             {slide.backgroundGif && (
               <img 
                 key={`${slide.id}-${currentSlide}`}
-                src={slide.backgroundGif} 
+                src={getAssetUrl(slide.backgroundGif)} 
                 alt="" 
                 className="kb-slow"
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
@@ -637,7 +745,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                   <TypeWriter text={applyHighlights((slide as any).id, slide.subtitle)} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/80'} mt-3 overlay-body`} />
                 )}
                 {slide.content && (
-                  <TypeWriter text={applyHighlights((slide as any).id, slide.content)} className={`${(slide as any).id === 'slide-13' ? 'text-white/80' : 'text-black/70'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
+                  <TypeWriter delayMs={(slide as any).id === 'slide-3' && slide.title ? (slide.title.length * 18) + 400 : 0} text={applyHighlights((slide as any).id, slide.content)} className={`${(slide as any).id === 'slide-13' ? 'text-white/80' : 'text-black/70'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
                 )}
               </div>
             )}
@@ -650,7 +758,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             {slide.backgroundGif && (
               <img 
                 key={`${slide.id}-${currentSlide}`}
-                src={slide.backgroundGif}
+                src={getAssetUrl(slide.backgroundGif)}
                 alt=""
                 className="kb-slow"
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
@@ -672,7 +780,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             {slide.backgroundGif && (
               <img
                 key={`${slide.id}-${currentSlide}`}
-                src={slide.backgroundGif}
+                src={getAssetUrl(slide.backgroundGif)}
                 alt=""
                 className="kb-slow"
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
@@ -719,7 +827,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                 {slide.backgroundGif && (
               <img
                     key={`${slide.id}-${currentSlide}`}
-                    src={slide.backgroundGif}
+                    src={getAssetUrl(slide.backgroundGif)}
                     alt=""
                 className="kb-slow"
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
@@ -736,7 +844,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             {/* Background image */}
             {slide.backgroundGif && (
               <img 
-                src={slide.backgroundGif} 
+                src={getAssetUrl(slide.backgroundGif)} 
                 alt="" 
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -785,7 +893,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             {slide.backgroundGif && (
               <img 
                 key={`${slide.id}-${currentSlide}`}
-                src={slide.backgroundGif} 
+                src={getAssetUrl(slide.backgroundGif)}
                 alt="" 
                 style={{
                   position: 'absolute',
@@ -864,7 +972,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
           )}
           {transition.type === 'prezoom' && (
             <div className="absolute inset-0" style={{ zIndex: 60, overflow: 'hidden' }}>
-              <img src="/assets/presentation1/slide10Pre.png" alt="pre" className="prezoom-img" />
+              <img src={getAssetUrl('/assets/presentation1/slide10Pre.png')} alt="pre" className="prezoom-img" />
             </div>
           )}
         </div>

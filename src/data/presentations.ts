@@ -69,7 +69,7 @@ export const presentations: Presentation[] = [
         title: 'Queremos sentirnos bien, estar en forma y sanos',
         subtitle: '',
         content: '',
-        backgroundGif: '/assets/presentation1/slide2bg.jpeg',
+        backgroundGif: '/assets/presentation1/CPZslide2Bg.png',
         duration: 8000
       },
       {
@@ -117,7 +117,7 @@ export const presentations: Presentation[] = [
         title: 'La historia del equilibrio entre omega-6 y omega-3',
         subtitle: '',
         content: '',
-        backgroundGif: '',
+        backgroundGif: '/assets/presentation1/slide7bg.png',
         duration: 5000
       },
       {
@@ -225,17 +225,17 @@ export const presentations: Presentation[] = [
       }
       ,
       // 19-21 blank
-      { id: 'slide-19', type: 'hero', title: 'Es fresco y muy saludable', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
-      { id: 'slide-20', type: 'hero', title: 'BalanceOil+', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
-      { id: 'slide-21', type: 'hero', title: 'Nuestros productos son probados por terceros y han sido fabricados de la mejor manera y con el máximo cuidado', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
+      { id: 'slide-19', type: 'hero', title: 'Es fresco y muy saludable', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide19bg.png', duration: 5000 },
+      { id: 'slide-20', type: 'hero', title: 'BalanceOil+', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide20bg.png', duration: 5000 },
+      { id: 'slide-21', type: 'hero', title: 'Nuestros productos son probados por terceros y han sido fabricados de la mejor manera y con el máximo cuidado', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide21bg.png', duration: 5000 },
       // 22 full background
       { id: 'slide-22', type: 'hero', title: 'Hay ventajas saludables para cada etapa vital', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide22bg.png', duration: 6000 },
       // 23 blank
-      { id: 'slide-23', type: 'hero', title: '', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
+      { id: 'slide-23', type: 'hero', title: '', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide23bg.png', duration: 5000 },
       // 24 full background
       { id: 'slide-24', type: 'hero', title: 'El 95 % de las personas que toman suplementos de Zinzino Balance recuperan el equilibrio en 120 días', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide24bg.jpeg', duration: 6000 },
       // 25 full background
-      { id: 'slide-25', type: 'hero', title: 'Alcanzar un equilibrio entre el omega-6 y el omega-3 es el primer paso para sentirse bien, estar en forma y sano', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide35bg.jpeg', duration: 6000 },
+      { id: 'slide-25', type: 'hero', title: 'Alcanzar un equilibrio entre el omega-6 y el omega-3 es el primer paso para sentirse bien, estar en forma y sano', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide25bg.jpeg', duration: 6000 },
       // 26, 27, 30 half-right background
       { id: 'slide-26', type: 'half-right', title: 'ZinoBiotic+', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide26bg.jpeg', duration: 6000 },
       { id: 'slide-27', type: 'half-right', title: 'Xtend', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide27bg.jpeg', duration: 6000 },
@@ -246,7 +246,7 @@ export const presentations: Presentation[] = [
       // 31 not specified - leaving blank
       { id: 'slide-31', type: 'hero', title: 'BalanceOil+ Kit with Test', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
       // 32 blank
-      { id: 'slide-32', type: 'hero', title: 'Obtenga sus productos gratis', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
+      { id: 'slide-32', type: 'hero', title: 'Obtenga sus productos gratis', subtitle: '', content: '', backgroundGif: '/assets/presentation1/image103.jpeg', duration: 5000 },
       // 33, 34, 35 full backgrounds
       { id: 'slide-33', type: 'hero', title: 'Haga sus sueños realidad', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide33bg.jpeg', duration: 6000 },
       { id: 'slide-34', type: 'hero', title: 'Demos forma al futuro de la nutrición juntos', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide34bg.jpeg', duration: 6000 },
