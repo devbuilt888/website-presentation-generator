@@ -36,7 +36,7 @@ export default function ImageTest() {
       };
       img.src = imagePath;
     });
-  }, []);
+  }, [testImages]);
 
   return (
     <div className="p-8">

@@ -1,18 +1,76 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { AdvancedDesignSystem, modernDesignSystem, generateAdvancedCSS } from '../styles/advanced-design-system';
+import { useState } from 'react';
+import { AdvancedDesignSystem, modernDesignSystem } from '../styles/advanced-design-system';
 import EnhancedLivePreview from './EnhancedLivePreview';
 
+interface TemplateData {
+  title?: string;
+  description?: string;
+  companyName?: string;
+  aboutText?: string;
+  contactEmail?: string;
+  websiteUrl?: string;
+  inviteeName?: string;
+  inviteeEmail?: string;
+  presentationTitle?: string;
+  callToAction?: string;
+  heroImage?: string;
+}
+
+interface EffectConfig {
+  blur: number;
+  shadowIntensity: number;
+  borderOpacity: number;
+  animationSpeed: number;
+  glowIntensity: number;
+  particleCount: number;
+  gradientAngle: number;
+  noiseIntensity: number;
+  morphingSpeed: number;
+  holographicIntensity: number;
+  animationDelay?: number;
+}
+
+interface PresentationSlide {
+  id?: string;
+  title?: string;
+  content?: string;
+  backgroundImage?: string;
+}
+
 interface AdvancedDesignEditorProps {
-  templateData: any;
-  onStyleChange: (config: any) => void;
-  onEffectChange: (effects: any) => void;
+  templateData: TemplateData;
+  onStyleChange: (config: AdvancedDesignSystem) => void;
+  onEffectChange: (effects: EffectConfig) => void;
   onContentChange: (field: string, value: string) => void;
   onImageUpload: (file: File) => void;
-  presentationSlides?: any[];
-  styleConfig?: any;
-  customEffects?: any;
+  presentationSlides?: PresentationSlide[];
+  styleConfig?: AdvancedDesignSystem;
+  customEffects?: EffectConfig;
+}
+
+interface ColorPickerProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+}
+
+interface SliderControlProps {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  unit?: string;
+}
+
+interface TabButtonProps {
+  tab: 'content' | 'colors' | 'typography' | 'effects' | 'animations' | 'layout';
+  label: string;
+  icon: string;
 }
 
 export default function AdvancedDesignEditor({ 
@@ -27,7 +85,7 @@ export default function AdvancedDesignEditor({
 }: AdvancedDesignEditorProps) {
   const [activeTab, setActiveTab] = useState<'content' | 'colors' | 'typography' | 'effects' | 'animations' | 'layout'>('content');
   const [designSystem, setDesignSystem] = useState<AdvancedDesignSystem>(modernDesignSystem);
-  const [localCustomEffects, setLocalCustomEffects] = useState({
+  const [localCustomEffects, setLocalCustomEffects] = useState<EffectConfig>({
     blur: 20,
     shadowIntensity: 25,
     borderOpacity: 0.2,
@@ -98,9 +156,9 @@ export default function AdvancedDesignEditor({
     const newSystem = { ...designSystem };
     if (colorType.includes('.')) {
       const [parent, child] = colorType.split('.');
-      (newSystem.colors as any)[parent][child] = value;
+      (newSystem.colors as Record<string, Record<string, string> | string>)[parent] = { ...(newSystem.colors as Record<string, Record<string, string> | string>)[parent] as Record<string, string>, [child]: value };
     } else {
-      (newSystem.colors as any)[colorType] = value;
+      (newSystem.colors as Record<string, string | Record<string, string>>)[colorType] = value;
     }
     setDesignSystem(newSystem);
     onStyleChange(newSystem);
@@ -245,11 +303,10 @@ export default function AdvancedDesignEditor({
     
     // Update custom effects with animation preset
     const newEffects = { 
-      ...customEffects, 
+      ...(customEffects || localCustomEffects), 
       animationSpeed: presetConfig.duration,
       animationDelay: presetConfig.delay
     };
-    setCustomEffects(newEffects);
     onEffectChange(newEffects);
   };
 
@@ -270,7 +327,7 @@ export default function AdvancedDesignEditor({
   };
 
 
-  const ColorPicker = ({ label, value, onChange, className = '' }: any) => (
+  const ColorPicker = ({ label, value, onChange, className = '' }: ColorPickerProps) => (
     <div className={`space-y-2 ${className}`}>
       <label className="block text-sm font-medium text-white/90">{label}</label>
       <div className="relative">
@@ -285,7 +342,7 @@ export default function AdvancedDesignEditor({
     </div>
   );
 
-  const SliderControl = ({ label, value, onChange, min, max, step = 1, unit = '' }: any) => (
+  const SliderControl = ({ label, value, onChange, min, max, step = 1, unit = '' }: SliderControlProps) => (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
         <label className="text-sm font-medium text-white/90">{label}</label>
@@ -306,7 +363,7 @@ export default function AdvancedDesignEditor({
     </div>
   );
 
-  const TabButton = ({ tab, label, icon }: any) => (
+  const TabButton = ({ tab, label, icon }: TabButtonProps) => (
     <button
       onClick={() => setActiveTab(tab)}
       className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
