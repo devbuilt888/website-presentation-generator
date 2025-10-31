@@ -1,6 +1,10 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { Presentation, PresentationSlide } from '@/data/presentations';
+import { getAssetUrl } from '@/config/assets';
+import { speakText, extractSlideText, stopCurrentAudio } from '@/utils/tts';
+import { translateText } from '@/utils/translations';
 
 // Stable TypeWriter component to avoid resets on parent re-renders
 const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; delayMs?: number }> = ({ text, speed = 18, className, delayMs = 0 }) => {
@@ -48,8 +52,6 @@ const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; d
 
   return <div className={className} dangerouslySetInnerHTML={{ __html: display.replace(/\n/g, '<br/>') }} />;
 };
-import { Presentation, PresentationSlide } from '@/data/presentations';
-import { getAssetUrl } from '@/config/assets';
 
 interface PresentationViewerProps {
   presentation: Presentation;
@@ -63,6 +65,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [transition, setTransition] = useState<{ active: boolean; type: 'fade' | 'zoom-fade' | 'checkerboard' | 'fade-white' | 'prezoom'; duration: number }>({ active: false, type: 'fade', duration: 900 });
   const [pendingSlide, setPendingSlide] = useState<number | null>(null);
+  const [isTranslated, setIsTranslated] = useState(false); // Translation state
   
   // Timers for auto-play and progress
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -124,11 +127,41 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
     }
   }, [showControls]);
 
+  // TTS: Speak the slide text when slide changes
+  useEffect(() => {
+    // Stop any currently playing audio
+    stopCurrentAudio();
+
+    // Wait a bit for the transition to settle, then speak
+    const slide = presentation.slides[currentSlide];
+    if (slide) {
+      const slideText = extractSlideText(slide);
+      if (slideText) {
+        // Small delay to let the slide transition complete before starting audio
+        const ttsTimeout = setTimeout(() => {
+          speakText(slideText);
+        }, 500);
+
+        return () => {
+          clearTimeout(ttsTimeout);
+          stopCurrentAudio();
+        };
+      }
+    }
+  }, [currentSlide, presentation.slides]);
+
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      // Pause: stop audio
+      stopCurrentAudio();
+    }
   };
 
   const handleSlideChange = (slideIndex: number) => {
+    // Stop any currently playing audio when manually changing slides
+    stopCurrentAudio();
+    
     // Clear timers when changing manually
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
@@ -362,9 +395,9 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
               )}
               <div className="absolute inset-0 bg-black bg-opacity-30"></div>
               <div className="text-center text-white relative z-10 px-6">
-                <h1 className="text-5xl font-bold mb-4">{slide.title}</h1>
-                <h2 className="text-2xl mb-4 text-white/90">{slide.subtitle}</h2>
-                <p className="text-lg opacity-80 mb-6">{slide.content}</p>
+                <h1 className="text-5xl font-bold mb-4">{translateText(slide.title || '', isTranslated && presentation.id === 'zinzino-mex')}</h1>
+                <h2 className="text-2xl mb-4 text-white/90">{translateText(slide.subtitle || '', isTranslated && presentation.id === 'zinzino-mex')}</h2>
+                <p className="text-lg opacity-80 mb-6">{translateText(slide.content || '', isTranslated && presentation.id === 'zinzino-mex')}</p>
                 {slide.userName && (
                   <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 inline-block">
                     <p className="text-lg font-semibold">{slide.userName}</p>
@@ -415,7 +448,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                 {/* Headline stack (no card; light glow) */}
                 <div className="intro-stack">
                   {(() => {
-                    const txt = slide.title || '';
+                    const txt = translateText(slide.title || '', isTranslated && presentation.id === 'zinzino-mex');
                     const parts = txt.split(' ');
                     const last = parts.pop() || '';
                     const first = parts.join(' ');
@@ -423,8 +456,19 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                       <h1 className="intro-title-modern"><span style={{ fontWeight: 300 }}>{first} </span><span style={{ fontWeight: 600 }}>{last}</span></h1>
                     );
                   })()}
-                  <h2 className="intro-subtitle-modern">{slide.subtitle}</h2>
-                  <p className="intro-copy-modern">{slide.content}</p>
+                  <h2 className="intro-subtitle-modern">{translateText(slide.subtitle || '', isTranslated && presentation.id === 'zinzino-mex')}</h2>
+                  {/* Action buttons replacing content text */}
+                  <div className="flex flex-col gap-4 mt-6">
+                    <button className="action-button contact-btn">
+                      <div className="flex items-center gap-3">
+                        <div className="avatar-placeholder"></div>
+                        <span>Contacta a quien te mandó esto</span>
+                      </div>
+                    </button>
+                    <button className="action-button product-btn">
+                      <span>Comprar producto</span>
+                    </button>
+                  </div>
                 </div>
                 {/* Giant play button */}
                 <button onClick={startPresentation} className="giant-play-button modern spin">
@@ -490,7 +534,15 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                 color: #0b1220;
                 text-shadow: 0 0 18px rgba(255,255,255,0.5), 0 0 36px rgba(255,255,255,0.25);
                 animation: titleLift 800ms cubic-bezier(.2,.8,.2,1) 2.1s both;
+                position: relative;
               }
+              .intro-title-modern::after {
+                content: ''; position: absolute; top: -10%; bottom: -10%; left: -30%; width: 20%;
+                background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,250,210,0.7) 50%, rgba(255,255,255,0) 100%);
+                mix-blend-mode: screen; filter: blur(14px); opacity: 0;
+                animation: titleShine 12s ease-in-out 6s infinite;
+              }
+              @keyframes titleShine { 0% { transform: translateX(0); opacity: 0; } 10% { opacity: .7; } 35% { transform: translateX(240%); opacity: .25; } 45% { opacity: 0; } 100% { transform: translateX(0); opacity: 0; } }
               .intro-subtitle-modern {
                 margin: 0 0 12px 0;
                 font-size: clamp(1.25rem, 2.8vw, 1.6rem);
@@ -498,15 +550,50 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                 text-shadow: 0 0 12px rgba(255,255,255,0.7), 0 0 28px rgba(255,255,255,0.35);
                 animation: fadeSlide 800ms ease 2.35s both;
               }
-              .intro-copy-modern {
-                margin: 0;
-                font-size: clamp(1.05rem, 2.2vw, 1.25rem);
-                color: #334155;
-                text-shadow: 0 0 10px rgba(255,255,255,0.35);
-                animation: fadeSlide 800ms ease 2.45s both;
-              }
               @keyframes titleLift { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
               @keyframes fadeSlide { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+              /* Action buttons */
+              .action-button {
+                padding: 14px 24px;
+                border: none;
+                border-radius: 12px;
+                font-size: clamp(1rem, 2vw, 1.125rem);
+                font-weight: 600;
+                cursor: pointer;
+                transition: all .25s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                animation: fadeSlide 800ms ease 2.45s both;
+              }
+              .contact-btn {
+                background: rgba(255,255,255,0.95);
+                color: #1e293b;
+                backdrop-filter: blur(10px);
+              }
+              .contact-btn:hover { background: rgba(255,255,255,1); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.3); }
+              .product-btn {
+                background: linear-gradient(135deg, #7c3aed, #3b82f6);
+                color: white;
+              }
+              .product-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(124,58,237,0.4); filter: brightness(1.05); }
+              .avatar-placeholder {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+                border: 2px solid rgba(255,255,255,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+              }
+              .avatar-placeholder::before {
+                content: '👤';
+                font-size: 20px;
+              }
 
               /* Modern animated play button with pulse rings */
               .giant-play-button.modern {
@@ -558,26 +645,34 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             {slide.backgroundGif && (
               <img
                 key={`${slide.id}-${currentSlide}`}
-                src={slide.backgroundGif}
+                src={getAssetUrl(slide.backgroundGif)}
                 alt=""
                 className="kb-slow"
                 style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
               />
             )}
             {(slide as any).id && (slide.title || slide.subtitle || slide.content) && (
-              <div className={`absolute z-10 px-6 ${
-                textPosition[(slide as any).id] === 'top-left' ? 'left-12 top-12 text-left' :
-                textPosition[(slide as any).id] === 'top-right' ? 'right-12 top-12 text-right' :
-                'top-12 left-1/2 -translate-x-1/2 text-center'
-              }`} style={{ width: '90vw', maxWidth: '90vw' }}>
+              <div className={`absolute z-10 text-left ${
+                textPosition[(slide as any).id] === 'top-left' ? '' :
+                textPosition[(slide as any).id] === 'top-right' ? 'text-right' :
+                'text-center'
+              }`} style={{
+                left: textPosition[(slide as any).id] === 'top-left' ? '8%' : textPosition[(slide as any).id] === 'top-right' ? 'auto' : '50%',
+                right: textPosition[(slide as any).id] === 'top-right' ? '8%' : 'auto',
+                top: '10%',
+                transform: textPosition[(slide as any).id] === 'top-center' || !textPosition[(slide as any).id] ? 'translateX(-50%)' : 'none',
+                width: '84%',
+                maxWidth: '84%',
+                padding: '0 2%'
+              }}>
                 {slide.title && (
-                  <TypeWriter text={applyHighlights((slide as any).id, slide.title)} className={`text-black ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
+                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`text-black ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
                 )}
                 {slide.subtitle && (
-                  <TypeWriter text={applyHighlights((slide as any).id, slide.subtitle)} className="text-black/80 mt-3 overlay-body" />
+                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), isTranslated && presentation.id === 'zinzino-mex')} className="text-black/80 mt-3 overlay-body" />
                 )}
                 {slide.content && (
-                  <TypeWriter text={applyHighlights((slide as any).id, slide.content)} className={`text-black/70 mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
+                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`text-black/70 mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
                 )}
               </div>
             )}
@@ -585,6 +680,46 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
         );
       
       case 'hero':
+        // Special rendering for slide-3: centered-left, half width
+        if ((slide as any).id === 'slide-3' && slide.backgroundGif) {
+          return (
+            <div className="w-full h-full relative overflow-hidden">
+              {slide.backgroundGif && (
+                <img 
+                  key={`${slide.id}-${currentSlide}`}
+                  src={getAssetUrl(slide.backgroundGif)} 
+                  alt="" 
+                  className="kb-slow"
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
+                />
+              )}
+              {(slide.title || slide.subtitle || slide.content) && (
+                <div className="absolute z-10 text-left flex flex-col justify-center" style={{
+                  left: '0%',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '50%',
+                  maxWidth: '50%',
+                  padding: '0 4%'
+                }}>
+                  {slide.title && (
+                    <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated)} className="text-black overlay-sub" />
+                  )}
+                  {slide.subtitle && (
+                    <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), isTranslated)} className="text-black/80 mt-3 overlay-body" />
+                  )}
+                  {slide.content && (
+                    <TypeWriter 
+                      delayMs={slide.title ? (slide.title.length * 18) + 400 : 0} 
+                      text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated)} 
+                      className="text-black/70 mt-4 overlay-sub" 
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        }
         // Special rendering for slide-35: centered final logo
         if ((slide as any).id === 'slide-35') {
           return (
@@ -616,7 +751,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                   { label: '25:1', color: '#ef4444', sub: 'Aumento por década (EE.UU.)' },
                   { label: '?40:1?', color: '#ef4444', sub: '' },
                 ].map((item,i)=> (
-                  <div key={i} className="text-center" style={{ opacity: 0.95 }}>
+                  <div key={i} className={`text-center slide7-text-unit slide7-unit-${i}`} style={{ opacity: 0.95 }}>
                     <div className="font-semibold overlay-sub" style={{ color: item.color }}>{item.label}</div>
                     {item.sub && <div className="mt-1 text-black/80 overlay-body" style={{ fontSize: 'clamp(.7rem, .9vw, .9rem)' }}>{item.sub}</div>}
                   </div>
@@ -625,13 +760,49 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
 
               <style>{`
                 .slide7-img{ opacity: 0; }
-                .top-in{ animation: slideFromTop 900ms cubic-bezier(.22,.61,.36,1) 120ms forwards; }
+                .top-in{ animation: slideFromTop 2500ms cubic-bezier(.22,.61,.36,1) 1500ms forwards; }
                 @keyframes slideFromTop{ 0%{ transform: translateY(-24px); opacity:0; } 100%{ transform: translateY(0); opacity:1; } }
+                .slide7-text-unit{ transform: translateX(120px); opacity: 0; }
+                .slide7-unit-0{ animation: slideFromRight 600ms ease-out 4300ms forwards; }
+                .slide7-unit-1{ animation: slideFromRight 600ms ease-out 4600ms forwards; }
+                .slide7-unit-2{ animation: slideFromRight 600ms ease-out 4900ms forwards; }
+                .slide7-unit-3{ animation: slideFromRight 600ms ease-out 5200ms forwards; }
+                .slide7-unit-4{ animation: slideFromRight 600ms ease-out 5500ms forwards; }
+                @keyframes slideFromRight{ 0%{ transform: translateX(120px); opacity:0; } 100%{ transform: translateX(0); opacity:1; } }
               `}</style>
             </div>
           );
         }
         // Slide-25 uses normal hero rendering with text top-left; no logo overlay
+        // Special rendering for slide-12: text centered on left half
+        if ((slide as any).id === 'slide-12' && slide.backgroundGif) {
+          return (
+            <div className="w-full h-full relative overflow-hidden">
+              {slide.backgroundGif && (
+                <img 
+                  key={`${slide.id}-${currentSlide}`}
+                  src={getAssetUrl(slide.backgroundGif)}
+                  alt=""
+                  className="kb-slow"
+                  style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
+                />
+              )}
+              {(slide.title || slide.subtitle || slide.content) && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10 px-6" style={{ width: '50vw', maxWidth: '50vw' }}>
+                  {slide.title && (
+                    <TypeWriter text={applyHighlights((slide as any).id, slide.title)} className="text-black overlay-sub text-center" />
+                  )}
+                  {slide.subtitle && (
+                    <TypeWriter text={applyHighlights((slide as any).id, slide.subtitle)} className="text-black/80 mt-3 overlay-body text-center" />
+                  )}
+                  {slide.content && (
+                    <TypeWriter text={applyHighlights((slide as any).id, slide.content)} className="text-black/70 mt-4 overlay-body text-center" />
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        }
         // Special rendering for slide-20: stronger retro gradient overlay on full background
         if ((slide as any).id === 'slide-20' && slide.backgroundGif) {
           return (
@@ -645,7 +816,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
               />
               <div className="absolute inset-0 retro-strong" aria-hidden="true" />
               {(slide as any).id && (slide.title || slide.subtitle || slide.content) && (
-                <div className="absolute z-10 left-1/2 -translate-x-1/2 top-14 px-6 text-center" style={{ width: '90vw', maxWidth: '90vw' }}>
+                <div className="absolute z-10 text-center" style={{ left: '50%', top: '10%', transform: 'translateX(-50%)', width: '84%', maxWidth: '84%', padding: '0 2%' }}>
                   {slide.title && (
                     <TypeWriter text={applyHighlights((slide as any).id, slide.title)} className="text-black overlay-sub" />
                   )}
@@ -733,19 +904,27 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             {/* Only dim slide-13 for readability */}
             {(slide as any).id === 'slide-13' && <div className="absolute inset-0 bg-black/35" />}
             {(slide as any).id && (slide.title || slide.subtitle || slide.content) && (
-              <div className={`absolute z-10 px-6 ${
-                textPosition[(slide as any).id] === 'top-left' ? 'left-14 top-14 text-left' :
-                textPosition[(slide as any).id] === 'top-right' ? 'right-14 top-14 text-right' :
-                'top-14 left-1/2 -translate-x-1/2 text-center'
-              }`} style={{ width: '90vw', maxWidth: '90vw' }}>
+              <div className={`absolute z-10 text-left ${
+                textPosition[(slide as any).id] === 'top-left' ? '' :
+                textPosition[(slide as any).id] === 'top-right' ? 'text-right' :
+                'text-center'
+              }`} style={{
+                left: textPosition[(slide as any).id] === 'top-left' ? '8%' : textPosition[(slide as any).id] === 'top-right' ? 'auto' : '50%',
+                right: textPosition[(slide as any).id] === 'top-right' ? '8%' : 'auto',
+                top: '10%',
+                transform: textPosition[(slide as any).id] === 'top-center' || !textPosition[(slide as any).id] ? 'translateX(-50%)' : 'none',
+                width: '84%',
+                maxWidth: '84%',
+                padding: '0 2%'
+              }}>
                 {slide.title && (
-                  <TypeWriter text={applyHighlights((slide as any).id, slide.title)} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
+                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
                 )}
                 {slide.subtitle && (
-                  <TypeWriter text={applyHighlights((slide as any).id, slide.subtitle)} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/80'} mt-3 overlay-body`} />
+                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/80'} mt-3 overlay-body`} />
                 )}
                 {slide.content && (
-                  <TypeWriter delayMs={(slide as any).id === 'slide-3' && slide.title ? (slide.title.length * 18) + 400 : 0} text={applyHighlights((slide as any).id, slide.content)} className={`${(slide as any).id === 'slide-13' ? 'text-white/80' : 'text-black/70'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
+                  <TypeWriter delayMs={(slide as any).id === 'slide-3' && slide.title ? (slide.title.length * 18) + 400 : 0} text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/80' : 'text-black/70'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
                 )}
               </div>
             )}
@@ -766,9 +945,9 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             )}
             {(slide as any).id === 'slide-13' && <div className="absolute inset-0 bg-black/35" />}
             {(slide as any).id && (slide.title || slide.content) && (
-              <div className="absolute left-14 top-14 z-10 px-6" style={{ maxWidth: '72ch' }}>
-                {slide.title && <TypeWriter text={applyHighlights((slide as any).id, slide.title)} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />}
-                {slide.content && <TypeWriter text={applyHighlights((slide as any).id, slide.content)} className={`${(slide as any).id === 'slide-13' ? 'text-white/85' : 'text-black/75'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />}
+              <div className="absolute z-10 text-left" style={{ left: '8%', top: '10%', width: '84%', maxWidth: '84%', padding: '0 2%' }}>
+                {slide.title && <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />}
+                {slide.content && <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/85' : 'text-black/75'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />}
               </div>
             )}
           </div>
@@ -788,9 +967,9 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             )}
             {(slide as any).id === 'slide-13' && <div className="absolute inset-0 bg-black/35" />}
             {(slide as any).id && (slide.title || slide.content) && (
-              <div className="absolute left-14 top-14 z-10" style={{ width: '90vw', maxWidth: '90vw' }}>
-                {slide.title && <TypeWriter text={applyHighlights((slide as any).id, slide.title)} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />}
-                {slide.content && <TypeWriter text={applyHighlights((slide as any).id, slide.content)} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/75'} mt-3 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />}
+              <div className="absolute z-10 text-left" style={{ left: '8%', top: '10%', width: '84%', maxWidth: '84%', padding: '0 2%' }}>
+                {slide.title && <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />}
+                {slide.content && <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/75'} mt-3 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />}
               </div>
             )}
             {/* Hide feature cards for slides 5 and 9 */}
@@ -861,6 +1040,78 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
           </div>
         );
       
+      case 'quiz':
+        return (
+          <div className="w-full h-full relative overflow-hidden">
+            {/* Background image */}
+            {slide.backgroundGif && (
+              <img 
+                key={`${slide.id}-${currentSlide}`}
+                src={getAssetUrl(slide.backgroundGif)}
+                alt=""
+                className="kb-slow"
+                style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}
+              />
+            )}
+            {/* Quiz content */}
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="text-center px-6 max-w-2xl">
+                <h2 className="text-4xl md:text-5xl font-bold mb-12 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
+                  {slide.title}
+                </h2>
+                <div className="flex items-center justify-center gap-6 flex-wrap">
+                  <button
+                    onClick={() => handleSlideChange((currentSlide + 1) % presentation.slides.length)}
+                    className="quiz-btn quiz-btn-yes"
+                  >
+                    Sí
+                  </button>
+                  <button
+                    onClick={() => handleSlideChange((currentSlide + 1) % presentation.slides.length)}
+                    className="quiz-btn quiz-btn-no"
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+            <style>{`
+              .quiz-btn {
+                padding: 18px 48px;
+                border: none;
+                border-radius: 16px;
+                font-size: clamp(1.25rem, 3vw, 1.75rem);
+                font-weight: 700;
+                cursor: pointer;
+                transition: all .3s ease;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                min-width: 140px;
+              }
+              .quiz-btn-yes {
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+              }
+              .quiz-btn-yes:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 12px 32px rgba(16,185,129,0.5);
+                filter: brightness(1.1);
+              }
+              .quiz-btn-no {
+                background: linear-gradient(135deg, #ef4444, #dc2626);
+                color: white;
+              }
+              .quiz-btn-no:hover {
+                transform: translateY(-3px) scale(1.05);
+                box-shadow: 0 12px 32px rgba(239,68,68,0.5);
+                filter: brightness(1.1);
+              }
+              .quiz-btn:active {
+                transform: translateY(-1px) scale(1.02);
+              }
+            `}</style>
+          </div>
+        );
+      
       case 'final':
         return (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50">
@@ -922,27 +1173,63 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
 
   return (
     <div 
-      className={`w-full h-screen bg-black relative overflow-hidden ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}
+      className={`w-full h-screen bg-black ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}
       onMouseMove={handleMouseMove}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      {/* Progress bar */}
-      <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300 z-10"
-           style={{ width: `${progress}%` }}></div>
-      
-      {/* Slide indicator */}
-      <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-        {currentSlide + 1} / {presentation.slides.length}
-      </div>
-      
-      {/* Slide content */}
-      <div className="w-full h-full">
-        {renderSlide(presentation.slides[currentSlide])}
-      </div>
+      <div className="presentation-shell">
+        <div className="presentation-stage">
+          {/* Progress bar */}
+          <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300 z-10"
+               style={{ width: `${progress}%` }}></div>
+          
+          {/* Slide indicator and translation buttons */}
+          <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+            {/* Translation buttons (only for Zinzino MX presentation) */}
+            {presentation.id === 'zinzino-mex' && (
+              <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-1.5 py-1">
+                <button
+                  onClick={() => setIsTranslated(false)}
+                  className={`transition-all flex items-center justify-center ${!isTranslated ? 'opacity-100 scale-110' : 'opacity-50 hover:opacity-75'}`}
+                  title="Spanish"
+                  style={{ width: '24px', height: '18px' }}
+                >
+                  <img 
+                    src={getAssetUrl('/assets/presentation1/spainFlagPres.png')} 
+                    alt="Spain Flag" 
+                    className="w-full h-full object-contain"
+                    style={{ borderRadius: '2px' }}
+                  />
+                </button>
+                <button
+                  onClick={() => setIsTranslated(true)}
+                  className={`transition-all flex items-center justify-center ${isTranslated ? 'opacity-100 scale-110' : 'opacity-50 hover:opacity-75'}`}
+                  title="English"
+                  style={{ width: '24px', height: '18px' }}
+                >
+                  <img 
+                    src={getAssetUrl('/assets/presentation1/englandFlagPres.jpg')} 
+                    alt="England Flag" 
+                    className="w-full h-full object-contain"
+                    style={{ borderRadius: '2px' }}
+                  />
+                </button>
+              </div>
+            )}
+            {/* Slide counter */}
+            <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              {currentSlide + 1} / {presentation.slides.length}
+            </div>
+          </div>
+          
+          {/* Slide content */}
+          <div className="w-full h-full">
+            {renderSlide(presentation.slides[currentSlide])}
+          </div>
 
-      {/* Transition overlays */}
-      {transition.active && (
+          {/* Transition overlays */}
+          {transition.active && (
         <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>
           {transition.type === 'fade' && (
             <div className="w-full h-full wipe-overlay" style={{ animationDuration: `${transition.duration}ms` }} />
@@ -1039,9 +1326,14 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
           />
         ))}
       </div>
+        </div>
+      </div>
 
       {/* Global transition styles */}
       <style>{`
+        .presentation-shell{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+        .presentation-stage{ position:relative; width:100vw; max-width:100vw; aspect-ratio:16/9; height:auto; }
+        @media (orientation: landscape){ .presentation-stage{ height:100vh; width:auto; max-height:100vh; } }
         /* Slow, subtle Ken Burns effect for static backgrounds */
         .kb-slow { animation: kenburns 18s ease-in-out infinite alternate; transform-origin: 55% 45%; }
         @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.08); } }
@@ -1122,7 +1414,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
 
         /* Pre-zoom overlay animation for slide 10 */
         .prezoom-img { position: absolute; inset: -10%; width: 120%; height: 120%; object-fit: cover; transform: scale(2); opacity: 1; animation: preZoom var(--dur, 3500ms) ease-in-out forwards; }
-        @keyframes preZoom { 0% { transform: scale(2); opacity: 1; } 60% { transform: scale(1.2); opacity: .5; } 100% { transform: scale(1); opacity: 0; } }
+        @keyframes preZoom { 0% { transform: scale(2); opacity: 1; } 60% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1.2); opacity: 0; } }
       `}</style>
     </div>
   );

@@ -8,7 +8,7 @@ export interface Presentation {
 
 export interface PresentationSlide {
   id: string;
-  type: 'personalized-hero' | 'animated-hero' | 'hero' | 'split' | 'grid' | 'stats' | 'timeline' | 'testimonials' | 'questionnaire' | 'contact';
+  type: 'personalized-hero' | 'animated-hero' | 'hero' | 'split' | 'grid' | 'stats' | 'timeline' | 'testimonials' | 'questionnaire' | 'contact' | 'quiz';
   title: string;
   subtitle?: string;
   content: string;
@@ -152,6 +152,15 @@ export const presentations: Presentation[] = [
         duration: 7000
       },
       {
+        id: 'slide-10-quiz',
+        type: 'quiz',
+        title: '¿Sabes tu proporción de Omega-3 y Omega-6?',
+        subtitle: '',
+        content: '',
+        backgroundGif: '/assets/presentation1/slide10Pre.png',
+        duration: 10000
+      },
+      {
         id: 'slide-11',
         type: 'hero',
         title: '¿Le gustaría hacerse una prueba para conocer sus resultados?',
@@ -239,12 +248,12 @@ export const presentations: Presentation[] = [
       // 26, 27, 30 half-right background
       { id: 'slide-26', type: 'half-right', title: 'ZinoBiotic+', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide26bg.jpeg', duration: 6000 },
       { id: 'slide-27', type: 'half-right', title: 'Xtend', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide27bg.jpeg', duration: 6000 },
-      // 28-29 blank
-      { id: 'slide-28', type: 'hero', title: 'Protocolo de salud de Zinzino', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
-      { id: 'slide-29', type: 'hero', title: 'Protocolo de salud premium', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
+      // 28-29 blank (commented out for later use)
+      // { id: 'slide-28', type: 'hero', title: 'Protocolo de salud de Zinzino', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
+      // { id: 'slide-29', type: 'hero', title: 'Protocolo de salud premium', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
       { id: 'slide-30', type: 'half-right', title: 'Viv^+', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide30bg.jpg', duration: 6000 },
-      // 31 not specified - leaving blank
-      { id: 'slide-31', type: 'hero', title: 'BalanceOil+ Kit with Test', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
+      // 31 not specified - commented out for later use
+      // { id: 'slide-31', type: 'hero', title: 'BalanceOil+ Kit with Test', subtitle: '', content: '', backgroundGif: '', duration: 5000 },
       // 32 blank
       { id: 'slide-32', type: 'hero', title: 'Obtenga sus productos gratis', subtitle: '', content: '', backgroundGif: '/assets/presentation1/image103.jpeg', duration: 5000 },
       // 33, 34, 35 full backgrounds
