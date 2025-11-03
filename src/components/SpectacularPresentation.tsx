@@ -17,6 +17,18 @@ export const generateSpectacularPresentationHTML = ({
 }: SpectacularPresentationProps) => {
   const advancedCSS = generateAdvancedCSS(styleConfig);
   
+  // Helper to construct asset URL for HTML generation
+  const getAssetUrlForHTML = (path: string): string => {
+    if (!path) return path;
+    if (/^https?:\/\//i.test(path)) return path;
+    const base = process.env.NEXT_PUBLIC_ASSET_BASE?.replace(/\/$/, '');
+    if (base) {
+      const clean = path.replace(/^\//, '');
+      return `${base}/${clean}`;
+    }
+    return path;
+  };
+  
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,7 +89,7 @@ export const generateSpectacularPresentationHTML = ({
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('${presentationSlides[0].backgroundGif}');
+            background-image: url('${presentationSlides[0]?.backgroundGif ? getAssetUrlForHTML(presentationSlides[0].backgroundGif) : ''}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -256,7 +268,7 @@ export const generateSpectacularPresentationHTML = ({
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('${presentationSlides[0].backgroundGif}');
+            background-image: url('${presentationSlides[0]?.backgroundGif ? getAssetUrlForHTML(presentationSlides[0].backgroundGif) : ''}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -1133,7 +1145,7 @@ export const generateSpectacularPresentationHTML = ({
                 <h1 class="grid-title animate-fadeIn">${presentationSlides[4].title}</h1>
                 <p class="text-center text-xl mb-8 animate-slideUp" style="animation-delay: 0.3s;">${presentationSlides[4].content}</p>
                 <div class="features-grid">
-                    ${presentationSlides[4].features.map((feature, index) => `
+                    ${presentationSlides[4].features.map((feature: any, index: number) => `
                     <div class="feature-card animate-scaleIn" style="animation-delay: ${0.5 + index * 0.2}s;">
                         <div class="feature-icon">${feature.icon}</div>
                         <h3 class="feature-title">${feature.title}</h3>
@@ -1150,7 +1162,7 @@ export const generateSpectacularPresentationHTML = ({
                 <h1 class="stats-title animate-fadeIn">${presentationSlides[5].title}</h1>
                 <p class="stats-description animate-slideUp" style="animation-delay: 0.3s;">${presentationSlides[5].content}</p>
                 <div class="stats-grid">
-                    ${presentationSlides[5].stats.map((stat, index) => `
+                    ${presentationSlides[5].stats.map((stat: any, index: number) => `
                     <div class="stat-card animate-scaleIn" style="animation-delay: ${0.6 + index * 0.2}s;">
                         <div class="stat-icon">${stat.icon}</div>
                         <div class="stat-number">${stat.number}</div>
@@ -1167,7 +1179,7 @@ export const generateSpectacularPresentationHTML = ({
                 <h1 class="timeline-title animate-fadeIn">${presentationSlides[6].title}</h1>
                 <p class="timeline-description animate-slideUp" style="animation-delay: 0.3s;">${presentationSlides[6].content}</p>
                 <div class="timeline-container animate-slideUp" style="animation-delay: 0.6s;">
-                    ${presentationSlides[6].timeline.map((item, index) => `
+                    ${presentationSlides[6].timeline.map((item: any, index: number) => `
                     <div class="timeline-item animate-slideInLeft" style="animation-delay: ${0.9 + index * 0.3}s;">
                         <div class="timeline-year">${item.year}</div>
                         <div class="timeline-item-title">${item.title}</div>
@@ -1184,7 +1196,7 @@ export const generateSpectacularPresentationHTML = ({
                 <h1 class="testimonials-title animate-fadeIn">${presentationSlides[7].title}</h1>
                 <p class="testimonials-description animate-slideUp" style="animation-delay: 0.3s;">${presentationSlides[7].content}</p>
                 <div class="testimonials-grid">
-                    ${presentationSlides[7].testimonials.map((testimonial, index) => `
+                    ${presentationSlides[7].testimonials.map((testimonial: any, index: number) => `
                     <div class="testimonial-card animate-scaleIn" style="animation-delay: ${0.6 + index * 0.2}s;">
                         <div class="testimonial-quote">${testimonial.quote}</div>
                         <div class="testimonial-author">
@@ -1205,11 +1217,11 @@ export const generateSpectacularPresentationHTML = ({
             <div class="interactive-content">
                 <h1 class="interactive-title animate-fadeIn">${presentationSlides[8].title}</h1>
                 <p class="interactive-description animate-slideUp" style="animation-delay: 0.3s;">${presentationSlides[8].content}</p>
-                ${presentationSlides[8].questions.map((question, qIndex) => `
+                ${presentationSlides[8].questions.map((question: any, qIndex: number) => `
                 <div class="question-container animate-slideUp" style="animation-delay: ${0.6 + qIndex * 0.3}s;">
                     <h3 class="question-title">${question.question}</h3>
                     <div class="options-grid">
-                        ${question.options.map((option, oIndex) => `
+                        ${question.options.map((option: any, oIndex: number) => `
                         <button class="option-button animate-scaleIn" 
                                 style="animation-delay: ${0.9 + qIndex * 0.3 + oIndex * 0.1}s;"
                                 onclick="selectOption('${question.id}', '${option.id}', '${option.value}')">

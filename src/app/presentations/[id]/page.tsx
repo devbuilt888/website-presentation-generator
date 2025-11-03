@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
 import PresentationViewer from '@/components/PresentationViewer';
+import ThreeDPresentationViewer from '@/components/ThreeDPresentationViewer';
+import ForestPresentationViewer from '@/components/ForestPresentationViewer';
 import { presentations } from '@/data/presentations';
 
 interface PresentationPageProps {
@@ -14,6 +16,16 @@ export default async function PresentationPage({ params }: PresentationPageProps
   
   if (!presentation) {
     notFound();
+  }
+
+  // Use 3D space viewer for Super Presentation Pro
+  if (presentation.id === 'super-presentation-pro') {
+    return <ThreeDPresentationViewer presentation={presentation} />;
+  }
+
+  // Use forest viewer for forest night journey
+  if (presentation.id === 'forest-night-journey') {
+    return <ForestPresentationViewer presentation={presentation} />;
   }
 
   return <PresentationViewer presentation={presentation} />;

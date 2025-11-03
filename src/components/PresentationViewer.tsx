@@ -903,30 +903,92 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             )}
             {/* Only dim slide-13 for readability */}
             {(slide as any).id === 'slide-13' && <div className="absolute inset-0 bg-black/35" />}
-            {(slide as any).id && (slide.title || slide.subtitle || slide.content) && (
-              <div className={`absolute z-10 text-left ${
-                textPosition[(slide as any).id] === 'top-left' ? '' :
-                textPosition[(slide as any).id] === 'top-right' ? 'text-right' :
-                'text-center'
-              }`} style={{
-                left: textPosition[(slide as any).id] === 'top-left' ? '8%' : textPosition[(slide as any).id] === 'top-right' ? 'auto' : '50%',
-                right: textPosition[(slide as any).id] === 'top-right' ? '8%' : 'auto',
-                top: '10%',
-                transform: textPosition[(slide as any).id] === 'top-center' || !textPosition[(slide as any).id] ? 'translateX(-50%)' : 'none',
-                width: '84%',
-                maxWidth: '84%',
-                padding: '0 2%'
-              }}>
-                {slide.title && (
-                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
-                )}
-                {slide.subtitle && (
-                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/80'} mt-3 overlay-body`} />
-                )}
-                {slide.content && (
-                  <TypeWriter delayMs={(slide as any).id === 'slide-3' && slide.title ? (slide.title.length * 18) + 400 : 0} text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/80' : 'text-black/70'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
-                )}
+            {/* Special handling for slides 11 and 12 with yes/no buttons */}
+            {((slide as any).id === 'slide-11' || (slide as any).id === 'slide-12') ? (
+              <div className="absolute inset-0 flex items-center justify-center z-10">
+                <div className="text-center px-6 max-w-2xl">
+                  {slide.title && (
+                    <TypeWriter 
+                      text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} 
+                      className="text-4xl md:text-5xl font-bold mb-12 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] block" 
+                    />
+                  )}
+                  <div className="flex items-center justify-center gap-6 flex-wrap">
+                    <button
+                      onClick={() => handleSlideChange((currentSlide + 1) % presentation.slides.length)}
+                      className="quiz-btn quiz-btn-yes"
+                    >
+                      Sí
+                    </button>
+                    <button
+                      onClick={() => handleSlideChange((currentSlide + 1) % presentation.slides.length)}
+                      className="quiz-btn quiz-btn-no"
+                    >
+                      No
+                    </button>
+                  </div>
+                </div>
+                <style>{`
+                  .quiz-btn {
+                    padding: 18px 48px;
+                    border: none;
+                    border-radius: 16px;
+                    font-size: clamp(1.25rem, 3vw, 1.75rem);
+                    font-weight: 700;
+                    cursor: pointer;
+                    transition: all .3s ease;
+                    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+                    min-width: 140px;
+                  }
+                  .quiz-btn-yes {
+                    background: linear-gradient(135deg, #10b981, #059669);
+                    color: white;
+                  }
+                  .quiz-btn-yes:hover {
+                    transform: translateY(-3px) scale(1.05);
+                    box-shadow: 0 12px 32px rgba(16,185,129,0.5);
+                    filter: brightness(1.1);
+                  }
+                  .quiz-btn-no {
+                    background: linear-gradient(135deg, #ef4444, #dc2626);
+                    color: white;
+                  }
+                  .quiz-btn-no:hover {
+                    transform: translateY(-3px) scale(1.05);
+                    box-shadow: 0 12px 32px rgba(239,68,68,0.5);
+                    filter: brightness(1.1);
+                  }
+                  .quiz-btn:active {
+                    transform: translateY(-1px) scale(1.02);
+                  }
+                `}</style>
               </div>
+            ) : (
+              (slide as any).id && (slide.title || slide.subtitle || slide.content) && (
+                <div className={`absolute z-10 text-left ${
+                  textPosition[(slide as any).id] === 'top-left' ? '' :
+                  textPosition[(slide as any).id] === 'top-right' ? 'text-right' :
+                  'text-center'
+                }`} style={{
+                  left: textPosition[(slide as any).id] === 'top-left' ? '8%' : textPosition[(slide as any).id] === 'top-right' ? 'auto' : '50%',
+                  right: textPosition[(slide as any).id] === 'top-right' ? '8%' : 'auto',
+                  top: '10%',
+                  transform: textPosition[(slide as any).id] === 'top-center' || !textPosition[(slide as any).id] ? 'translateX(-50%)' : 'none',
+                  width: '84%',
+                  maxWidth: '84%',
+                  padding: '0 2%'
+                }}>
+                  {slide.title && (
+                    <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
+                  )}
+                  {slide.subtitle && (
+                    <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/80'} mt-3 overlay-body`} />
+                  )}
+                  {slide.content && (
+                    <TypeWriter delayMs={(slide as any).id === 'slide-3' && slide.title ? (slide.title.length * 18) + 400 : 0} text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/80' : 'text-black/70'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
+                  )}
+                </div>
+              )
             )}
           </div>
         );

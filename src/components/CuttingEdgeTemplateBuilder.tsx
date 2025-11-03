@@ -29,7 +29,7 @@ export default function CuttingEdgeTemplateBuilder() {
       title: 'Welcome Miguel',
       subtitle: 'Empezar demo',
       content: 'Experience our amazing presentation',
-      backgroundGif: '/assets/mountains3.gif',
+      backgroundGif: 'mountains-demo/mountains3.gif',
       userName: 'Miguel',
       userEmail: 'miguel@example.com',
       duration: 10000
@@ -40,7 +40,7 @@ export default function CuttingEdgeTemplateBuilder() {
       title: 'Welcome to Our Journey',
       subtitle: 'Discover the Future',
       content: 'Experience innovation like never before',
-      backgroundGif: '/assets/mountains3.gif',
+      backgroundGif: 'mountains-demo/mountains3.gif',
       duration: 8000
     },
     {

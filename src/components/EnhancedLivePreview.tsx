@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { TemplateData, StyleConfig } from '../types';
+import { getAssetUrl } from '@/config/assets';
 
 interface EnhancedLivePreviewProps {
   templateData: TemplateData;
@@ -149,11 +150,20 @@ export default function EnhancedLivePreview({
     <div 
       className="w-full h-full flex items-center justify-center relative overflow-hidden"
       style={{
-        background: `linear-gradient(${customEffects.gradientAngle}deg, ${styleConfig.colors.primary} 0%, ${styleConfig.colors.secondary} 100%)`,
+        background: slide.backgroundGif ? 'none' : `linear-gradient(${customEffects.gradientAngle}deg, ${styleConfig.colors.primary} 0%, ${styleConfig.colors.secondary} 100%)`,
         fontFamily: styleConfig.typography.fontFamily,
         minHeight: deviceType === 'mobile' ? '100vh' : '600px',
       }}
     >
+      {slide.backgroundGif && (
+        <img 
+          src={getAssetUrl(slide.backgroundGif)} 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ zIndex: 1 }}
+        />
+      )}
+      <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }} />
       <div className="text-center text-white relative z-10 px-6">
         <h1 
           className="font-bold mb-4"
@@ -189,11 +199,20 @@ export default function EnhancedLivePreview({
     <div 
       className="w-full h-full flex items-center justify-center relative overflow-hidden"
       style={{
-        background: `linear-gradient(${customEffects.gradientAngle}deg, ${styleConfig.colors.primary} 0%, ${styleConfig.colors.secondary} 100%)`,
+        background: slide.backgroundGif ? 'none' : `linear-gradient(${customEffects.gradientAngle}deg, ${styleConfig.colors.primary} 0%, ${styleConfig.colors.secondary} 100%)`,
         fontFamily: styleConfig.typography.fontFamily,
         minHeight: deviceType === 'mobile' ? '100vh' : '600px',
       }}
     >
+      {slide.backgroundGif && (
+        <img 
+          src={getAssetUrl(slide.backgroundGif)} 
+          alt="" 
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ zIndex: 1 }}
+        />
+      )}
+      <div className="absolute inset-0 bg-black/30" style={{ zIndex: 2 }} />
       <div className="text-center text-white relative z-10 px-6">
         <h1 
           className="font-bold mb-4"
