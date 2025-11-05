@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { TemplateData, StyleConfig } from '../types';
 import { generateSpectacularPresentationHTML } from './SpectacularPresentation';
+import ScaledViewport from './ScaledViewport';
 
 interface PresentationModeProps {
   templateData: TemplateData;
@@ -304,16 +305,17 @@ export default function PresentationMode({
         </div>
       )}
 
-      {/* Landscape Mode - Full Screen */}
+      {/* Landscape Mode - Scaled 16:9 viewport */}
       {orientation === 'landscape' && (
-        <div className="w-full h-full">
+        <ScaledViewport>
           <iframe
             srcDoc={presentationHTML}
-            className="w-full h-full border-0"
+            className="border-0"
             title="Presentation"
             sandbox="allow-scripts allow-same-origin"
+            style={{ width: 1920, height: 1080 }}
           />
-        </div>
+        </ScaledViewport>
       )}
 
       {/* Controls Overlay */}

@@ -5,6 +5,7 @@ import { Presentation, PresentationSlide } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
 import { speakText, extractSlideText, stopCurrentAudio } from '@/utils/tts';
 import { translateText } from '@/utils/translations';
+import ScaledViewport from './ScaledViewport';
 
 // Stable TypeWriter component to avoid resets on parent re-renders
 const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; delayMs?: number }> = ({ text, speed = 18, className, delayMs = 0 }) => {
@@ -354,6 +355,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
       'slide-20': 'top-left',
       'slide-21': 'top-center',
       'slide-22': 'top-center',
+      'slide-23': 'top-center',
       'slide-24': 'top-left',
       'slide-25': 'top-left',
       'slide-26': 'top-left',
@@ -903,6 +905,25 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             )}
             {/* Only dim slide-13 for readability */}
             {(slide as any).id === 'slide-13' && <div className="absolute inset-0 bg-black/35" />}
+            {/* Special handling for slide-20 to center image */}
+            {(slide as any).id === 'slide-20' && (slide.image || (slide as any).image) ? (
+              <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+                {slide.title && (
+                  <div className="mb-8 text-center px-6 max-w-4xl">
+                    <TypeWriter 
+                      text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} 
+                      className="text-black overlay-sub" 
+                    />
+                  </div>
+                )}
+                <img 
+                  src={getAssetUrl((slide.image || (slide as any).image) as string)} 
+                  alt="" 
+                  className="max-w-[90%] max-h-[70%] object-contain"
+                  style={{ zIndex: 20 }}
+                />
+              </div>
+            ) : null}
             {/* Special handling for slides 11 and 12 with yes/no buttons */}
             {((slide as any).id === 'slide-11' || (slide as any).id === 'slide-12') ? (
               <div className="absolute inset-0 flex items-center justify-center z-10">
@@ -964,7 +985,7 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                 `}</style>
               </div>
             ) : (
-              (slide as any).id && (slide.title || slide.subtitle || slide.content) && (
+              (slide as any).id && (slide.title || slide.subtitle || slide.content) && !((slide as any).id === 'slide-20' && (slide.image || (slide as any).image)) && (
                 <div className={`absolute z-10 text-left ${
                   textPosition[(slide as any).id] === 'top-left' ? '' :
                   textPosition[(slide as any).id] === 'top-right' ? 'text-right' :
@@ -1240,8 +1261,8 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
-      <div className="presentation-shell">
-        <div className="presentation-stage">
+      <ScaledViewport>
+        <div className="presentation-stage-inner">
           {/* Progress bar */}
           <div className="absolute top-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-300 z-10"
                style={{ width: `${progress}%` }}></div>
@@ -1389,21 +1410,19 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
         ))}
       </div>
         </div>
-      </div>
+      </ScaledViewport>
 
       {/* Global transition styles */}
       <style>{`
-        .presentation-shell{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
-        .presentation-stage{ position:relative; width:100vw; max-width:100vw; aspect-ratio:16/9; height:auto; }
-        @media (orientation: landscape){ .presentation-stage{ height:100vh; width:auto; max-height:100vh; } }
+        .presentation-stage-inner{ position:relative; width:1920px; height:1080px; }
         /* Slow, subtle Ken Burns effect for static backgrounds */
         .kb-slow { animation: kenburns 18s ease-in-out infinite alternate; transform-origin: 55% 45%; }
         @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.08); } }
 
-        /* Overlay typography - very large, thin (bold only via <strong>) */
-        .overlay-title { font-weight: 300; letter-spacing: -0.03em; line-height: 1.02; font-size: clamp(6rem, 12vw, 12rem) !important; }
-        .overlay-sub { font-weight: 300; letter-spacing: -0.02em; font-size: clamp(0.75rem, 2vw, 2rem) !important; }
-        .overlay-body { font-weight: 300; font-size: clamp(0.4rem, 0.9vw, 0.9rem) !important; }
+        /* Overlay typography - fixed base sizes (scaled by viewport wrapper) */
+        .overlay-title { font-weight: 300; letter-spacing: -0.03em; line-height: 1.02; font-size: 144px !important; }
+        .overlay-sub { font-weight: 300; letter-spacing: -0.02em; font-size: 36px !important; }
+        .overlay-body { font-weight: 300; font-size: 20px !important; }
         .overlay-title strong, .overlay-sub strong, .overlay-body strong { font-weight: 800; }
 
         /* Top-to-bottom wipe fade */

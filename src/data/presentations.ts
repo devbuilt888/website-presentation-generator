@@ -235,12 +235,12 @@ export const presentations: Presentation[] = [
       ,
       // 19-21 blank
       { id: 'slide-19', type: 'hero', title: 'Es fresco y muy saludable', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide19bg.png', duration: 5000 },
-      { id: 'slide-20', type: 'hero', title: 'BalanceOil+', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide20bg.png', duration: 5000 },
+      { id: 'slide-20', type: 'hero', title: 'BalanceOil+', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide20bg.png', image: '/assets/presentation1/image92.png', duration: 5000 },
       { id: 'slide-21', type: 'hero', title: 'Nuestros productos son probados por terceros y han sido fabricados de la mejor manera y con el máximo cuidado', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide21bg.png', duration: 5000 },
       // 22 full background
       { id: 'slide-22', type: 'hero', title: 'Hay ventajas saludables para cada etapa vital', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide22bg.png', duration: 6000 },
       // 23 blank
-      { id: 'slide-23', type: 'hero', title: '', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide23bg.png', duration: 5000 },
+      { id: 'slide-23', type: 'hero', title: 'Estas 18 afirmaciones <strong>aprobadas por la EFSA</strong>', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide23bg.png', duration: 5000 },
       // 24 full background
       { id: 'slide-24', type: 'hero', title: 'El 95 % de las personas que toman suplementos de Zinzino Balance recuperan el equilibrio en 120 días', subtitle: '', content: '', backgroundGif: '/assets/presentation1/slide24bg.jpeg', duration: 6000 },
       // 25 full background
