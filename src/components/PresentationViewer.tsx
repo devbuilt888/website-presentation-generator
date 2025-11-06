@@ -417,14 +417,10 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
             {/* Cinematic animated background (looping gif) */}
             <div className="absolute inset-0" style={{ zIndex: 1, overflow: 'hidden' }}>
               <div className="hero-camera-layer">
-                <video
-                  key={`intro-video-${currentSlide}`}
-                  src={getAssetUrl('/assets/presentation1/image1.mp4')}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
+                <img
+                  key={`intro-gif-${currentSlide}`}
+                  src={getAssetUrl('/assets/presentation1/image1v2.gif')}
+                  alt=""
                   style={{ width: '110%', height: '110%', objectFit: 'cover' }}
                 />
               </div>

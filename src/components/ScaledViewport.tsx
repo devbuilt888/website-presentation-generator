@@ -17,6 +17,8 @@ export default function ScaledViewport({
 }: ScaledViewportProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [scale, setScale] = useState(1);
+  const [translateX, setTranslateX] = useState(0);
+  const [translateY, setTranslateY] = useState(0);
 
   const aspect = useMemo(() => baseWidth / baseHeight, [baseWidth, baseHeight]);
 
@@ -27,11 +29,32 @@ export default function ScaledViewport({
     const handleResize = () => {
       const { clientWidth, clientHeight } = el;
       if (!clientWidth || !clientHeight) return;
+      
       const containerAspect = clientWidth / clientHeight;
-      const nextScale = containerAspect > aspect
-        ? clientHeight / baseHeight
-        : clientWidth / baseWidth;
+      const scaledWidth = baseWidth;
+      const scaledHeight = baseHeight;
+      
+      // Calculate scale to fit within container while maintaining aspect ratio
+      let nextScale: number;
+      if (containerAspect > aspect) {
+        // Container is wider - scale based on height
+        nextScale = clientHeight / baseHeight;
+      } else {
+        // Container is taller - scale based on width
+        nextScale = clientWidth / baseWidth;
+      }
+      
+      // Calculate the actual scaled dimensions
+      const actualScaledWidth = scaledWidth * nextScale;
+      const actualScaledHeight = scaledHeight * nextScale;
+      
+      // Center the content
+      const nextTranslateX = (clientWidth - actualScaledWidth) / 2;
+      const nextTranslateY = (clientHeight - actualScaledHeight) / 2;
+      
       setScale(nextScale);
+      setTranslateX(nextTranslateX);
+      setTranslateY(nextTranslateY);
     };
 
     handleResize();
@@ -48,12 +71,17 @@ export default function ScaledViewport({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-full bg-black flex items-center justify-center ${className || ''}`}
+      className={`relative w-full h-full bg-black ${className || ''}`}
       style={{ overflow: 'hidden' }}
     >
       <div
-        className="origin-top-left"
-        style={{ width: baseWidth, height: baseHeight, transform: `scale(${scale})` }}
+        style={{
+          position: 'absolute',
+          width: baseWidth,
+          height: baseHeight,
+          transform: `translate(${translateX}px, ${translateY}px) scale(${scale})`,
+          transformOrigin: 'top left',
+        }}
       >
         {children}
       </div>
