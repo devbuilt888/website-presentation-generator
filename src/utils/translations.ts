@@ -35,12 +35,10 @@ const translations: Record<string, string> = {
   'Obtenga sus productos gratis': 'Get your products for free',
   'Haga sus sueños realidad': 'Make your dreams come true',
   'Demos forma al futuro de la nutrición juntos': 'Let\'s shape the future of nutrition together',
-  'Hello Miguel': 'Hola Miguel',
   'Discover Your Health Journey': 'Descubre tu Viaje de Salud',
   'Experience our amazing health and wellness solutions': 'Experimenta nuestras increíbles soluciones de salud y bienestar',
   'Contacta a quien te mandó esto': 'Contact who sent you this',
   // Reverse translations (English to Spanish)
-  'Hola Miguel': 'Hello Miguel',
   'Descubre tu Viaje de Salud': 'Discover Your Health Journey',
   'Experimenta nuestras increíbles soluciones de salud y bienestar': 'Experience our amazing health and wellness solutions',
   'Comprar producto': 'Buy Product',

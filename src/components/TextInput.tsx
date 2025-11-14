@@ -39,7 +39,7 @@ export default function TextInput({
           required={required}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-colors resize-none ${
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-colors resize-none text-gray-900 placeholder:text-gray-400 ${
             isFocused
               ? 'border-blue-500 ring-2 ring-blue-200'
               : 'border-gray-300 hover:border-gray-400'
@@ -54,7 +54,7 @@ export default function TextInput({
           required={required}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-colors ${
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none transition-colors text-gray-900 placeholder:text-gray-400 ${
             isFocused
               ? 'border-blue-500 ring-2 ring-blue-200'
               : 'border-gray-300 hover:border-gray-400'

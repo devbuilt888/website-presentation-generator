@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Inter, Poppins, Roboto, Open_Sans, Lato, Montserrat 
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import NavGate from "@/components/NavGate";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,10 +65,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${roboto.variable} ${openSans.variable} ${lato.variable} ${montserrat.variable} antialiased`}
       >
-        <NavGate>
-          <Navigation />
-        </NavGate>
-        {children}
+        <AuthProvider>
+          <NavGate>
+            <Navigation />
+          </NavGate>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );
