@@ -55,11 +55,15 @@ export async function createInstance(
 
 /**
  * Get instance by share token (for public viewing)
+ * Includes presentation data via join to avoid RLS issues
  */
 export async function getInstanceByToken(shareToken: string) {
   const { data, error } = await supabase
     .from('presentation_instances')
-    .select('*')
+    .select(`
+      *,
+      presentation:presentations(*)
+    `)
     .eq('share_token', shareToken)
     .single();
 

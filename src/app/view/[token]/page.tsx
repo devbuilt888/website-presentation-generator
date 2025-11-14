@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { getInstanceByToken } from '@/lib/services/instances';
-import { getPresentation } from '@/lib/services/presentations';
+import { getInstanceByToken, markInstanceAsViewed } from '@/lib/services/instances';
 import { getTemplate } from '@/lib/presentations/template-registry';
 import { applySimpleCustomization } from '@/lib/presentations/customization';
 import { getInstanceQuestions, getInstanceAnswers } from '@/lib/services/questions';
@@ -12,7 +11,6 @@ import ThreeDPresentationViewer from '@/components/ThreeDPresentationViewer';
 import ForestPresentationViewer from '@/components/ForestPresentationViewer';
 import OmegaBalancePresentationViewer from '@/components/OmegaBalancePresentationViewer';
 import { Presentation } from '@/data/presentations';
-import { markInstanceAsViewed } from '@/lib/services/instances';
 
 export default function ViewPresentationPage() {
   const params = useParams();
@@ -28,22 +26,25 @@ export default function ViewPresentationPage() {
 
   const loadPresentation = async () => {
     try {
-      // Get instance
-      const instance = await getInstanceByToken(token);
+      // Get instance with embedded presentation data
+      const instance: any = await getInstanceByToken(token);
       
       // Mark as viewed
       if (instance.status !== 'viewed' && instance.status !== 'completed') {
         await markInstanceAsViewed(instance.id);
       }
 
-      // Get the presentation record to get the template_id
-      const presentationRecord = await getPresentation(instance.presentation_id);
+      // Get template_id from the embedded presentation data
+      const templateIdFromDb = instance.presentation?.template_id;
+      if (!templateIdFromDb) {
+        throw new Error('Template ID not found in presentation data');
+      }
       
       // Store the template ID for viewer selection
-      setTemplateId(presentationRecord.template_id);
+      setTemplateId(templateIdFromDb);
       
       // Get template using the template_id from the presentation
-      const template = getTemplate(presentationRecord.template_id);
+      const template = getTemplate(templateIdFromDb);
       if (!template) {
         throw new Error('Template not found');
       }
@@ -66,7 +67,7 @@ export default function ViewPresentationPage() {
 
       // Convert to Presentation format
       const presentationData: Presentation = {
-        id: presentationRecord.template_id, // Use template_id so viewers can identify which to use
+        id: templateIdFromDb, // Use template_id so viewers can identify which to use
         title: customized.name,
         description: customized.description,
         createdAt: instance.created_at,
