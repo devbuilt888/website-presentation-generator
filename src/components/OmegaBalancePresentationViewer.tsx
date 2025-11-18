@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Presentation } from '@/data/presentations';
+import { getAssetUrl } from '@/config/assets';
 
 interface OmegaBalancePresentationViewerProps {
   presentation: Presentation;
@@ -265,7 +266,7 @@ export default function OmegaBalancePresentationViewer({ presentation }: OmegaBa
           </div>
         )}
 
-        {/* Slide 7: Video 1 Placeholder */}
+        {/* Slide 7: Video 1 - Embedded iframe */}
         {currentSlide.id === 'slide-7-video1' && (
           <div className="text-center text-white animate-fadeIn">
             <h1 className="text-4xl font-bold mb-8 drop-shadow-lg">
@@ -273,13 +274,17 @@ export default function OmegaBalancePresentationViewer({ presentation }: OmegaBa
             </h1>
             
             <div className="bg-gray-900 rounded-2xl p-12 mb-8 border-4 border-purple-500">
-              <div className="aspect-video bg-gray-800 rounded-xl flex items-center justify-center">
-                <div className="text-center">
-                  <svg className="w-24 h-24 mx-auto mb-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                  </svg>
-                  <p className="text-xl text-gray-400">{currentSlide.content}</p>
-                </div>
+              <div className="aspect-video rounded-xl overflow-hidden">
+                <iframe
+                  width="800"
+                  height="450"
+                  src="https://www.zinzinoplay.com/embedded/assets/86"
+                  title="Balance Concept explained - ES"
+                  style={{ border: 0 }}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
               </div>
             </div>
             
@@ -316,7 +321,7 @@ export default function OmegaBalancePresentationViewer({ presentation }: OmegaBa
           </div>
         )}
 
-        {/* Slide 9: Video 2 Placeholder */}
+        {/* Slide 9: Video 2 - From Supabase Storage */}
         {currentSlide.id === 'slide-9-video2' && (
           <div className="text-center text-white animate-fadeIn">
             <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">
@@ -327,13 +332,15 @@ export default function OmegaBalancePresentationViewer({ presentation }: OmegaBa
             </p>
             
             <div className="bg-gray-900 rounded-2xl p-12 mb-8 border-4 border-purple-500">
-              <div className="aspect-video bg-gray-800 rounded-xl flex items-center justify-center">
-                <div className="text-center">
-                  <svg className="w-24 h-24 mx-auto mb-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M10 16.5l6-4.5-6-4.5v9zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                  </svg>
-                  <p className="text-xl text-gray-400">{currentSlide.content}</p>
-                </div>
+              <div className="aspect-video rounded-xl overflow-hidden">
+                <video
+                  src={getAssetUrl('presentation-omega3-6@src/video2.mp4')}
+                  controls
+                  className="w-full h-full"
+                  style={{ objectFit: 'contain' }}
+                >
+                  Your browser does not support the video tag.
+                </video>
               </div>
             </div>
             
