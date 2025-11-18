@@ -334,7 +334,7 @@ export default function OmegaBalancePresentationViewer({ presentation }: OmegaBa
             <div className="bg-gray-900 rounded-2xl p-12 mb-8 border-4 border-purple-500">
               <div className="aspect-video rounded-xl overflow-hidden">
                 <video
-                  src={getAssetUrl('presentation-omega3-6@src/video2.mp4')}
+                  src={getAssetUrl('assets/presentation-omega3-6/video2.mp4')}
                   controls
                   className="w-full h-full"
                   style={{ objectFit: 'contain' }}
