@@ -95,43 +95,110 @@ function Moon() {
   );
 }
 
-// Ground/Path component with texture and glow
+// Ground/Path component with breathing gradient glow
 function ForestGround() {
+  const groundRef = useRef<THREE.Mesh>(null);
+  const pathRef = useRef<THREE.Mesh>(null);
+  const glowRef = useRef<THREE.Mesh>(null);
+  
+  // Elegant color palette for night scene - blues, purples, teals
+  const colorPalettes = [
+    { base: '#0a0a1a', path: '#1a1a2a', glow: '#2a2a3a' },      // Deep navy
+    { base: '#0a0f1a', path: '#1a1f2a', glow: '#2a2f3a' },      // Navy-blue
+    { base: '#0a0a2a', path: '#1a1a3a', glow: '#2a2a4a' },      // Deep blue
+    { base: '#0f0a1a', path: '#1f1a2a', glow: '#2f2a3a' },      // Blue-purple
+    { base: '#0a0f2a', path: '#1a1f3a', glow: '#2a2f4a' },      // Teal-blue
+    { base: '#0a1a1a', path: '#1a2a2a', glow: '#2a3a3a' },      // Teal
+  ];
+  
+  useFrame((state) => {
+    const time = state.clock.elapsedTime;
+    const cycle = (time * 0.1) % colorPalettes.length; // Slow breathing cycle
+    const currentIndex = Math.floor(cycle);
+    const nextIndex = (currentIndex + 1) % colorPalettes.length;
+    const t = cycle - currentIndex;
+    
+    // Smooth interpolation between colors
+    const current = colorPalettes[currentIndex];
+    const next = colorPalettes[nextIndex];
+    
+    // Interpolate colors
+    const lerpColor = (c1: string, c2: string, t: number) => {
+      const hex1 = parseInt(c1.replace('#', ''), 16);
+      const hex2 = parseInt(c2.replace('#', ''), 16);
+      const r1 = (hex1 >> 16) & 255;
+      const g1 = (hex1 >> 8) & 255;
+      const b1 = hex1 & 255;
+      const r2 = (hex2 >> 16) & 255;
+      const g2 = (hex2 >> 8) & 255;
+      const b2 = hex2 & 255;
+      const r = Math.round(r1 + (r2 - r1) * t);
+      const g = Math.round(g1 + (g2 - g1) * t);
+      const b = Math.round(b1 + (b2 - b1) * t);
+      return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+    };
+    
+    const baseColor = lerpColor(current.base, next.base, t);
+    const pathColor = lerpColor(current.path, next.path, t);
+    const glowColor = lerpColor(current.glow, next.glow, t);
+    
+    // Breathing effect - subtle intensity variation
+    const breath = Math.sin(time * 0.5) * 0.1 + 0.9; // 0.8 to 1.0
+    
+    if (groundRef.current && (groundRef.current.material as THREE.MeshStandardMaterial).emissive) {
+      const material = groundRef.current.material as THREE.MeshStandardMaterial;
+      material.emissive.set(baseColor);
+      material.emissiveIntensity = 0.15 * breath;
+    }
+    
+    if (pathRef.current && (pathRef.current.material as THREE.MeshStandardMaterial).emissive) {
+      const material = pathRef.current.material as THREE.MeshStandardMaterial;
+      material.emissive.set(pathColor);
+      material.emissiveIntensity = 0.25 * breath;
+    }
+    
+    if (glowRef.current && (glowRef.current.material as THREE.MeshStandardMaterial).emissive) {
+      const material = glowRef.current.material as THREE.MeshStandardMaterial;
+      material.emissive.set(glowColor);
+      material.emissiveIntensity = 0.3 * breath;
+    }
+  });
+
   return (
     <>
-      {/* Ground plane with texture and subtle glow */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+      {/* Ground plane with breathing gradient glow */}
+      <mesh ref={groundRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <planeGeometry args={[100, 200, 20, 40]} />
         <meshStandardMaterial 
           color="#1a1a1a" 
           roughness={0.8}
           metalness={0.1}
           emissive="#0a0a1a"
-          emissiveIntensity={0.2}
+          emissiveIntensity={0.15}
         />
       </mesh>
       
-      {/* Path with glow effect */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.1, 0]}>
+      {/* Path with breathing gradient glow */}
+      <mesh ref={pathRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.1, 0]}>
         <planeGeometry args={[3, 200, 1, 20]} />
         <meshStandardMaterial 
           color="#2a2a2a" 
           roughness={0.7}
           metalness={0.2}
           emissive="#1a1a2a"
-          emissiveIntensity={0.3}
+          emissiveIntensity={0.25}
         />
       </mesh>
       
-      {/* Subtle glow layer under path */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+      {/* Subtle breathing glow layer under path */}
+      <mesh ref={glowRef} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
         <planeGeometry args={[4, 200]} />
         <meshStandardMaterial 
           color="#3a3a4a" 
           transparent
-          opacity={0.15}
+          opacity={0.12}
           emissive="#2a2a3a"
-          emissiveIntensity={0.4}
+          emissiveIntensity={0.3}
         />
       </mesh>
     </>

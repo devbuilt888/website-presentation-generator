@@ -48,7 +48,7 @@ function FloatingImage({
   );
 }
 
-// Floating 3D Model Component with glow effect
+// Floating 3D Model Component
 function FloatingModel({ 
   position, 
   rotation, 
@@ -61,25 +61,10 @@ function FloatingModel({
   speed?: number;
 }) {
   const meshRef = useRef<THREE.Group>(null);
-  const glowRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF(modelUrl);
   
   // Clone the scene to avoid sharing geometry
-  const clonedScene = useMemo(() => {
-    const cloned = scene.clone();
-    // Add emissive glow to all meshes in the model
-    cloned.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.material) {
-        const material = child.material as THREE.MeshStandardMaterial;
-        if (material) {
-          material.emissive = new THREE.Color(0x4a90e2);
-          material.emissiveIntensity = 0.2;
-          material.needsUpdate = true;
-        }
-      }
-    });
-    return cloned;
-  }, [scene]);
+  const clonedScene = useMemo(() => scene.clone(), [scene]);
 
   useFrame((state) => {
     if (meshRef.current) {
@@ -88,38 +73,16 @@ function FloatingModel({
       meshRef.current.rotation.y += 0.015 * speed;
       meshRef.current.rotation.x += Math.sin(state.clock.elapsedTime * speed * 0.5) * 0.01;
     }
-    
-    // Animate glow
-    if (glowRef.current) {
-      const pulse = Math.sin(state.clock.elapsedTime * 2) * 0.1 + 1;
-      glowRef.current.scale.setScalar(pulse);
-    }
   });
 
   return (
-    <group position={position} rotation={rotation}>
-      {/* Subtle glow sphere around the model */}
-      <group ref={glowRef}>
-        <mesh>
-          <sphereGeometry args={[2.5, 32, 32]} />
-          <meshStandardMaterial
-            color="#4a90e2"
-            transparent
-            opacity={0.15}
-            emissive="#4a90e2"
-            emissiveIntensity={0.3}
-            side={THREE.BackSide}
-          />
-        </mesh>
-      </group>
-      
-      {/* Main model */}
-      <primitive 
-        ref={meshRef} 
-        object={clonedScene} 
-        scale={[2, 2, 2]}
-      />
-    </group>
+    <primitive 
+      ref={meshRef} 
+      object={clonedScene} 
+      position={position} 
+      rotation={rotation}
+      scale={[2, 2, 2]}
+    />
   );
 }
 
