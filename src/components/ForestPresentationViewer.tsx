@@ -24,21 +24,27 @@ function Tree({ position, scale = 1 }: { position: [number, number, number]; sca
 
   return (
     <group ref={groupRef} position={position} scale={scale}>
-      {/* Trunk */}
+      {/* Trunk - taller and closer to foliage */}
       <mesh ref={trunkRef} position={[0, 0, 0]}>
-        <cylinderGeometry args={[0.3 * scale, 0.4 * scale, 3 * scale, 8]} />
-        <meshStandardMaterial color="#4a3728" roughness={0.9} />
+        <cylinderGeometry args={[0.35 * scale, 0.45 * scale, 2.5 * scale, 8]} />
+        <meshStandardMaterial 
+          color="#3d2a1f" 
+          roughness={0.9}
+          emissive="#1a0f0a"
+          emissiveIntensity={0.05}
+        />
       </mesh>
       
-      {/* Foliage layers */}
-      {[0, 0.5, 1].map((y, i) => (
-        <mesh key={i} position={[0, 3 * scale + y * scale, 0]}>
-          <coneGeometry args={[1.5 * scale - i * 0.3, 2 * scale - i * 0.4, 8]} />
+      {/* Foliage layers - positioned closer to trunk */}
+      {[0, 0.4, 0.8].map((y, i) => (
+        <mesh key={i} position={[0, 2.2 * scale + y * scale, 0]}>
+          <coneGeometry args={[1.6 * scale - i * 0.25, 2.2 * scale - i * 0.3, 8]} />
           <meshStandardMaterial 
-            color={i === 0 ? "#1a5a2e" : "#2d7a3d"} 
+            color={i === 0 ? "#1a5a2e" : i === 1 ? "#2d7a3d" : "#3d8a4d"} 
             emissive="#0d3a1a"
-            emissiveIntensity={0.1}
-            roughness={0.8}
+            emissiveIntensity={0.15}
+            roughness={0.7}
+            metalness={0.1}
           />
         </mesh>
       ))}
@@ -69,20 +75,44 @@ function Moon() {
   );
 }
 
-// Ground/Path component
+// Ground/Path component with texture and glow
 function ForestGround() {
   return (
     <>
-      {/* Ground plane */}
+      {/* Ground plane with texture and subtle glow */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <planeGeometry args={[100, 200]} />
-        <meshStandardMaterial color="#1a1a1a" roughness={1} />
+        <planeGeometry args={[100, 200, 20, 40]} />
+        <meshStandardMaterial 
+          color="#1a1a1a" 
+          roughness={0.8}
+          metalness={0.1}
+          emissive="#0a0a1a"
+          emissiveIntensity={0.2}
+        />
       </mesh>
       
-      {/* Path */}
+      {/* Path with glow effect */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.1, 0]}>
-        <planeGeometry args={[3, 200]} />
-        <meshStandardMaterial color="#2a2a2a" roughness={1} />
+        <planeGeometry args={[3, 200, 1, 20]} />
+        <meshStandardMaterial 
+          color="#2a2a2a" 
+          roughness={0.7}
+          metalness={0.2}
+          emissive="#1a1a2a"
+          emissiveIntensity={0.3}
+        />
+      </mesh>
+      
+      {/* Subtle glow layer under path */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
+        <planeGeometry args={[4, 200]} />
+        <meshStandardMaterial 
+          color="#3a3a4a" 
+          transparent
+          opacity={0.15}
+          emissive="#2a2a3a"
+          emissiveIntensity={0.4}
+        />
       </mesh>
     </>
   );
@@ -92,31 +122,41 @@ function ForestGround() {
 function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: number; totalSlides: number; slideData: PresentationSlide }) {
   const treesRef = useRef<THREE.Group>(null);
   
-  // Generate random tree positions along a path through the forest
+  // Generate stable tree positions along a path through the forest
+  // Trees are positioned based on slide progression - they won't disappear/reappear
   const treePositions = useMemo(() => {
     const positions: Array<[number, number, number]> = [];
     const pathLength = totalSlides * 15; // Distance to travel
     
-    // Trees on left side
-    for (let i = 0; i < 30; i++) {
-      const z = -i * 8 - 20;
-      const x = -8 - Math.random() * 4;
+    // Use seeded random for consistent tree positions
+    const seededRandom = (seed: number) => {
+      const x = Math.sin(seed) * 10000;
+      return x - Math.floor(x);
+    };
+    
+    // Trees on left side - stable positions
+    for (let i = 0; i < 50; i++) {
+      const z = -i * 6 - 10;
+      const seed = i * 100;
+      const x = -7 - seededRandom(seed) * 3;
       positions.push([x, 0, z]);
     }
     
-    // Trees on right side
-    for (let i = 0; i < 30; i++) {
-      const z = -i * 8 - 20;
-      const x = 8 + Math.random() * 4;
+    // Trees on right side - stable positions
+    for (let i = 0; i < 50; i++) {
+      const z = -i * 6 - 10;
+      const seed = i * 100 + 1000;
+      const x = 7 + seededRandom(seed) * 3;
       positions.push([x, 0, z]);
     }
     
-    // Some trees scattered behind
-    for (let i = 0; i < 20; i++) {
+    // Additional trees scattered behind for depth - stable positions
+    for (let i = 0; i < 30; i++) {
+      const seed = i * 200 + 2000;
       positions.push([
-        (Math.random() - 0.5) * 20,
+        (seededRandom(seed) - 0.5) * 18,
         0,
-        -Math.random() * pathLength - 50
+        -seededRandom(seed + 1) * pathLength - 30
       ]);
     }
     
@@ -169,12 +209,15 @@ function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: n
       {/* Moon */}
       <Moon />
       
-      {/* Moonlight */}
-      <pointLight position={[15, 20, -10]} intensity={0.8} color="#fff8dc" distance={100} />
-      <directionalLight position={[15, 20, -10]} intensity={0.3} color="#fff8dc" castShadow />
+      {/* Moonlight - increased for better tree visibility */}
+      <pointLight position={[15, 20, -10]} intensity={1.0} color="#fff8dc" distance={120} />
+      <directionalLight position={[15, 20, -10]} intensity={0.4} color="#fff8dc" castShadow />
       
-      {/* Ambient night light */}
-      <ambientLight intensity={0.15} color="#4a6fa5" />
+      {/* Additional directional light for tree visibility */}
+      <directionalLight position={[-10, 15, -5]} intensity={0.2} color="#8fa8c5" />
+      
+      {/* Ambient night light - slightly brighter for visibility */}
+      <ambientLight intensity={0.2} color="#4a6fa5" />
       
       {/* Flickering firefly lights */}
       {Array.from({ length: 5 }).map((_, i) => {
