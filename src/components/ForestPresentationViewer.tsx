@@ -10,15 +10,35 @@ interface ForestPresentationViewerProps {
   presentation: Presentation;
 }
 
-// Tree component
-function Tree({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
+// Tree component with teal/green gradients
+function Tree({ 
+  position, 
+  scale = 1,
+  colorVariant = 0 
+}: { 
+  position: [number, number, number]; 
+  scale?: number;
+  colorVariant?: number;
+}) {
   const groupRef = useRef<THREE.Group>(null);
   const trunkRef = useRef<THREE.Mesh>(null);
+  const timeRef = useRef(0);
   
-  useFrame(() => {
+  // Teal/green color variants
+  const colorVariants = [
+    { base: "#1a5a4e", mid: "#2d7a6d", top: "#3d8a7d", emissive: "#0d3a2a" }, // Teal variant
+    { base: "#1a6a5e", mid: "#2d8a7d", top: "#3d9a8d", emissive: "#0d4a3a" }, // Teal-green variant
+    { base: "#1a5a3e", mid: "#2d7a5d", top: "#3d8a6d", emissive: "#0d3a1a" }, // Green-teal variant
+    { base: "#1a7a5e", mid: "#2d9a7d", top: "#3daa8d", emissive: "#0d5a3a" }, // Bright teal variant
+  ];
+  
+  const colors = colorVariants[colorVariant % colorVariants.length];
+  
+  useFrame((state) => {
+    timeRef.current = state.clock.elapsedTime;
     if (groupRef.current) {
       // Subtle sway animation
-      groupRef.current.rotation.z = Math.sin(Date.now() * 0.001 + position[0]) * 0.02;
+      groupRef.current.rotation.z = Math.sin(timeRef.current * 0.001 + position[0]) * 0.02;
     }
   });
 
@@ -31,20 +51,20 @@ function Tree({ position, scale = 1 }: { position: [number, number, number]; sca
           color="#3d2a1f" 
           roughness={0.9}
           emissive="#1a0f0a"
-          emissiveIntensity={0.05}
+          emissiveIntensity={0.08}
         />
       </mesh>
       
-      {/* Foliage layers - positioned closer to trunk */}
+      {/* Foliage layers - positioned closer to trunk with teal/green gradients */}
       {[0, 0.4, 0.8].map((y, i) => (
         <mesh key={i} position={[0, 2.2 * scale + y * scale, 0]}>
           <coneGeometry args={[1.6 * scale - i * 0.25, 2.2 * scale - i * 0.3, 8]} />
           <meshStandardMaterial 
-            color={i === 0 ? "#1a5a2e" : i === 1 ? "#2d7a3d" : "#3d8a4d"} 
-            emissive="#0d3a1a"
-            emissiveIntensity={0.15}
-            roughness={0.7}
-            metalness={0.1}
+            color={i === 0 ? colors.base : i === 1 ? colors.mid : colors.top} 
+            emissive={colors.emissive}
+            emissiveIntensity={0.25}
+            roughness={0.6}
+            metalness={0.15}
           />
         </mesh>
       ))}
@@ -124,8 +144,9 @@ function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: n
   
   // Generate stable tree positions along a path through the forest
   // Trees are positioned based on slide progression - they won't disappear/reappear
-  const treePositions = useMemo(() => {
-    const positions: Array<[number, number, number]> = [];
+  // Using useMemo with empty deps to ensure positions never change
+  const treeData = useMemo(() => {
+    const positions: Array<{ position: [number, number, number]; scale: number; colorVariant: number }> = [];
     const pathLength = totalSlides * 15; // Distance to travel
     
     // Use seeded random for consistent tree positions
@@ -139,7 +160,11 @@ function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: n
       const z = -i * 6 - 10;
       const seed = i * 100;
       const x = -7 - seededRandom(seed) * 3;
-      positions.push([x, 0, z]);
+      positions.push({
+        position: [x, 0, z],
+        scale: 0.8 + seededRandom(seed + 1) * 0.4,
+        colorVariant: Math.floor(seededRandom(seed + 2) * 4)
+      });
     }
     
     // Trees on right side - stable positions
@@ -147,17 +172,25 @@ function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: n
       const z = -i * 6 - 10;
       const seed = i * 100 + 1000;
       const x = 7 + seededRandom(seed) * 3;
-      positions.push([x, 0, z]);
+      positions.push({
+        position: [x, 0, z],
+        scale: 0.8 + seededRandom(seed + 1) * 0.4,
+        colorVariant: Math.floor(seededRandom(seed + 2) * 4)
+      });
     }
     
     // Additional trees scattered behind for depth - stable positions
     for (let i = 0; i < 30; i++) {
       const seed = i * 200 + 2000;
-      positions.push([
-        (seededRandom(seed) - 0.5) * 18,
-        0,
-        -seededRandom(seed + 1) * pathLength - 30
-      ]);
+      positions.push({
+        position: [
+          (seededRandom(seed) - 0.5) * 18,
+          0,
+          -seededRandom(seed + 1) * pathLength - 30
+        ],
+        scale: 0.7 + seededRandom(seed + 2) * 0.3,
+        colorVariant: Math.floor(seededRandom(seed + 3) * 4)
+      });
     }
     
     return positions;
@@ -210,44 +243,60 @@ function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: n
       <Moon />
       
       {/* Moonlight - increased for better tree visibility */}
-      <pointLight position={[15, 20, -10]} intensity={1.0} color="#fff8dc" distance={120} />
-      <directionalLight position={[15, 20, -10]} intensity={0.4} color="#fff8dc" castShadow />
+      <pointLight position={[15, 20, -10]} intensity={1.2} color="#fff8dc" distance={140} />
+      <directionalLight position={[15, 20, -10]} intensity={0.5} color="#fff8dc" castShadow />
       
       {/* Additional directional light for tree visibility */}
-      <directionalLight position={[-10, 15, -5]} intensity={0.2} color="#8fa8c5" />
+      <directionalLight position={[-10, 15, -5]} intensity={0.3} color="#8fa8c5" />
       
-      {/* Ambient night light - slightly brighter for visibility */}
-      <ambientLight intensity={0.2} color="#4a6fa5" />
+      {/* Additional fill light for better visibility */}
+      <directionalLight position={[0, 10, 0]} intensity={0.25} color="#6fa8c5" />
       
-      {/* Flickering firefly lights */}
-      {Array.from({ length: 5 }).map((_, i) => {
-        const time = Date.now() * 0.001;
-        const z = -currentSlide * 12 - 20;
-        return (
-          <pointLight
-            key={i}
-            position={[
-              (Math.random() - 0.5) * 15,
-              2 + Math.random() * 3,
-              z + Math.random() * 20
-            ]}
-            intensity={0.5 + Math.sin(time + i) * 0.3}
-            color="#ffff99"
-            distance={5}
-          />
-        );
-      })}
+      {/* Ambient night light - brighter for visibility */}
+      <ambientLight intensity={0.25} color="#5a7fa5" />
+      
+      {/* Flickering firefly lights - stable positions */}
+      {useMemo(() => {
+        const fireflies = [];
+        const seededRandom = (seed: number) => {
+          const x = Math.sin(seed) * 10000;
+          return x - Math.floor(x);
+        };
+        
+        for (let i = 0; i < 5; i++) {
+          const seed = i * 500 + 5000;
+          fireflies.push({
+            key: `firefly-${i}`,
+            position: [
+              (seededRandom(seed) - 0.5) * 15,
+              2 + seededRandom(seed + 1) * 3,
+              -currentSlide * 12 - 20 + seededRandom(seed + 2) * 20
+            ] as [number, number, number],
+            seed: seed
+          });
+        }
+        return fireflies;
+      }, [currentSlide]).map((firefly) => (
+        <pointLight
+          key={firefly.key}
+          position={firefly.position}
+          intensity={0.5 + Math.sin(Date.now() * 0.001 + firefly.seed) * 0.3}
+          color="#ffff99"
+          distance={5}
+        />
+      ))}
       
       {/* Ground */}
       <ForestGround />
       
-      {/* Trees */}
+      {/* Trees - using stable keys based on position to prevent re-rendering */}
       <group ref={treesRef}>
-        {treePositions.map((position, index) => (
+        {treeData.map((tree, index) => (
           <Tree 
-            key={index} 
-            position={position} 
-            scale={0.8 + Math.random() * 0.4}
+            key={`tree-${tree.position[0]}-${tree.position[1]}-${tree.position[2]}`}
+            position={tree.position} 
+            scale={tree.scale}
+            colorVariant={tree.colorVariant}
           />
         ))}
       </group>
