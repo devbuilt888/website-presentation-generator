@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './auth/AuthProvider';
+import Logo from './Logo';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -14,58 +15,106 @@ export default function Navigation() {
   }
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-6xl mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <Link href={user ? "/dashboard" : "/"} className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
-            Presentation Maker
-          </Link>
-          
-          <div className="flex items-center gap-6">
-            {user ? (
-              <>
-                <Link 
-                  href="/dashboard"
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    pathname === '/dashboard' 
-                      ? 'bg-blue-100 text-blue-700 font-medium' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  Dashboard
-                </Link>
-                <Link 
-                  href="/editor"
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    pathname === '/editor' 
-                      ? 'bg-blue-100 text-blue-700 font-medium' 
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
-                >
-                  Editor
-                </Link>
-                <button
-                  onClick={signOut}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  Sign Out
-                </button>
-              </>
-            ) : (
-              <>
+    <nav className="sticky top-0 z-50 shadow-2xl">
+      {/* White Top Section - Branding Bar */}
+      <div className="bg-white border-b border-gray-200/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between py-3">
+            <Link 
+              href={user ? "/dashboard" : "/"} 
+              className="text-xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent hover:from-indigo-600 hover:via-purple-600 hover:to-indigo-600 transition-all duration-300"
+            >
+              Presentation Maker
+            </Link>
+            
+            {/* Top Right Actions - Minimal for non-authenticated */}
+            {!user && (
+              <div className="flex items-center gap-3">
                 <Link 
                   href="/auth/login"
-                  className="px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="px-4 py-1.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
                 >
                   Sign In
                 </Link>
                 <Link 
                   href="/auth/signup"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
                 >
                   Sign Up
                 </Link>
-              </>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Dark Bottom Section - Logo & Navigation */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl border-b border-slate-700/50 relative overflow-hidden">
+        {/* Subtle gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/10 via-transparent to-purple-900/10 pointer-events-none" />
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="flex items-center justify-between py-4">
+            {/* Left: Logo */}
+            <Link href={user ? "/dashboard" : "/"} className="flex items-center group">
+              <Logo size="md" />
+            </Link>
+            
+            {/* Right: Navigation & User Actions */}
+            {user ? (
+              <div className="flex items-center gap-4">
+                {/* Navigation Links */}
+                <div className="hidden md:flex items-center gap-2">
+                  <Link 
+                    href="/dashboard"
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      pathname === '/dashboard' 
+                        ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10' 
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                    }`}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link 
+                    href="/editor"
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                      pathname === '/editor' 
+                        ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10' 
+                        : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                    }`}
+                  >
+                    Editor
+                  </Link>
+                </div>
+                
+                {/* User Info & Sign Out */}
+                <div className="flex items-center gap-3 pl-4 border-l border-slate-700/50">
+                  <span className="text-sm text-slate-400 hidden sm:block max-w-[200px] truncate">
+                    {user?.email}
+                  </span>
+                  <button
+                    onClick={signOut}
+                    className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all duration-200 border border-slate-700/50 hover:border-slate-600/50 font-medium"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link 
+                  href="/auth/login"
+                  className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200 font-medium"
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  href="/auth/signup"
+                  className="px-4 py-2 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
+                >
+                  Sign Up
+                </Link>
+              </div>
             )}
           </div>
         </div>

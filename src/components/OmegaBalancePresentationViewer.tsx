@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Presentation } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
 
@@ -84,8 +84,110 @@ export default function OmegaBalancePresentationViewer({ presentation }: OmegaBa
 
   const currentSlide = presentation.slides[currentSlideIndex];
 
+  // Breathing gradient animation
+  const [gradientColors, setGradientColors] = useState({
+    color1: { r: 30, g: 58, b: 138 },   // Deep indigo
+    color2: { r: 88, g: 28, b: 135 },   // Rich purple
+    color3: { r: 67, g: 56, b: 202 },   // Vibrant indigo
+  });
+
+  useEffect(() => {
+    // Elegant color palette - sophisticated blues, purples, and indigos
+    const colorPalettes = [
+      // Palette 1: Deep Ocean
+      [
+        { r: 30, g: 58, b: 138 },   // Deep indigo
+        { r: 88, g: 28, b: 135 },   // Rich purple
+        { r: 67, g: 56, b: 202 },   // Vibrant indigo
+      ],
+      // Palette 2: Twilight
+      [
+        { r: 55, g: 48, b: 163 },   // Royal blue
+        { r: 99, g: 102, b: 241 },  // Indigo
+        { r: 79, g: 70, b: 229 },   // Purple-indigo
+      ],
+      // Palette 3: Midnight
+      [
+        { r: 37, g: 99, b: 235 },   // Blue
+        { r: 124, g: 58, b: 237 },  // Purple
+        { r: 67, g: 56, b: 202 },   // Indigo
+      ],
+      // Palette 4: Deep Space
+      [
+        { r: 30, g: 64, b: 175 },   // Navy blue
+        { r: 109, g: 40, b: 217 },  // Deep purple
+        { r: 79, g: 70, b: 229 },   // Indigo-purple
+      ],
+      // Palette 5: Elegant Dawn
+      [
+        { r: 67, g: 56, b: 202 },   // Indigo
+        { r: 88, g: 28, b: 135 },   // Purple
+        { r: 55, g: 48, b: 163 },   // Royal blue
+      ],
+    ];
+
+    let currentPaletteIndex = 0;
+    let targetPaletteIndex = 1;
+    let progress = 0;
+    const duration = 12000; // 12 seconds per transition - very slow and subtle
+    const frameRate = 60; // 60fps for smooth animation
+    const step = 1000 / frameRate;
+
+    const animate = () => {
+      progress += step;
+      
+      if (progress >= duration) {
+        progress = 0;
+        currentPaletteIndex = targetPaletteIndex;
+        targetPaletteIndex = (targetPaletteIndex + 1) % colorPalettes.length;
+      }
+
+      const t = Math.min(progress / duration, 1);
+      // Ease-in-out for smooth, elegant transitions
+      const easedT = t < 0.5 
+        ? 2 * t * t 
+        : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+      const currentPalette = colorPalettes[currentPaletteIndex];
+      const targetPalette = colorPalettes[targetPaletteIndex];
+
+      setGradientColors({
+        color1: {
+          r: Math.round(currentPalette[0].r + (targetPalette[0].r - currentPalette[0].r) * easedT),
+          g: Math.round(currentPalette[0].g + (targetPalette[0].g - currentPalette[0].g) * easedT),
+          b: Math.round(currentPalette[0].b + (targetPalette[0].b - currentPalette[0].b) * easedT),
+        },
+        color2: {
+          r: Math.round(currentPalette[1].r + (targetPalette[1].r - currentPalette[1].r) * easedT),
+          g: Math.round(currentPalette[1].g + (targetPalette[1].g - currentPalette[1].g) * easedT),
+          b: Math.round(currentPalette[1].b + (targetPalette[1].b - currentPalette[1].b) * easedT),
+        },
+        color3: {
+          r: Math.round(currentPalette[2].r + (targetPalette[2].r - currentPalette[2].r) * easedT),
+          g: Math.round(currentPalette[2].g + (targetPalette[2].g - currentPalette[2].g) * easedT),
+          b: Math.round(currentPalette[2].b + (targetPalette[2].b - currentPalette[2].b) * easedT),
+        },
+      });
+    };
+
+    const intervalId = setInterval(animate, step);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const gradientStyle = {
+    background: `linear-gradient(to bottom right, 
+      rgb(${gradientColors.color1.r}, ${gradientColors.color1.g}, ${gradientColors.color1.b}), 
+      rgb(${gradientColors.color2.r}, ${gradientColors.color2.g}, ${gradientColors.color2.b}), 
+      rgb(${gradientColors.color3.r}, ${gradientColors.color3.g}, ${gradientColors.color3.b})
+    )`,
+    transition: 'background 0.1s ease-out',
+  };
+
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center overflow-hidden">
+    <div 
+      className="w-full h-screen flex items-center justify-center overflow-hidden"
+      style={gradientStyle}
+    >
       <div className="max-w-4xl w-full mx-auto px-6">
         {/* Slide 1: Introduction with Play Button */}
         {currentSlide.id === 'slide-1' && (

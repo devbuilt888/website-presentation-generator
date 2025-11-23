@@ -10,6 +10,8 @@ import PresentationViewer from '@/components/PresentationViewer';
 import ThreeDPresentationViewer from '@/components/ThreeDPresentationViewer';
 import ForestPresentationViewer from '@/components/ForestPresentationViewer';
 import OmegaBalancePresentationViewer from '@/components/OmegaBalancePresentationViewer';
+import OmegaBalanceSpacePresentationViewer from '@/components/OmegaBalanceSpacePresentationViewer';
+import OmegaBalancePlusPresentationViewer from '@/components/OmegaBalancePlusPresentationViewer';
 import { Presentation } from '@/data/presentations';
 
 export default function ViewPresentationPage() {
@@ -120,6 +122,14 @@ export default function ViewPresentationPage() {
   
   if (templateId === 'omega-balance') {
     return <OmegaBalancePresentationViewer presentation={presentation} />;
+  }
+  
+  if (templateId === 'omega-balance-space') {
+    return <OmegaBalanceSpacePresentationViewer presentation={presentation} />;
+  }
+  
+  if (templateId === 'omega-balance-plus') {
+    return <OmegaBalancePlusPresentationViewer presentation={presentation} />;
   }
   
   // Default to standard viewer for zinzino-mex and others

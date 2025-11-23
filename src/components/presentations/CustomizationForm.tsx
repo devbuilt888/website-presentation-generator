@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { getTemplate } from '@/lib/presentations/template-registry';
 import { createCustomizedPresentation } from '@/lib/presentations/customization';
@@ -16,20 +16,32 @@ interface CustomizationFormProps {
   onSuccess?: (instanceId: string, shareToken: string) => void;
 }
 
+type Step = 'name' | 'email' | 'link' | 'advanced' | 'complete';
+
 export default function CustomizationForm({ templateId, onSuccess }: CustomizationFormProps) {
   const { user } = useAuth();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
   
   // Simple customization fields
   const [recipientName, setRecipientName] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
   const [storeLink, setStoreLink] = useState('');
+  const [currentStep, setCurrentStep] = useState<Step>('name');
   
   // Advanced customization
   const [useAdvanced, setUseAdvanced] = useState(false);
+  const [showAdvancedPanel, setShowAdvancedPanel] = useState(false);
   const [questions, setQuestions] = useState<CustomQuestion[]>([]);
+
+  // Focus input when step changes
+  useEffect(() => {
+    if (inputRef.current && currentStep !== 'advanced' && currentStep !== 'complete') {
+      inputRef.current.focus();
+    }
+  }, [currentStep]);
 
   const addQuestion = () => {
     setQuestions([
@@ -53,10 +65,70 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
     setQuestions(questions.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>, step: Step) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleNextStep(step);
+    }
+  };
+
+  const handleNextStep = (current: Step) => {
+    // Validate current step before moving forward
+    if (current === 'name' && !recipientName.trim()) {
+      setError('Please enter a recipient name');
+      return;
+    }
+    if (current === 'email' && recipientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+    if (current === 'link' && storeLink && !/^https?:\/\/.+/.test(storeLink)) {
+      setError('Please enter a valid URL (starting with http:// or https://)');
+      return;
+    }
+
+    setError('');
+    
+    // Move to next step
+    switch (current) {
+      case 'name':
+        setCurrentStep('email');
+        break;
+      case 'email':
+        setCurrentStep('link');
+        break;
+      case 'link':
+        if (useAdvanced && questions.length === 0) {
+          setCurrentStep('advanced');
+        } else {
+          handleSubmit();
+        }
+        break;
+      case 'advanced':
+        handleSubmit();
+        break;
+    }
+  };
+
+  const handleBack = () => {
+    switch (currentStep) {
+      case 'email':
+        setCurrentStep('name');
+        break;
+      case 'link':
+        setCurrentStep('email');
+        break;
+      case 'advanced':
+        setCurrentStep('link');
+        break;
+    }
+  };
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setError('');
     setLoading(true);
+    setCurrentStep('complete');
 
     try {
       if (!user) throw new Error('Not authenticated');
@@ -147,169 +219,336 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
     }
   };
 
+  const getStepLabel = (step: Step) => {
+    switch (step) {
+      case 'name': return 'Recipient Name';
+      case 'email': return 'Recipient Email';
+      case 'link': return 'Store/Product Link';
+      case 'advanced': return 'Custom Questions';
+      default: return '';
+    }
+  };
+
+  const getStepPlaceholder = (step: Step) => {
+    switch (step) {
+      case 'name': return 'e.g., John Doe';
+      case 'email': return 'recipient@example.com (optional)';
+      case 'link': return 'https://yourstore.com (optional)';
+      default: return '';
+    }
+  };
+
+  const getStepValue = (step: Step) => {
+    switch (step) {
+      case 'name': return recipientName;
+      case 'email': return recipientEmail;
+      case 'link': return storeLink;
+      default: return '';
+    }
+  };
+
+  const setStepValue = (step: Step, value: string) => {
+    switch (step) {
+      case 'name': setRecipientName(value); break;
+      case 'email': setRecipientEmail(value); break;
+      case 'link': setStoreLink(value); break;
+    }
+  };
+
+  const getStepType = (step: Step) => {
+    switch (step) {
+      case 'name': return 'text';
+      case 'email': return 'email';
+      case 'link': return 'url';
+      default: return 'text';
+    }
+  };
+
+  const isStepRequired = (step: Step) => {
+    return step === 'name';
+  };
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-          {error}
-        </div>
-      )}
-
-      {/* Simple Customization */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900">Recipient Information</h3>
+    <div className="relative">
+      {/* Advanced Options Side Panel */}
+      <div className="absolute right-0 top-0">
+        <button
+          type="button"
+          onClick={() => setShowAdvancedPanel(!showAdvancedPanel)}
+          className="text-xs text-slate-400 hover:text-white px-3 py-1.5 border border-slate-600 rounded-lg bg-slate-800/50 backdrop-blur-sm shadow-sm hover:bg-slate-700 transition-colors"
+          title="Advanced Options"
+        >
+          ⚙️ Advanced
+        </button>
         
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Recipient Name *
-          </label>
-          <input
-            type="text"
-            value={recipientName}
-            onChange={(e) => setRecipientName(e.target.value)}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-            placeholder="e.g., John Doe"
-          />
-        </div>
+        {showAdvancedPanel && (
+          <div className="absolute right-0 top-8 mt-1 w-64 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-4 z-10 backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-white">Advanced Options</h4>
+              <button
+                type="button"
+                onClick={() => setShowAdvancedPanel(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <label className="flex items-center space-x-2 mb-4">
+              <input
+                type="checkbox"
+                checked={useAdvanced}
+                onChange={(e) => {
+                  setUseAdvanced(e.target.checked);
+                  if (!e.target.checked) {
+                    setQuestions([]);
+                  }
+                }}
+                className="w-4 h-4 text-indigo-600 border-slate-600 rounded bg-slate-700 focus:ring-indigo-500"
+              />
+              <span className="text-sm text-slate-300">Add Custom Questions</span>
+            </label>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Recipient Email
-          </label>
-          <input
-            type="email"
-            value={recipientEmail}
-            onChange={(e) => setRecipientEmail(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-            placeholder="recipient@example.com"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Store/Product Link
-          </label>
-          <input
-            type="url"
-            value={storeLink}
-            onChange={(e) => setStoreLink(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 placeholder:text-gray-400"
-            placeholder="https://yourstore.com"
-          />
-        </div>
-      </div>
-
-      {/* Advanced Customization Toggle */}
-      <div className="border-t pt-6">
-        <label className="flex items-center space-x-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={useAdvanced}
-            onChange={(e) => setUseAdvanced(e.target.checked)}
-            className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-          />
-          <span className="text-sm font-medium text-gray-700">
-            Add Custom Questions (Advanced)
-          </span>
-        </label>
-      </div>
-
-      {/* Advanced Questions */}
-      {useAdvanced && (
-        <div className="space-y-4 border-t pt-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-gray-900">Custom Questions</h3>
-            <button
-              type="button"
-              onClick={addQuestion}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium"
-            >
-              + Add Question
-            </button>
-          </div>
-
-          {questions.map((question, index) => (
-            <div key={index} className="p-4 border border-gray-200 rounded-lg space-y-3">
-              <div className="flex items-start justify-between">
-                <h4 className="font-medium text-gray-700">Question {index + 1}</h4>
+            {useAdvanced && (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
                 <button
                   type="button"
-                  onClick={() => removeQuestion(index)}
-                  className="text-red-600 hover:text-red-700 text-sm"
+                  onClick={addQuestion}
+                  className="w-full px-3 py-2 bg-indigo-600 text-white rounded-lg text-sm hover:bg-indigo-500 transition-colors"
                 >
-                  Remove
+                  + Add Question
                 </button>
+
+                {questions.map((question, index) => (
+                  <div key={index} className="p-3 border border-slate-700 rounded-lg space-y-2 bg-slate-900/50">
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-medium text-slate-400">Q{index + 1}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeQuestion(index)}
+                        className="text-red-400 hover:text-red-300 text-xs transition-colors"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={question.questionText}
+                      onChange={(e) => updateQuestion(index, { questionText: e.target.value })}
+                      className="w-full px-2 py-1 text-xs border border-slate-600 rounded bg-slate-800 text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      placeholder="Question text"
+                    />
+                    <select
+                      value={question.questionType}
+                      onChange={(e) => updateQuestion(index, { questionType: e.target.value as any })}
+                      className="w-full px-2 py-1 text-xs border border-slate-600 rounded bg-slate-800 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      <option value="text">Text</option>
+                      <option value="yes_no">Yes/No</option>
+                      <option value="multiple_choice">Multiple Choice</option>
+                      <option value="rating">Rating</option>
+                    </select>
+                  </div>
+                ))}
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Question Text
-                </label>
-                <input
-                  type="text"
-                  value={question.questionText}
-                  onChange={(e) => updateQuestion(index, { questionText: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900 placeholder:text-gray-400"
-                  placeholder="Enter your question"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Type
-                  </label>
-                  <select
-                    value={question.questionType}
-                    onChange={(e) => updateQuestion(index, { questionType: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900"
-                  >
-                    <option value="text">Text</option>
-                    <option value="yes_no">Yes/No</option>
-                    <option value="multiple_choice">Multiple Choice</option>
-                    <option value="rating">Rating</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Slide Position
-                  </label>
-                  <input
-                    type="number"
-                    value={question.position || index + 1}
-                    onChange={(e) => updateQuestion(index, { position: parseInt(e.target.value) || 1 })}
-                    min="1"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-gray-900"
-                  />
-                </div>
-              </div>
-
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  checked={question.isRequired || false}
-                  onChange={(e) => updateQuestion(index, { isRequired: e.target.checked })}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded"
-                />
-                <span className="text-sm text-gray-700">Required</span>
-              </label>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div className="flex gap-4 pt-4">
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? 'Creating...' : 'Create & Send Presentation'}
-        </button>
+            )}
+          </div>
+        )}
       </div>
-    </form>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {error && (
+          <div className="p-4 bg-red-900/30 border border-red-700/50 rounded-xl text-red-300 backdrop-blur-sm">
+            {error}
+          </div>
+        )}
+
+        {/* Step-by-step form */}
+        {currentStep !== 'complete' && currentStep !== 'advanced' && (
+          <div className="space-y-6">
+            {/* Progress indicator */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                  currentStep === 'name' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/50 scale-110' : recipientName ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'
+                }`}>
+                  {recipientName ? '✓' : '1'}
+                </div>
+                <div className={`w-1 h-8 ${
+                  recipientName ? 'bg-emerald-600' : 'bg-slate-700'
+                } transition-colors duration-300`} />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                  currentStep === 'email' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/50 scale-110' : recipientEmail ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'
+                }`}>
+                  {recipientEmail ? '✓' : '2'}
+                </div>
+                <div className={`w-1 h-8 ${
+                  recipientEmail ? 'bg-emerald-600' : 'bg-slate-700'
+                } transition-colors duration-300`} />
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
+                  currentStep === 'link' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/50 scale-110' : storeLink ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400'
+                }`}>
+                  {storeLink ? '✓' : '3'}
+                </div>
+              </div>
+            </div>
+
+            {/* Current step input */}
+            <div className="max-w-md mx-auto">
+              <label className="block text-xl font-semibold text-white mb-3">
+                {getStepLabel(currentStep)}
+                {isStepRequired(currentStep) && <span className="text-red-400 ml-1">*</span>}
+              </label>
+              <input
+                ref={inputRef}
+                type={getStepType(currentStep)}
+                value={getStepValue(currentStep)}
+                onChange={(e) => {
+                  setStepValue(currentStep, e.target.value);
+                  setError('');
+                }}
+                onKeyPress={(e) => handleKeyPress(e, currentStep)}
+                required={isStepRequired(currentStep)}
+                className="w-full px-6 py-4 text-lg border-2 border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-slate-800/50 text-white placeholder:text-slate-500 backdrop-blur-sm transition-all duration-200"
+                placeholder={getStepPlaceholder(currentStep)}
+              />
+              
+              {/* Helper text */}
+              <div className="mt-4 flex items-center justify-between">
+                <p className="text-sm text-slate-400">
+                  {currentStep === 'name' && 'Press Enter to continue'}
+                  {currentStep === 'email' && 'Press Enter to continue (or skip)'}
+                  {currentStep === 'link' && 'Press Enter to continue (or skip)'}
+                </p>
+                {currentStep !== 'name' && (
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="text-sm text-slate-400 hover:text-white transition-colors"
+                  >
+                    ← Back
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Advanced step */}
+        {currentStep === 'advanced' && useAdvanced && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-white">Custom Questions</h3>
+              <button
+                type="button"
+                onClick={() => setCurrentStep('link')}
+                className="text-sm text-slate-400 hover:text-white transition-colors"
+              >
+                ← Back
+              </button>
+            </div>
+            {questions.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-slate-400 mb-4">No custom questions added yet.</p>
+                <button
+                  type="button"
+                  onClick={addQuestion}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
+                >
+                  + Add Question
+                </button>
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors"
+                  >
+                    Skip & Create Presentation
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {questions.map((question, index) => (
+                  <div key={index} className="p-4 border border-slate-700 rounded-xl space-y-3 bg-slate-800/30">
+                    <div className="flex items-start justify-between">
+                      <h4 className="font-medium text-white">Question {index + 1}</h4>
+                      <button
+                        type="button"
+                        onClick={() => removeQuestion(index)}
+                        className="text-red-400 hover:text-red-300 text-sm transition-colors"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={question.questionText}
+                      onChange={(e) => updateQuestion(index, { questionText: e.target.value })}
+                      className="w-full px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-slate-800/50 text-white placeholder:text-slate-500 focus:outline-none"
+                      placeholder="Enter your question"
+                    />
+                    <div className="grid grid-cols-2 gap-3">
+                      <select
+                        value={question.questionType}
+                        onChange={(e) => updateQuestion(index, { questionType: e.target.value as any })}
+                        className="w-full px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-slate-800/50 text-white focus:outline-none"
+                      >
+                        <option value="text">Text</option>
+                        <option value="yes_no">Yes/No</option>
+                        <option value="multiple_choice">Multiple Choice</option>
+                        <option value="rating">Rating</option>
+                      </select>
+                      <input
+                        type="number"
+                        value={question.position || index + 1}
+                        onChange={(e) => updateQuestion(index, { position: parseInt(e.target.value) || 1 })}
+                        min="1"
+                        className="w-full px-3 py-2 border border-slate-600 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-slate-800/50 text-white focus:outline-none"
+                        placeholder="Position"
+                      />
+                    </div>
+                    <label className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        checked={question.isRequired || false}
+                        onChange={(e) => updateQuestion(index, { isRequired: e.target.checked })}
+                        className="w-4 h-4 text-indigo-600 border-slate-600 rounded bg-slate-800 focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-slate-300">Required</span>
+                    </label>
+                  </div>
+                ))}
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={addQuestion}
+                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
+                  >
+                    + Add Another Question
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="px-6 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors"
+                  >
+                    Create Presentation
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Loading state */}
+        {currentStep === 'complete' && loading && (
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-2 border-indigo-500 border-t-transparent mx-auto mb-4"></div>
+            <p className="text-slate-400">Creating your presentation...</p>
+          </div>
+        )}
+      </form>
+    </div>
   );
 }
 
