@@ -1,13 +1,25 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from './auth/AuthProvider';
+import { isUserAdmin } from '@/lib/utils/user-roles';
 import Logo from './Logo';
 
 export default function Navigation() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  // Check if user is admin
+  useEffect(() => {
+    if (user) {
+      isUserAdmin(user.id).then(setIsAdmin);
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   // Don't show navigation on auth pages or view pages
   if (pathname?.startsWith('/auth') || pathname?.startsWith('/view')) {
@@ -75,16 +87,18 @@ export default function Navigation() {
                   >
                     Dashboard
                   </Link>
-                  <Link 
-                    href="/editor"
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      pathname === '/editor' 
-                        ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10' 
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
-                    }`}
-                  >
-                    Editor
-                  </Link>
+                  {isAdmin && (
+                    <Link 
+                      href="/admin"
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        pathname === '/admin' 
+                          ? 'bg-purple-600/20 text-purple-300 border border-purple-500/30 shadow-lg shadow-purple-500/10' 
+                          : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
+                      }`}
+                    >
+                      Admin
+                    </Link>
+                  )}
                 </div>
                 
                 {/* User Info & Sign Out */}

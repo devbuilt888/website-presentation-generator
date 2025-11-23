@@ -86,6 +86,26 @@ export async function getUserInstances(userId: string) {
 }
 
 /**
+ * Get all instances (admin only) or user's instances
+ * RLS policies will enforce admin-only access at database level
+ */
+export async function getAllInstances(userId: string, isAdmin: boolean = false) {
+  if (isAdmin) {
+    // Admins can see all instances via RLS policy
+    const { data, error } = await supabase
+      .from('presentation_instances')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  }
+  
+  // Regular users see only their instances
+  return getUserInstances(userId);
+}
+
+/**
  * Get an instance by ID
  */
 export async function getInstance(instanceId: string) {

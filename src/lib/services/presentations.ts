@@ -27,6 +27,26 @@ export async function getUserPresentations(userId: string) {
 }
 
 /**
+ * Get all presentations (admin only) or user's presentations
+ * RLS policies will enforce admin-only access at database level
+ */
+export async function getAllPresentations(userId: string, isAdmin: boolean = false) {
+  if (isAdmin) {
+    // Admins can see all presentations via RLS policy
+    const { data, error } = await supabase
+      .from('presentations')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  }
+  
+  // Regular users see only their presentations
+  return getUserPresentations(userId);
+}
+
+/**
  * Get a presentation by ID
  */
 export async function getPresentation(presentationId: string) {

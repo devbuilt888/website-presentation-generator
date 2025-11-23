@@ -266,134 +266,129 @@ export const presentations: Presentation[] = [
   },
   {
     id: 'super-presentation-pro',
-    title: 'Why use Super Presentation Pro?',
-    description: 'Experience presentations like never before with immersive 3D graphics',
+    title: 'How to use PresenT - Tutorial',
+    description: 'Learn how to create and share presentations with PresenT',
     createdAt: new Date().toISOString(),
     slides: [
       {
         id: 'slide-1',
         type: 'hero',
-        title: 'Hello {{recipientName}}',
-        subtitle: 'Welcome to Super Presentation Pro',
-        content: 'Experience presentations like never before with immersive 3D graphics and stunning visuals',
-        duration: 8000
+        title: 'How to use PresenT',
+        subtitle: 'Welcome to the Presentation Maker Tutorial',
+        content: 'Learn how to create stunning presentations and share them with your contacts',
+        duration: 6000
       },
       {
         id: 'slide-2',
         type: 'hero',
-        title: 'Stunning Visual Experience',
-        subtitle: '3D Graphics & Animations',
-        content: 'Navigate through beautiful 3D spaces as your story unfolds',
-        duration: 7000
+        title: 'Step 1',
+        subtitle: 'Create a New Presentation',
+        content: 'To create a new presentation, click on the + button at the top of your dashboard and choose from the available templates',
+        duration: 8000
       },
       {
         id: 'slide-3',
         type: 'hero',
-        title: 'Easy to Use',
-        subtitle: 'No Technical Skills Required',
-        content: 'Create professional presentations with drag-and-drop simplicity',
-        duration: 7000
+        title: 'Step 2',
+        subtitle: 'Fill Out the Details',
+        content: 'Fill out the details of the person you want to send the presentation to. Enter their name, email, and any custom information',
+        duration: 8000
       },
       {
         id: 'slide-4',
-        type: 'grid',
-        title: 'Powerful Features',
-        subtitle: '',
-        content: '',
-        features: [
-          { icon: '🎨', title: 'Custom Themes', description: 'Choose from hundreds of beautiful themes' },
-          { icon: '🚀', title: 'Fast Performance', description: 'Lightning-fast rendering and smooth animations' },
-          { icon: '💎', title: 'Professional Quality', description: 'Export to PDF, video, or present live' }
-        ],
+        type: 'hero',
+        title: 'Step 3',
+        subtitle: 'Share the Presentation',
+        content: 'Share them the link or send it to their email (to be implemented soon). You can copy the share link and send it directly',
         duration: 8000
       },
       {
         id: 'slide-5',
         type: 'hero',
-        title: 'Collaborate in Real-Time',
-        subtitle: 'Work Together Seamlessly',
-        content: 'Share and collaborate with your team in real-time',
-        duration: 7000
+        title: 'Option: Batch Import',
+        subtitle: 'Send Multiple Presentations at Once',
+        content: 'You can send batches of presentations at once, using Excel sheets of contacts or by typing them out together as text',
+        duration: 8000
       },
       {
         id: 'slide-6',
         type: 'hero',
-        title: 'Export Anywhere',
-        subtitle: 'Multiple Format Support',
-        content: 'Export to PDF, video, HTML, or present directly in your browser',
-        duration: 7000
+        title: 'Batch Import Step 1',
+        subtitle: 'Select Your Input Method',
+        content: 'Click on the "Batch Import Contacts" button, then select if you want to upload a CSV file or enter contacts as text',
+        duration: 8000
       },
       {
         id: 'slide-7',
         type: 'hero',
-        title: 'Ready to Get Started?',
-        subtitle: 'Join Thousands of Users',
-        content: 'Start creating amazing presentations today',
+        title: 'Batch Import Step 2',
+        subtitle: 'Upload and Send',
+        content: 'Upload the contacts (CSV file or text input), review them, and click "Send in Batch" to create all presentations at once',
         duration: 8000
       }
     ]
   },
   {
     id: 'forest-night-journey',
-    title: 'A Journey Through the Night Forest',
-    description: 'An immersive 3D forest experience that transports you through a magical nighttime woodland',
+    title: 'How to use PresenT - Tutorial',
+    description: 'Learn how to create and share presentations with PresenT',
     createdAt: new Date().toISOString(),
     slides: [
       {
         id: 'slide-1',
         type: 'hero',
-        title: 'Hello {{recipientName}}',
-        subtitle: 'Welcome to the Forest - A Nighttime Adventure Begins',
-        content: 'Step into a mystical world where nature comes alive under the moonlight',
-        duration: 8000
+        title: 'How to use PresenT',
+        subtitle: 'Welcome to the Presentation Maker Tutorial',
+        content: 'Learn how to create stunning presentations and share them with your contacts',
+        duration: 6000
       },
       {
         id: 'slide-2',
         type: 'hero',
-        title: 'The Ancient Trees',
-        subtitle: 'Witness Nature\'s Majesty',
-        content: 'Towering trees that have stood for centuries, watching over this magical realm',
-        duration: 7000
+        title: 'Step 1',
+        subtitle: 'Create a New Presentation',
+        content: 'To create a new presentation, click on the + button at the top of your dashboard and choose from the available templates',
+        duration: 8000
       },
       {
         id: 'slide-3',
         type: 'hero',
-        title: 'Following the Path',
-        subtitle: 'Your Journey Continues',
-        content: 'A winding path leads you deeper into the heart of the forest',
-        duration: 7000
+        title: 'Step 2',
+        subtitle: 'Fill Out the Details',
+        content: 'Fill out the details of the person you want to send the presentation to. Enter their name, email, and any custom information',
+        duration: 8000
       },
       {
         id: 'slide-4',
         type: 'hero',
-        title: 'Moonlight Guides the Way',
-        subtitle: 'Illuminated by the Silver Moon',
-        content: 'The gentle glow of the moon creates an ethereal atmosphere',
+        title: 'Step 3',
+        subtitle: 'Share the Presentation',
+        content: 'Share them the link or send it to their email (to be implemented soon). You can copy the share link and send it directly',
         duration: 8000
       },
       {
         id: 'slide-5',
         type: 'hero',
-        title: 'Fireflies Dance',
-        subtitle: 'Nature\'s Own Lanterns',
-        content: 'Witness the magical dance of fireflies lighting up the darkness',
-        duration: 7000
+        title: 'Option: Batch Import',
+        subtitle: 'Send Multiple Presentations at Once',
+        content: 'You can send batches of presentations at once, using Excel sheets of contacts or by typing them out together as text',
+        duration: 8000
       },
       {
         id: 'slide-6',
         type: 'hero',
-        title: 'The Heart of the Forest',
-        subtitle: 'Discover Its Secrets',
-        content: 'Every step reveals new wonders hidden within this enchanted woodland',
+        title: 'Batch Import Step 1',
+        subtitle: 'Select Your Input Method',
+        content: 'Click on the "Batch Import Contacts" button, then select if you want to upload a CSV file or enter contacts as text',
         duration: 8000
       },
       {
         id: 'slide-7',
         type: 'hero',
-        title: 'Your Journey Continues',
-        subtitle: 'The Forest Awaits',
-        content: 'This is just the beginning of your adventure through nature\'s wonders',
-        duration: 7000
+        title: 'Batch Import Step 2',
+        subtitle: 'Upload and Send',
+        content: 'Upload the contacts (CSV file or text input), review them, and click "Send in Batch" to create all presentations at once',
+        duration: 8000
       }
     ]
   },
