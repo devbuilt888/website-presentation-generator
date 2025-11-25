@@ -310,17 +310,50 @@ export default function ThreeDPresentationViewer({ presentation }: ThreeDPresent
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
         <div className="max-w-4xl mx-auto px-6 text-center">
           {currentSlideData.title && (
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] animate-fadeIn">
+            <h1 
+              className="text-5xl md:text-7xl font-bold mb-6 text-white animate-fadeIn"
+              style={{
+                textShadow: `
+                  0 0 10px rgba(74, 158, 255, 0.5),
+                  0 0 20px rgba(74, 158, 255, 0.4),
+                  0 0 30px rgba(139, 92, 246, 0.3),
+                  0 4px 12px rgba(0, 0, 0, 0.9),
+                  0 2px 4px rgba(0, 0, 0, 0.8)
+                `
+              }}
+            >
               {currentSlideData.title}
             </h1>
           )}
           {currentSlideData.subtitle && (
-            <h2 className="text-2xl md:text-3xl mb-4 text-white/90 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+            <h2 
+              className="text-2xl md:text-3xl mb-4 text-white/90 animate-fadeIn" 
+              style={{ 
+                animationDelay: '0.2s',
+                textShadow: `
+                  0 0 8px rgba(74, 158, 255, 0.4),
+                  0 0 16px rgba(139, 92, 246, 0.3),
+                  0 2px 8px rgba(0, 0, 0, 0.9),
+                  0 1px 2px rgba(0, 0, 0, 0.8)
+                `
+              }}
+            >
               {currentSlideData.subtitle}
             </h2>
           )}
           {currentSlideData.content && (
-            <p className="text-lg md:text-xl text-white/80 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+            <p 
+              className="text-lg md:text-xl text-white/80 animate-fadeIn" 
+              style={{ 
+                animationDelay: '0.4s',
+                textShadow: `
+                  0 0 6px rgba(74, 158, 255, 0.3),
+                  0 0 12px rgba(139, 92, 246, 0.2),
+                  0 2px 6px rgba(0, 0, 0, 0.9),
+                  0 1px 2px rgba(0, 0, 0, 0.8)
+                `
+              }}
+            >
               {currentSlideData.content}
             </p>
           )}
@@ -329,8 +362,30 @@ export default function ThreeDPresentationViewer({ presentation }: ThreeDPresent
               {currentSlideData.features.map((feature, index) => (
                 <div key={index} className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
                   <div className="text-4xl mb-4">{feature.icon}</div>
-                  <h3 className="text-xl font-bold mb-2 text-white">{feature.title}</h3>
-                  <p className="text-white/80">{feature.description}</p>
+                  <h3 
+                    className="text-xl font-bold mb-2 text-white"
+                    style={{
+                      textShadow: `
+                        0 0 6px rgba(74, 158, 255, 0.4),
+                        0 0 12px rgba(139, 92, 246, 0.3),
+                        0 2px 4px rgba(0, 0, 0, 0.8)
+                      `
+                    }}
+                  >
+                    {feature.title}
+                  </h3>
+                  <p 
+                    className="text-white/80"
+                    style={{
+                      textShadow: `
+                        0 0 4px rgba(74, 158, 255, 0.3),
+                        0 0 8px rgba(139, 92, 246, 0.2),
+                        0 1px 2px rgba(0, 0, 0, 0.8)
+                      `
+                    }}
+                  >
+                    {feature.description}
+                  </p>
                 </div>
               ))}
             </div>
