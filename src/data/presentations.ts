@@ -401,7 +401,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-1',
         type: 'hero',
-        title: 'Hello {{recipientName}}',
+        title: 'Hola {{recipientName}}',
         subtitle: '¿Estás interesado en tu salud?',
         content: 'Tengo preguntas para ti',
         duration: 0
@@ -530,7 +530,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-1',
         type: 'hero',
-        title: 'Hello {{recipientName}}',
+        title: 'Hola {{recipientName}}',
         subtitle: '¿Estás interesado en tu salud?',
         content: 'Tengo preguntas para ti',
         duration: 0
@@ -659,7 +659,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-1',
         type: 'hero',
-        title: 'Hello {{recipientName}}',
+        title: 'Hola {{recipientName}}',
         subtitle: '¿Estás interesado en tu salud?',
         content: 'Tengo preguntas para ti',
         duration: 0
@@ -776,13 +776,134 @@ export const presentations: Presentation[] = [
         subtitle: '',
         content: '{{storeLink}}',
         duration: 0
+      }
+    ]
+  },
+  {
+    id: 'omega-balance-new',
+    title: 'Your Omega 3/6 Balance New',
+    description: 'Understanding your omega-3 and omega-6 fatty acid balance with elegant pattern backgrounds',
+    createdAt: new Date().toISOString(),
+    slides: [
+      {
+        id: 'slide-1',
+        type: 'hero',
+        title: 'Hola {{recipientName}}',
+        subtitle: '¿Estás interesado en tu salud?',
+        content: 'Tengo preguntas para ti',
+        duration: 0
       },
       {
-        id: 'slide-11-conveyor',
-        type: 'pattern',
-        title: '',
+        id: 'slide-2',
+        type: 'quiz',
+        title: '¿Conoces tu balance de omega 3 / 6?',
         subtitle: '',
         content: '',
+        duration: 0,
+        questions: [
+          {
+            question: '¿Conoces tu balance de omega 3 / 6?',
+            options: ['Sí', 'No']
+          }
+        ]
+      },
+      {
+        id: 'slide-3-input',
+        type: 'quiz',
+        title: '¡Genial! ¿Cuál es tu balance?',
+        subtitle: 'Ingresa tus valores',
+        content: '',
+        duration: 0,
+        questions: [
+          {
+            question: 'Omega 3',
+            options: []
+          },
+          {
+            question: 'Omega 6',
+            options: []
+          }
+        ]
+      },
+      {
+        id: 'slide-4-unbalanced',
+        type: 'hero',
+        title: 'Estás desbalanceado',
+        subtitle: '',
+        content: 'Puede que no estés alcanzando tu máximo potencial de salud y bienestar por ello',
+        duration: 0
+      },
+      {
+        id: 'slide-5-balanced',
+        type: 'quiz',
+        title: '¡Felicidades!',
+        subtitle: 'Tienes una proporción perfecta de balance',
+        content: '¿Alguno de estos otros problemas te preocupa?',
+        duration: 0,
+        questions: [
+          {
+            question: 'Selecciona los que apliquen:',
+            options: [
+              'Fortaleza del cabello',
+              'Problemas digestivos',
+              'Energía',
+              'Circulación',
+              'Claridad mental',
+              'Salud cardiovascular',
+              'Inflamación',
+              'Salud de la piel',
+              'Sistema inmunológico',
+              'Salud articular',
+              'Estado de ánimo',
+              'Calidad del sueño'
+            ]
+          }
+        ]
+      },
+      {
+        id: 'slide-6-apology',
+        type: 'hero',
+        title: 'Perdón por preguntar',
+        subtitle: 'Es normal',
+        content: 'La mayoría de personas no lo sabe',
+        duration: 0
+      },
+      {
+        id: 'slide-7-video1',
+        type: 'hero',
+        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 3 y 6',
+        subtitle: '',
+        content: '[Video Placeholder 1 - Se actualizará con el enlace más tarde]',
+        duration: 0
+      },
+      {
+        id: 'slide-8-question',
+        type: 'quiz',
+        title: '¿Le gustaría saber su nivel?',
+        subtitle: '',
+        content: '',
+        duration: 0,
+        questions: [
+          {
+            question: '¿Le gustaría saber su nivel?',
+            options: ['Sí', 'No']
+          }
+        ]
+      },
+      {
+        id: 'slide-9-video2',
+        type: 'hero',
+        title: 'No tengas miedo',
+        subtitle: 'Es solo un pinchazito',
+        content: '[Video Placeholder 2 - Se actualizará con el enlace más tarde]',
+        duration: 0
+      },
+      {
+        id: 'slide-10-final',
+        type: 'hero',
+        title: 'Consigue tu test aquí:',
+        subtitle: '',
+        content: '{{storeLink}}',
         duration: 0
       }
     ]

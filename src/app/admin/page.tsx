@@ -43,6 +43,14 @@ function AdminContent() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
   const [selectedRecipientName, setSelectedRecipientName] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => {
+      setToast((current) => (current === message ? null : current));
+    }, 3000);
+  };
 
   useEffect(() => {
     checkAdminAccess();
@@ -208,8 +216,9 @@ function AdminContent() {
               />
               <button
                 onClick={() => {
+                  if (!shareLink) return;
                   navigator.clipboard.writeText(shareLink);
-                  alert('Link copied!');
+                  showToast('Link copied to clipboard');
                 }}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 text-sm transition-colors"
               >
@@ -394,6 +403,15 @@ function AdminContent() {
           />
         )}
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="px-4 py-3 bg-slate-900/95 border border-emerald-500/40 rounded-xl shadow-2xl text-sm text-emerald-200 backdrop-blur-xl">
+            {toast}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

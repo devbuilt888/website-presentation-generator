@@ -14,9 +14,10 @@ import {
 interface BatchImportFormProps {
   onSuccess?: (result: BatchImportResult) => void;
   onCancel?: () => void;
+  onToast?: (message: string) => void;
 }
 
-export default function BatchImportForm({ onSuccess, onCancel }: BatchImportFormProps) {
+export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchImportFormProps) {
   const { user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -583,7 +584,9 @@ Bob Johnson,bob@example.com,`}
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(getShareLink(instance.share_token));
-                              alert('Link copied!');
+                              if (onToast) {
+                                onToast('Share link copied to clipboard');
+                              }
                             }}
                             className="text-indigo-400 hover:text-indigo-300 text-xs transition-colors"
                           >

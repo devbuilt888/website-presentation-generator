@@ -5,6 +5,7 @@ import ForestPresentationViewer from '@/components/ForestPresentationViewer';
 import OmegaBalancePresentationViewer from '@/components/OmegaBalancePresentationViewer';
 import OmegaBalanceSpacePresentationViewer from '@/components/OmegaBalanceSpacePresentationViewer';
 import OmegaBalancePlusPresentationViewer from '@/components/OmegaBalancePlusPresentationViewer';
+import OmegaBalanceNewPresentationViewer from '@/components/OmegaBalanceNewPresentationViewer';
 import { presentations } from '@/data/presentations';
 
 interface PresentationPageProps {
@@ -44,6 +45,11 @@ export default async function PresentationPage({ params }: PresentationPageProps
   // Use omega balance plus viewer with floating 3D assets
   if (presentation.id === 'omega-balance-plus') {
     return <OmegaBalancePlusPresentationViewer presentation={presentation} />;
+  }
+
+  // Use omega balance new viewer with pattern backgrounds
+  if (presentation.id === 'omega-balance-new') {
+    return <OmegaBalanceNewPresentationViewer presentation={presentation} />;
   }
 
   return <PresentationViewer presentation={presentation} />;

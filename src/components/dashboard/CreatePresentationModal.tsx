@@ -38,12 +38,30 @@ export default function CreatePresentationModal({
     window.open(`/presentations/${templateId}`, '_blank');
   };
 
+  // Check if template is a tutorial
+  const isTutorial = (templateId: string) => {
+    return templateId === 'super-presentation-pro' || templateId === 'forest-night-journey';
+  };
+
+  // Sort templates: tutorials first, then others
+  const sortedTemplates = [...templates].sort((a, b) => {
+    const aIsTutorial = isTutorial(a.id);
+    const bIsTutorial = isTutorial(b.id);
+    if (aIsTutorial && !bIsTutorial) return -1;
+    if (!aIsTutorial && bIsTutorial) return 1;
+    return 0;
+  });
+
   // Get preview image for template
   const getPreviewImage = (templateId: string) => {
     const previewMap: Record<string, string> = {
       'zinzino-mex': 'assets/presentation-previews/presentation-mx-zino.gif',
       'omega-balance-space': 'assets/presentation-previews/presentation-omega-balance-space.gif',
       'omega-balance': 'assets/presentation-previews/presentation-omega-balance.gif',
+      'omega-balance-plus': 'assets/presentation-previews/omega-3-plus.gif',
+      'omega-balance-new': 'assets/presentation-previews/omega-3-new.gif',
+      'forest-night-journey': 'assets/presentation-previews/forest-journey.gif',
+      'super-presentation-pro': 'assets/presentation-previews/super-presentation-pro.gif',
     };
     
     const previewPath = previewMap[templateId];
@@ -85,14 +103,26 @@ export default function CreatePresentationModal({
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-100px)]">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {templates.map((template) => {
+            {sortedTemplates.map((template) => {
               const presentation = presentations.find(p => p.id === template.id);
+              const tutorial = isTutorial(template.id);
               return (
                 <div
                   key={template.id}
                   onClick={(e) => handleCardClick(template.id, e)}
-                  className="group relative bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-xl border border-slate-700/50 hover:border-indigo-500/50 transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-2xl hover:shadow-indigo-500/20 hover:scale-[1.02]"
+                  className={`group relative rounded-xl border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-2xl hover:scale-[1.02] ${
+                    tutorial
+                      ? 'bg-gradient-to-br from-amber-900/40 via-amber-800/30 to-amber-900/40 border-amber-700/50 hover:border-amber-500/70 hover:shadow-amber-500/20 hover:bg-gradient-to-br hover:from-amber-900/50 hover:via-amber-800/40 hover:to-amber-900/50'
+                      : 'bg-gradient-to-br from-slate-800/50 to-slate-900/50 border-slate-700/50 hover:border-indigo-500/50 hover:shadow-indigo-500/20 hover:bg-gradient-to-br hover:from-slate-800/70 hover:to-slate-900/70'
+                  }`}
                 >
+                  {/* Tutorial Tag */}
+                  {tutorial && (
+                    <div className="absolute top-3 left-3 z-10 px-3 py-1.5 bg-gradient-to-r from-amber-600 to-amber-500 text-white text-xs font-bold rounded-full backdrop-blur-sm border border-amber-400/50 shadow-lg">
+                      📚 Tutorial
+                    </div>
+                  )}
+
                   {/* Preview Button */}
                   <button
                     onClick={(e) => handlePreviewClick(e, template.id)}
@@ -102,7 +132,11 @@ export default function CreatePresentationModal({
                   </button>
 
                   {/* Image/Preview Area */}
-                  <div className="h-48 bg-gradient-to-br from-indigo-600/20 to-purple-600/20 relative overflow-hidden">
+                  <div className={`h-48 relative overflow-hidden ${
+                    tutorial
+                      ? 'bg-gradient-to-br from-amber-600/30 via-amber-500/20 to-amber-600/30'
+                      : 'bg-gradient-to-br from-indigo-600/20 to-purple-600/20'
+                  }`}>
                     {getPreviewImage(template.id) ? (
                       <img
                         src={getPreviewImage(template.id)!}
@@ -129,7 +163,9 @@ export default function CreatePresentationModal({
 
                   {/* Content */}
                   <div className="p-5">
-                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
+                    <h3 className={`text-lg font-bold text-white mb-2 transition-colors ${
+                      tutorial ? 'group-hover:text-amber-400' : 'group-hover:text-indigo-400'
+                    }`}>
                       {template.name}
                     </h3>
                     <p className="text-sm text-slate-400 line-clamp-2 mb-3">
@@ -139,7 +175,9 @@ export default function CreatePresentationModal({
                       <span className="text-xs text-slate-500">
                         {presentation?.slides?.length || 0} slides
                       </span>
-                      <div className="text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+                        tutorial ? 'text-amber-400' : 'text-indigo-400'
+                      }`}>
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
@@ -148,7 +186,11 @@ export default function CreatePresentationModal({
                   </div>
 
                   {/* Hover Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-indigo-500/0 to-indigo-500/0 group-hover:from-indigo-500/10 group-hover:via-indigo-500/5 group-hover:to-indigo-500/10 transition-all duration-500 pointer-events-none" />
+                  {tutorial ? (
+                    <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 via-amber-500/0 to-amber-500/0 group-hover:from-amber-500/10 group-hover:via-amber-500/5 group-hover:to-amber-500/10 transition-all duration-500 pointer-events-none" />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-indigo-500/0 to-indigo-500/0 group-hover:from-indigo-500/10 group-hover:via-indigo-500/5 group-hover:to-indigo-500/10 transition-all duration-500 pointer-events-none" />
+                  )}
                 </div>
               );
             })}

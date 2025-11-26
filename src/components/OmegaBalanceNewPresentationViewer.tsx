@@ -1,9 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo, Suspense } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
-import * as THREE from 'three';
+import { useState, useMemo } from 'react';
 import { Presentation } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
 import { saveUserResponse, logStoreLinkClick } from '@/lib/services/instances';
@@ -143,382 +140,45 @@ function PatternBackgroundCSS() {
   );
 }
 
-interface OmegaBalancePlusPresentationViewerProps {
+interface OmegaBalanceNewPresentationViewerProps {
   presentation: Presentation;
   instanceId?: string;
 }
 
-// Floating Image Component
-function FloatingImage({ 
-  position, 
-  rotation, 
-  textureUrl,
-  speed = 1 
-}: { 
-  position: [number, number, number]; 
-  rotation: [number, number, number];
-  textureUrl: string;
-  speed?: number;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const texture = useLoader(THREE.TextureLoader, textureUrl);
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      // Gentle floating animation
-      meshRef.current.position.y += Math.sin(state.clock.elapsedTime * speed + position[0]) * 0.002;
-      meshRef.current.rotation.y += 0.01 * speed;
-      meshRef.current.rotation.z += Math.sin(state.clock.elapsedTime * speed * 0.5) * 0.005;
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} position={position} rotation={rotation}>
-      <planeGeometry args={[3, 3]} />
-      <meshStandardMaterial 
-        map={texture} 
-        transparent 
-        opacity={0.9}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
-  );
-}
-
-// Floating 3D Model Component
-function FloatingModel({ 
-  position, 
-  rotation, 
-  modelUrl,
-  speed = 1 
-}: { 
-  position: [number, number, number]; 
-  rotation: [number, number, number];
-  modelUrl: string;
-  speed?: number;
-}) {
-  const meshRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF(modelUrl);
-  
-  // Clone the scene to avoid sharing geometry
-  const clonedScene = useMemo(() => scene.clone(), [scene]);
-
-  useFrame((state) => {
-    if (meshRef.current) {
-      // Gentle floating animation
-      meshRef.current.position.y += Math.sin(state.clock.elapsedTime * speed + position[0]) * 0.003;
-      meshRef.current.rotation.y += 0.015 * speed;
-      meshRef.current.rotation.x += Math.sin(state.clock.elapsedTime * speed * 0.5) * 0.01;
-    }
-  });
-
-  return (
-    <primitive 
-      ref={meshRef} 
-      object={clonedScene} 
-      position={position} 
-      rotation={rotation}
-      scale={[2, 2, 2]}
-    />
-  );
-}
-
-// Conveyor Belt Image Component (2D flat facing camera)
-function ConveyorImage({ 
-  position, 
-  textureUrl 
-}: { 
-  position: [number, number, number]; 
-  textureUrl: string;
-}) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const texture = useLoader(THREE.TextureLoader, textureUrl);
-  
-  // Fix texture orientation - flip Y axis (vertical flip) to correct backwards text
-  texture.flipY = false; // This flips the texture vertically
-  texture.needsUpdate = true;
-  
-  return (
-    <group position={position}>
-      {/* White glow effect - bottom emphasis (larger at bottom) */}
-      <mesh rotation={[0, 0, 0]} position={[0, -0.5, -0.1]}>
-        <planeGeometry args={[7.5, 8]} />
-        <meshStandardMaterial 
-          color="#ffffff"
-          transparent 
-          opacity={0.6}
-          emissive="#ffffff"
-          emissiveIntensity={1.0}
-        />
-      </mesh>
-      {/* White glow effect - outer ring */}
-      <mesh rotation={[0, 0, 0]}>
-        <planeGeometry args={[7, 7]} />
-        <meshStandardMaterial 
-          color="#ffffff"
-          transparent 
-          opacity={0.5}
-          emissive="#ffffff"
-          emissiveIntensity={0.8}
-        />
-      </mesh>
-      {/* White glow effect - inner ring */}
-      <mesh rotation={[0, 0, 0]}>
-        <planeGeometry args={[6.5, 6.5]} />
-        <meshStandardMaterial 
-          color="#ffffff"
-          transparent 
-          opacity={0.6}
-          emissive="#ffffff"
-          emissiveIntensity={0.9}
-        />
-      </mesh>
-      {/* Main image - no rotation, just fix texture flip */}
-      <mesh ref={meshRef} rotation={[0, 0, 0]}>
-        <planeGeometry args={[6, 6]} />
-        <meshStandardMaterial 
-          map={texture} 
-          transparent 
-          opacity={1}
-          side={THREE.DoubleSide}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-// Pattern Background Image Component (2D flat)
-function PatternImage({ 
-  position, 
-  textureUrl 
-}: { 
-  position: [number, number, number]; 
-  textureUrl: string;
-}) {
-  const texture = useLoader(THREE.TextureLoader, textureUrl);
-  texture.flipY = false;
-  texture.needsUpdate = true;
-  
-  return (
-    <mesh position={position} rotation={[0, 0, 0]}>
-      <planeGeometry args={[6, 6]} />
-      <meshStandardMaterial 
-        map={texture} 
-        transparent={false}
-        opacity={1.0}
-        side={THREE.FrontSide}
-        toneMapped={false}
-        color="#ffffff"
-      />
-    </mesh>
-  );
-}
-
-// Repeating Pattern Background Scene - Scrolls upward infinitely
-function PatternBackgroundScene() {
-  const imageUrls = useMemo(() => [
-    getAssetUrl('assets/zinzi-special-assets/balanceOil-one.png'),
-    getAssetUrl('assets/zinzi-special-assets/balanceOil-two.png'),
-    getAssetUrl('assets/zinzi-special-assets/xtend-one.png'),
-  ], []);
-
-  const groupRef = useRef<THREE.Group>(null);
-  const spacing = 7; // Spacing between tiles (slightly larger for better visibility)
-  const scrollSpeed = 0.01; // Slow upward scroll speed
-  const tilesPerRow = 7; // Number of tiles per row
-  const rowsPerSet = 10; // Number of rows per set (for seamless looping)
-
-  // Ensure camera looks at the center and animate pattern
-  useFrame((state) => {
-    // Make camera look at center of pattern
-    state.camera.lookAt(0, 0, 0);
-    
-    if (groupRef.current) {
-      // Move upward
-      groupRef.current.position.y += scrollSpeed;
-      
-      // Reset position when it moves up one full set for seamless loop
-      const setHeight = rowsPerSet * spacing;
-      if (groupRef.current.position.y >= setHeight) {
-        groupRef.current.position.y -= setHeight;
-      }
-    }
-  });
-
-  // Start pattern from below screen - one set height down
-  // This ensures seamless scrolling from bottom to top
-  const initialYOffset = -(rowsPerSet * spacing);
-
-  return (
-    <>
-      {/* Bright lighting to ensure images are visible */}
-      <ambientLight intensity={1.5} />
-      <directionalLight position={[0, 0, 10]} intensity={1.2} color="#ffffff" />
-      <directionalLight position={[0, 10, 5]} intensity={0.8} color="#ffffff" />
-      <pointLight position={[0, 0, 10]} intensity={1.0} color="#ffffff" />
-      
-      <group ref={groupRef} position={[0, initialYOffset, 0]}>
-        {/* Create multiple sets vertically for seamless looping */}
-        {[...Array(3)].map((_, setIndex) => 
-          // Create rows
-          Array.from({ length: rowsPerSet }).map((_, rowIndex) => 
-            // Create columns
-            Array.from({ length: tilesPerRow }).map((_, colIndex) => {
-              const imageIndex = (rowIndex * tilesPerRow + colIndex) % imageUrls.length;
-              // Offset every other row for a staggered/geometric pattern
-              const x = (colIndex - tilesPerRow / 2) * spacing + (rowIndex % 2) * (spacing / 2);
-              const y = (setIndex * rowsPerSet + rowIndex) * spacing;
-              
-              return (
-                <Suspense key={`pattern-${setIndex}-${rowIndex}-${colIndex}`} fallback={null}>
-                  <PatternImage
-                    position={[x, y, 0]}
-                    textureUrl={imageUrls[imageIndex]}
-                  />
-                </Suspense>
-              );
-            })
-          )
-        )}
-      </group>
-    </>
-  );
-}
-
-// Background Scene Component
-function FloatingAssetsScene({ currentSlide }: { currentSlide: number }) {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  const modelUrls = useMemo(() => [
-    getAssetUrl('assets/zinzi-special-assets/xtend-one.glb'),
-    getAssetUrl('assets/zinzi-special-assets/balanceOil-premium.glb'),
-    getAssetUrl('assets/zinzi-special-assets/balanceOil-two.glb'),
-  ], []);
-
-  // Determine effect mode based on slide index (only models now)
-  const effectMode = useMemo(() => {
-    const mode = currentSlide % 2;
-    if (mode === 0) return 'models'; // 3D models only
-    return 'mixed'; // Mixed (but only models)
-  }, [currentSlide]);
-
-  // Generate positions for assets
-  const assetPositions = useMemo(() => {
-    const positions: Array<{ position: [number, number, number]; rotation: [number, number, number]; speed: number }> = [];
-    const count = effectMode === 'mixed' ? 4 : 3;
-    
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * Math.PI * 2;
-      const radius = 8 + Math.random() * 4;
-      positions.push({
-        position: [
-          Math.cos(angle) * radius,
-          (Math.random() - 0.5) * 6,
-          Math.sin(angle) * radius,
-        ] as [number, number, number],
-        rotation: [
-          Math.random() * Math.PI * 0.2,
-          Math.random() * Math.PI * 2,
-          Math.random() * Math.PI * 0.2,
-        ] as [number, number, number],
-        speed: 0.5 + Math.random() * 0.5,
-      });
-    }
-    return positions;
-  }, [effectMode, currentSlide]);
-
-  // Animate camera movement
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y += 0.002;
-    }
-
-    // Smooth camera movement
-    const angle = (currentSlide / 10) * Math.PI * 2;
-    const radius = 25;
-    const targetX = Math.cos(angle) * radius;
-    const targetY = Math.sin(angle * 0.3) * 3;
-    const targetZ = Math.sin(angle) * radius;
-
-    state.camera.position.lerp(
-      new THREE.Vector3(targetX, targetY, targetZ),
-      0.05
-    );
-    state.camera.lookAt(0, 0, 0);
-  });
-
-  return (
-    <>
-      {/* Lighting */}
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[10, 10, 5]} intensity={1} color="#ffffff" />
-      <directionalLight position={[-10, -10, -5]} intensity={0.6} color="#6366f1" />
-      <pointLight position={[0, 5, 0]} intensity={0.8} color="#8b5cf6" distance={20} />
-
-      {/* Background gradient fog */}
-      <fog attach="fog" args={['#0a0a1a', 20, 60]} />
-
-      {/* Floating Assets Group */}
-      <group ref={groupRef}>
-        {effectMode === 'models' && assetPositions.map((asset, i) => (
-          <Suspense key={`model-${i}`} fallback={null}>
-            <FloatingModel
-              position={asset.position}
-              rotation={asset.rotation}
-              modelUrl={modelUrls[i % modelUrls.length]}
-              speed={asset.speed}
-            />
-          </Suspense>
-        ))}
-
-        {effectMode === 'mixed' && assetPositions.map((asset, i) => (
-          <Suspense key={`mixed-model-${i}`} fallback={null}>
-            <FloatingModel
-              position={asset.position}
-              rotation={asset.rotation}
-              modelUrl={modelUrls[i % modelUrls.length]}
-              speed={asset.speed}
-            />
-          </Suspense>
-        ))}
-      </group>
-    </>
-  );
-}
-
-export default function OmegaBalancePlusPresentationViewer({ presentation, instanceId }: OmegaBalancePlusPresentationViewerProps) {
+export default function OmegaBalanceNewPresentationViewer({ presentation, instanceId }: OmegaBalanceNewPresentationViewerProps) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<string, any>>({});
   const [omega3, setOmega3] = useState('');
   const [omega6, setOmega6] = useState('');
   const [selectedConcerns, setSelectedConcerns] = useState<string[]>([]);
 
-  // Define the slide flow based on answers (same as original)
+  // Define the slide flow based on answers
   const getNextSlide = (currentSlideId: string, answer?: any): number => {
     const slideMap: Record<string, any> = {
-      'slide-1': 1,
+      'slide-1': 1, // Always go to question
       'slide-2': (answer: string) => {
-        if (answer === 'Sí') return 2;
-        if (answer === 'No') return 5;
+        // "¿Conoces tu balance de omega 3 / 6?"
+        if (answer === 'Sí') return 2; // Go to input slide
+        if (answer === 'No') return 5; // Go to apology slide
         return 1;
       },
       'slide-3-input': () => {
+        // Check if balanced (Omega 3 = 1, Omega 6 = 3)
         const o3 = parseFloat(omega3);
         const o6 = parseFloat(omega6);
         if (o3 === 1 && o6 === 3) {
-          return 4;
+          return 4; // Go to balanced/congratulations slide
         } else {
-          return 3;
+          return 3; // Go to unbalanced slide
         }
       },
-      'slide-4-unbalanced': 6,
-      'slide-5-balanced': 6,
-      'slide-6-apology': 6,
-      'slide-7-video1': 7,
-      'slide-8-question': 8,
-      'slide-9-video2': 9,
-      'slide-10-final': 10,
-      'slide-11-conveyor': 10, // Stay on conveyor slide
+      'slide-4-unbalanced': 6, // Go to video 1
+      'slide-5-balanced': 6, // Go to video 1
+      'slide-6-apology': 6, // Go to video 1
+      'slide-7-video1': 7, // Go to question "¿Le gustaría saber su nivel?"
+      'slide-8-question': 8, // Go to video 2 (regardless of answer)
+      'slide-9-video2': 9, // Go to final slide
+      'slide-10-final': 9, // Stay on final
     };
 
     const current = presentation.slides[currentSlideIndex];
@@ -580,78 +240,59 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
 
   const currentSlide = presentation.slides[currentSlideIndex];
 
-  // Check if current slide is the pattern background slide
-  const isPatternSlide = currentSlide.id === 'slide-11-conveyor';
-
   return (
-    <div className="w-full h-screen bg-black flex items-center justify-center overflow-hidden relative">
-      {/* CSS Pattern Background for slide 11 */}
-      {isPatternSlide ? (
-        <PatternBackgroundCSS />
-      ) : (
-        <>
-          {/* 3D Background - Floating Assets */}
-          <div className="absolute inset-0 z-0">
-            <Canvas
-              camera={{ position: [0, 0, 25], fov: 75 }}
-              gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-              dpr={[1, 1.5]} // Limit pixel ratio for performance
-            >
-              <FloatingAssetsScene currentSlide={currentSlideIndex} />
-              <OrbitControls enableZoom={false} enablePan={false} autoRotate={false} />
-            </Canvas>
-          </div>
-        </>
-      )}
-
-      {/* Content Overlay */}
+    <div className="w-full h-screen flex items-center justify-center overflow-hidden relative">
+      {/* Pattern Background - Always visible */}
+      <PatternBackgroundCSS />
+      
+      {/* Content Container */}
       <div className="relative z-10 max-w-4xl w-full mx-auto px-6">
         {/* Slide 1: Introduction with Play Button */}
         {currentSlide.id === 'slide-1' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-6xl font-bold mb-6 drop-shadow-2xl bg-gradient-to-r from-white via-indigo-200 to-purple-200 bg-clip-text text-transparent">
+            <h1 className="text-6xl font-bold mb-6 drop-shadow-lg">
               {currentSlide.title}
             </h1>
-            <h2 className="text-3xl mb-4 text-indigo-300 drop-shadow-lg">
+            <h2 className="text-3xl mb-4 text-purple-200">
               {currentSlide.subtitle}
             </h2>
-            <p className="text-2xl mb-12 text-purple-200 drop-shadow-lg">
+            <p className="text-2xl mb-12 text-purple-100">
               {currentSlide.content}
             </p>
             
+            {/* Big Play Button */}
             <button
               onClick={() => handleContinue()}
-              className="group relative inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-indigo-600/90 to-purple-600/90 backdrop-blur-sm rounded-full hover:scale-110 transition-all duration-300 shadow-2xl border-2 border-indigo-400/50"
+              className="group relative inline-flex items-center justify-center w-32 h-32 bg-white rounded-full hover:scale-110 transition-all duration-300 shadow-2xl"
             >
               <svg 
-                className="w-16 h-16 text-white ml-2" 
+                className="w-16 h-16 text-purple-900 ml-2" 
                 fill="currentColor" 
                 viewBox="0 0 24 24"
               >
                 <path d="M8 5v14l11-7z" />
               </svg>
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full opacity-0 group-hover:opacity-100 blur-xl transition-opacity" />
             </button>
           </div>
         )}
 
-        {/* Slide 2: Yes/No Question */}
+        {/* Slide 2: Yes/No Question - Do you know your balance? */}
         {currentSlide.id === 'slide-2' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-12 drop-shadow-2xl">
+            <h1 className="text-5xl font-bold mb-12 drop-shadow-lg">
               {currentSlide.title}
             </h1>
             
             <div className="flex gap-6 justify-center">
               <button
                 onClick={() => handleAnswer('Sí')}
-                className="px-16 py-8 text-3xl font-bold bg-emerald-600/90 hover:bg-emerald-500/90 backdrop-blur-sm text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-emerald-400/50"
+                className="px-16 py-8 text-3xl font-bold bg-green-500 hover:bg-green-600 text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300"
               >
                 Sí
               </button>
               <button
                 onClick={() => handleAnswer('No')}
-                className="px-16 py-8 text-3xl font-bold bg-red-600/90 hover:bg-red-500/90 backdrop-blur-sm text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-red-400/50"
+                className="px-16 py-8 text-3xl font-bold bg-red-500 hover:bg-red-600 text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300"
               >
                 No
               </button>
@@ -662,10 +303,10 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         {/* Slide 3: Input Omega Values */}
         {currentSlide.id === 'slide-3-input' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-4 drop-shadow-2xl">
+            <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">
               {currentSlide.title}
             </h1>
-            <h2 className="text-2xl mb-12 text-indigo-300 drop-shadow-lg">
+            <h2 className="text-2xl mb-12 text-purple-200">
               {currentSlide.subtitle}
             </h2>
             
@@ -676,7 +317,7 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
                   type="number"
                   value={omega3}
                   onChange={(e) => setOmega3(e.target.value)}
-                  className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-indigo-400/50 focus:border-indigo-500 focus:outline-none bg-white/95 backdrop-blur-sm"
+                  className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-purple-300 focus:border-purple-500 focus:outline-none"
                   placeholder="Ejemplo: 1"
                   step="0.1"
                 />
@@ -688,7 +329,7 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
                   type="number"
                   value={omega6}
                   onChange={(e) => setOmega6(e.target.value)}
-                  className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-indigo-400/50 focus:border-indigo-500 focus:outline-none bg-white/95 backdrop-blur-sm"
+                  className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-purple-300 focus:border-purple-500 focus:outline-none"
                   placeholder="Ejemplo: 3"
                   step="0.1"
                 />
@@ -697,7 +338,7 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
               <button
                 onClick={handleOmegaSubmit}
                 disabled={!omega3 || !omega6}
-                className="w-full px-8 py-4 text-2xl font-bold bg-indigo-600/90 hover:bg-indigo-500/90 backdrop-blur-sm text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-indigo-400/50"
+                className="w-full px-8 py-4 text-2xl font-bold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 Continuar →
               </button>
@@ -708,16 +349,16 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         {/* Slide 4: Unbalanced Message */}
         {currentSlide.id === 'slide-4-unbalanced' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-6 drop-shadow-2xl text-yellow-300">
+            <h1 className="text-5xl font-bold mb-6 drop-shadow-lg text-yellow-300">
               {currentSlide.title}
             </h1>
-            <p className="text-2xl mb-12 text-purple-200 max-w-2xl mx-auto drop-shadow-lg">
+            <p className="text-2xl mb-12 text-purple-100 max-w-2xl mx-auto">
               {currentSlide.content}
             </p>
             
             <button
               onClick={handleContinue}
-              className="px-12 py-4 text-2xl font-bold bg-indigo-600/90 hover:bg-indigo-500/90 backdrop-blur-sm text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-indigo-400/50"
+              className="px-12 py-4 text-2xl font-bold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300"
             >
               Continuar →
             </button>
@@ -727,13 +368,13 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         {/* Slide 5: Perfect Balance + Health Concerns */}
         {currentSlide.id === 'slide-5-balanced' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-4 drop-shadow-2xl text-emerald-300">
+            <h1 className="text-5xl font-bold mb-4 drop-shadow-lg text-green-300">
               {currentSlide.title}
             </h1>
-            <h2 className="text-2xl mb-6 text-indigo-300 drop-shadow-lg">
+            <h2 className="text-2xl mb-6 text-purple-200">
               {currentSlide.subtitle}
             </h2>
-            <p className="text-xl mb-8 text-purple-200 drop-shadow-lg">
+            <p className="text-xl mb-8 text-purple-100">
               {currentSlide.content}
             </p>
             
@@ -742,10 +383,10 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
                 <button
                   key={idx}
                   onClick={() => toggleConcern(concern)}
-                  className={`px-4 py-3 text-sm font-semibold rounded-lg shadow-lg transition-all duration-300 backdrop-blur-sm border-2 ${
+                  className={`px-4 py-3 text-sm font-semibold rounded-lg shadow-lg transition-all duration-300 ${
                     selectedConcerns.includes(concern)
-                      ? 'bg-indigo-600/90 text-white scale-105 border-indigo-400/50'
-                      : 'bg-white/10 text-white hover:bg-white/20 border-white/20'
+                      ? 'bg-purple-600 text-white scale-105'
+                      : 'bg-white text-purple-900 hover:bg-purple-100'
                   }`}
                 >
                   {selectedConcerns.includes(concern) && '✓ '}
@@ -756,7 +397,7 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
             
             <button
               onClick={handleContinue}
-              className="px-12 py-4 text-2xl font-bold bg-indigo-600/90 hover:bg-indigo-500/90 backdrop-blur-sm text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-indigo-400/50"
+              className="px-12 py-4 text-2xl font-bold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300"
             >
               Continuar →
             </button>
@@ -766,19 +407,19 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         {/* Slide 6: Apology Message */}
         {currentSlide.id === 'slide-6-apology' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-6 drop-shadow-2xl">
+            <h1 className="text-5xl font-bold mb-6 drop-shadow-lg">
               {currentSlide.title}
             </h1>
-            <h2 className="text-3xl mb-4 text-indigo-300 drop-shadow-lg">
+            <h2 className="text-3xl mb-4 text-purple-200">
               {currentSlide.subtitle}
             </h2>
-            <p className="text-2xl mb-12 text-purple-200 drop-shadow-lg">
+            <p className="text-2xl mb-12 text-purple-100">
               {currentSlide.content}
             </p>
             
             <button
               onClick={handleContinue}
-              className="px-12 py-4 text-2xl font-bold bg-indigo-600/90 hover:bg-indigo-500/90 backdrop-blur-sm text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-indigo-400/50"
+              className="px-12 py-4 text-2xl font-bold bg-purple-600 hover:bg-purple-700 text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300"
             >
               Continuar →
             </button>
@@ -788,7 +429,7 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         {/* Slide 7: Video 1 - Embedded iframe */}
         {currentSlide.id === 'slide-7-video1' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-4xl font-bold mb-8 drop-shadow-2xl">
+            <h1 className="text-4xl font-bold mb-8 drop-shadow-lg">
               {currentSlide.title}
             </h1>
             
@@ -819,20 +460,20 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         {/* Slide 8: Question - Would you like to know your level? */}
         {currentSlide.id === 'slide-8-question' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-12 drop-shadow-2xl">
+            <h1 className="text-5xl font-bold mb-12 drop-shadow-lg">
               {currentSlide.title}
             </h1>
             
             <div className="flex gap-6 justify-center">
               <button
                 onClick={handleContinue}
-                className="px-16 py-8 text-3xl font-bold bg-emerald-600/90 hover:bg-emerald-500/90 backdrop-blur-sm text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-emerald-400/50"
+                className="px-16 py-8 text-3xl font-bold bg-green-500 hover:bg-green-600 text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300"
               >
                 Sí
               </button>
               <button
                 onClick={handleContinue}
-                className="px-16 py-8 text-3xl font-bold bg-red-600/90 hover:bg-red-500/90 backdrop-blur-sm text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-red-400/50"
+                className="px-16 py-8 text-3xl font-bold bg-red-500 hover:bg-red-600 text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300"
               >
                 No
               </button>
@@ -843,10 +484,10 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         {/* Slide 9: Video 2 - From Supabase Storage */}
         {currentSlide.id === 'slide-9-video2' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-4xl font-bold mb-4 drop-shadow-2xl">
+            <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">
               {currentSlide.title}
             </h1>
-            <p className="text-2xl mb-8 text-indigo-300 drop-shadow-lg">
+            <p className="text-2xl mb-8 text-purple-200">
               {currentSlide.subtitle}
             </p>
             
@@ -875,7 +516,7 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         {/* Slide 10: Final - Get Your Test */}
         {currentSlide.id === 'slide-10-final' && (
           <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-8 drop-shadow-2xl">
+            <h1 className="text-5xl font-bold mb-8 drop-shadow-lg">
               {currentSlide.title}
             </h1>
             
@@ -900,13 +541,6 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
             <p className="mt-8 text-lg text-purple-200 drop-shadow-lg">
               Haz clic para conseguir tu test
             </p>
-          </div>
-        )}
-
-        {/* Slide 11: Pattern Background - Product Images Repeating Pattern */}
-        {currentSlide.id === 'slide-11-conveyor' && (
-          <div className="absolute inset-0 z-10 pointer-events-none">
-            {/* No content - just the pattern background */}
           </div>
         )}
       </div>

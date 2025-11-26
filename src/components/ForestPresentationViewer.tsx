@@ -6,6 +6,7 @@ import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { Presentation, PresentationSlide } from '@/data/presentations';
 import { PlusButton, BatchImportButton } from '@/components/presentations/TutorialButtons';
+import { TutorialFormPreview, TutorialPresentationCardPreview } from '@/components/presentations/TutorialPreviews';
 
 interface ForestPresentationViewerProps {
   presentation: Presentation;
@@ -560,7 +561,7 @@ export default function ForestPresentationViewer({ presentation, instanceId }: F
           )}
           {currentSlideData.content && (
             <div 
-              className="text-lg md:text-xl text-white/80 animate-fadeIn flex flex-col items-center gap-4" 
+              className="text-lg md:text-xl text-white/80 animate-fadeIn flex flex-col items-center gap-4 w-full" 
               style={{ 
                 animationDelay: '0.4s',
                 textShadow: `
@@ -578,15 +579,35 @@ export default function ForestPresentationViewer({ presentation, instanceId }: F
                   <PlusButton size="lg" />
                 </div>
               )}
+              {/* Render CustomizationForm preview for slide-3 (Step 2) */}
+              {currentSlideData.id === 'slide-3' && (
+                <div className="mt-4 w-full">
+                  <p className="text-center max-w-3xl mx-auto mb-6">
+                    {currentSlideData.content}
+                  </p>
+                  <TutorialFormPreview />
+                </div>
+              )}
+              {/* Render presentation card preview for slide-4 (Step 3) */}
+              {currentSlideData.id === 'slide-4' && (
+                <div className="mt-4 w-full">
+                  <p className="text-center max-w-3xl mx-auto mb-6">
+                    {currentSlideData.content}
+                  </p>
+                  <TutorialPresentationCardPreview />
+                </div>
+              )}
               {/* Render button for slide-6 (Batch Import Step 1) */}
               {currentSlideData.id === 'slide-6' && (
                 <div className="my-4">
                   <BatchImportButton size="lg" />
                 </div>
               )}
-              <p>
-                {currentSlideData.content}
-              </p>
+              {currentSlideData.id !== 'slide-3' && currentSlideData.id !== 'slide-4' && (
+                <p className="text-center max-w-3xl mx-auto">
+                  {currentSlideData.content}
+                </p>
+              )}
             </div>
           )}
           {currentSlideData.features && (

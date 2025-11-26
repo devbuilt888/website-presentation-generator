@@ -37,13 +37,24 @@ function DashboardContent() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
   const [selectedRecipientName, setSelectedRecipientName] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => {
+      setToast((current) => (current === message ? null : current));
+    }, 3000);
+  };
 
   useEffect(() => {
     loadData();
   }, [user]);
 
   const loadData = async () => {
-    if (!user) return;
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     try {
       const [instancesData, templatesData] = await Promise.all([
@@ -53,8 +64,19 @@ function DashboardContent() {
 
       setInstances(instancesData || []);
       setTemplates(templatesData || []);
-    } catch (error) {
-      console.error('Error loading data:', error);
+    } catch (error: any) {
+      // Log more detailed error information
+      console.error('Error loading data:', {
+        message: error?.message || 'Unknown error',
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint,
+        error: error,
+      });
+      
+      // Set empty arrays on error to prevent UI issues
+      setInstances([]);
+      setTemplates([]);
     } finally {
       setLoading(false);
     }
@@ -70,13 +92,13 @@ function DashboardContent() {
   const handleBatchImportSuccess = (result: BatchImportResult) => {
     setShowBatchImport(false);
     loadData(); // Reload instances
-    alert(`Batch import complete! ${result.succeeded} successful, ${result.failedCount} failed.`);
+    showToast(`Batch import complete – ${result.succeeded} succeeded, ${result.failedCount} failed`);
   };
 
   const copyLink = (token: string) => {
     const link = `${window.location.origin}/view/${token}`;
     navigator.clipboard.writeText(link);
-    alert('Link copied to clipboard!');
+    showToast('Link copied to clipboard');
   };
 
   const handleTemplateSelect = (templateId: string) => {
@@ -102,10 +124,10 @@ function DashboardContent() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Top Center Create Button - Hidden when form or batch import is open */}
         {!showForm && !showBatchImport && (
-          <div className="flex flex-col items-center mb-12 relative">
+          <div className="flex flex-col items-center mb-16 relative">
           {/* Tooltip with Arrow */}
-          <div className="mb-4 flex items-center gap-3">
-            <div className="px-4 py-2 bg-slate-800/90 backdrop-blur-sm text-white text-sm rounded-lg shadow-xl border border-slate-700/50">
+          <div className="mb-6 flex items-center gap-4">
+            <div className="px-6 py-3 bg-slate-800/90 backdrop-blur-sm text-white text-sm md:text-base rounded-xl shadow-2xl border border-slate-700/50 max-w-md text-center">
               Click to create a new presentation
             </div>
             <div className="relative">
@@ -163,8 +185,9 @@ function DashboardContent() {
               />
               <button
                 onClick={() => {
+                  if (!shareLink) return;
                   navigator.clipboard.writeText(shareLink);
-                  alert('Link copied!');
+                  showToast('Link copied to clipboard');
                 }}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 text-sm transition-colors"
               >
@@ -179,6 +202,7 @@ function DashboardContent() {
           <div className="mb-8">
             <BatchImportForm
               onSuccess={handleBatchImportSuccess}
+              onToast={showToast}
               onCancel={() => setShowBatchImport(false)}
             />
           </div>
@@ -277,6 +301,17 @@ function DashboardContent() {
                         </div>
                       </div>
                       <div className="flex gap-2">
+                        {(instance.status === 'viewed' || instance.status === 'completed') && (
+                          <button
+                            onClick={() => {
+                              setSelectedInstanceId(instance.id);
+                              setSelectedRecipientName(instance.recipient_name);
+                            }}
+                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors border border-purple-500/50"
+                          >
+                            View Responses
+                          </button>
+                        )}
                         <button
                           onClick={() => copyLink(instance.share_token)}
                           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors border border-indigo-500/50"
@@ -313,6 +348,15 @@ function DashboardContent() {
           />
         )}
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="px-4 py-3 bg-slate-900/95 border border-emerald-500/40 rounded-xl shadow-2xl text-sm text-emerald-200 backdrop-blur-xl">
+            {toast}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

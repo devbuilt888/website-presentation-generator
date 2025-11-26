@@ -73,7 +73,7 @@ export default function Navigation() {
             </Link>
             
             {/* Right: Navigation & User Actions */}
-            {user ? (
+            {user && (
               <div className="flex items-center gap-4">
                 {/* Navigation Links */}
                 <div className="hidden md:flex items-center gap-2">
@@ -113,21 +113,6 @@ export default function Navigation() {
                     Sign Out
                   </button>
                 </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3">
-                <Link 
-                  href="/auth/login"
-                  className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/50 rounded-lg transition-all duration-200 font-medium"
-                >
-                  Sign In
-                </Link>
-                <Link 
-                  href="/auth/signup"
-                  className="px-4 py-2 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-200 font-medium shadow-lg hover:shadow-xl"
-                >
-                  Sign Up
-                </Link>
               </div>
             )}
           </div>
