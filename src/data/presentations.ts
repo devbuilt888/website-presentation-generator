@@ -305,7 +305,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-5',
         type: 'hero',
-        title: 'Option: Batch Import',
+        title: 'Batch Import',
         subtitle: 'Send Multiple Presentations at Once',
         content: 'You can send batches of presentations at once, using Excel sheets of contacts or by typing them out together as text',
         duration: 8000
@@ -315,7 +315,7 @@ export const presentations: Presentation[] = [
         type: 'hero',
         title: 'Batch Import Step 1',
         subtitle: 'Select Your Input Method',
-        content: 'Click on the "Batch Import Contacts" button, then select if you want to upload a CSV file or enter contacts as text',
+        content: 'Click on the Batch Import Contacts button that looks like the one above, then select if you want to upload a CSV file or enter contacts as text',
         duration: 8000
       },
       {
@@ -369,7 +369,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-5',
         type: 'hero',
-        title: 'Option: Batch Import',
+        title: 'Batch Import',
         subtitle: 'Send Multiple Presentations at Once',
         content: 'You can send batches of presentations at once, using Excel sheets of contacts or by typing them out together as text',
         duration: 8000
@@ -379,7 +379,7 @@ export const presentations: Presentation[] = [
         type: 'hero',
         title: 'Batch Import Step 1',
         subtitle: 'Select Your Input Method',
-        content: 'Click on the "Batch Import Contacts" button, then select if you want to upload a CSV file or enter contacts as text',
+        content: 'Click on the Batch Import Contacts button that looks like the one above, then select if you want to upload a CSV file or enter contacts as text',
         duration: 8000
       },
       {

@@ -520,7 +520,7 @@ export default function ForestPresentationViewer({ presentation }: ForestPresent
         <div className="max-w-4xl mx-auto px-6 text-center">
           {currentSlideData.title && (
             <h1 
-              className="text-5xl md:text-7xl font-bold mb-6 text-white animate-fadeIn"
+              className="text-5xl md:text-7xl font-bold mb-6 text-white animate-fadeIn flex items-center justify-center gap-3 flex-wrap"
               style={{
                 textShadow: `
                   0 0 10px rgba(26, 90, 78, 0.6),
@@ -533,6 +533,11 @@ export default function ForestPresentationViewer({ presentation }: ForestPresent
               }}
             >
               {currentSlideData.title}
+              {currentSlideData.id === 'slide-5' && (
+                <span className="text-lg md:text-xl font-normal px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full backdrop-blur-sm">
+                  Optional
+                </span>
+              )}
             </h1>
           )}
           {currentSlideData.subtitle && (
@@ -579,12 +584,7 @@ export default function ForestPresentationViewer({ presentation }: ForestPresent
                 </div>
               )}
               <p>
-                {currentSlideData.id === 'slide-2' 
-                  ? currentSlideData.content.replace(/\+ button/g, '').replace(/the \+/g, 'the button above')
-                  : currentSlideData.id === 'slide-6'
-                  ? currentSlideData.content.replace(/"Batch Import Contacts" button/g, 'the button above')
-                  : currentSlideData.content
-                }
+                {currentSlideData.content}
               </p>
             </div>
           )}
