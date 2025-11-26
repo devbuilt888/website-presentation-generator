@@ -5,6 +5,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { Presentation, PresentationSlide } from '@/data/presentations';
+import { PlusButton, BatchImportButton } from '@/components/presentations/TutorialButtons';
 
 interface ForestPresentationViewerProps {
   presentation: Presentation;
@@ -552,8 +553,8 @@ export default function ForestPresentationViewer({ presentation }: ForestPresent
             </h2>
           )}
           {currentSlideData.content && (
-            <p 
-              className="text-lg md:text-xl text-white/80 animate-fadeIn" 
+            <div 
+              className="text-lg md:text-xl text-white/80 animate-fadeIn flex flex-col items-center gap-4" 
               style={{ 
                 animationDelay: '0.4s',
                 textShadow: `
@@ -565,8 +566,27 @@ export default function ForestPresentationViewer({ presentation }: ForestPresent
                 `
               }}
             >
-              {currentSlideData.content}
-            </p>
+              {/* Render button for slide-2 (Step 1) */}
+              {currentSlideData.id === 'slide-2' && (
+                <div className="my-4">
+                  <PlusButton size="lg" />
+                </div>
+              )}
+              {/* Render button for slide-6 (Batch Import Step 1) */}
+              {currentSlideData.id === 'slide-6' && (
+                <div className="my-4">
+                  <BatchImportButton size="lg" />
+                </div>
+              )}
+              <p>
+                {currentSlideData.id === 'slide-2' 
+                  ? currentSlideData.content.replace(/\+ button/g, '').replace(/the \+/g, 'the button above')
+                  : currentSlideData.id === 'slide-6'
+                  ? currentSlideData.content.replace(/"Batch Import Contacts" button/g, 'the button above')
+                  : currentSlideData.content
+                }
+              </p>
+            </div>
           )}
           {currentSlideData.features && (
             <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
