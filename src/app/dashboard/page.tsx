@@ -9,6 +9,7 @@ import { getAllTemplates } from '@/lib/presentations/template-registry';
 import CustomizationForm from '@/components/presentations/CustomizationForm';
 import BatchImportForm from '@/components/presentations/BatchImportForm';
 import CreatePresentationModal from '@/components/dashboard/CreatePresentationModal';
+import UserResponsesModal from '@/components/presentations/UserResponsesModal';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import { presentations } from '@/data/presentations';
@@ -34,6 +35,8 @@ function DashboardContent() {
   const [showPreview, setShowPreview] = useState(false);
   const [showBatchImport, setShowBatchImport] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
+  const [selectedRecipientName, setSelectedRecipientName] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
@@ -296,6 +299,19 @@ function DashboardContent() {
             </div>
           )}
         </div>
+
+        {/* User Responses Modal */}
+        {selectedInstanceId && (
+          <UserResponsesModal
+            instanceId={selectedInstanceId}
+            isOpen={!!selectedInstanceId}
+            onClose={() => {
+              setSelectedInstanceId(null);
+              setSelectedRecipientName(null);
+            }}
+            recipientName={selectedRecipientName}
+          />
+        )}
       </div>
     </div>
   );

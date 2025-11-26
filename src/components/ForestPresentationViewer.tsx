@@ -9,6 +9,7 @@ import { PlusButton, BatchImportButton } from '@/components/presentations/Tutori
 
 interface ForestPresentationViewerProps {
   presentation: Presentation;
+  instanceId?: string;
 }
 
 // Tree component with teal/green gradients
@@ -375,7 +376,7 @@ function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: n
   );
 }
 
-export default function ForestPresentationViewer({ presentation }: ForestPresentationViewerProps) {
+export default function ForestPresentationViewer({ presentation, instanceId }: ForestPresentationViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);

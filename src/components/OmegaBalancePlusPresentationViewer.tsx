@@ -6,9 +6,146 @@ import { OrbitControls, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 import { Presentation } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
+import { saveUserResponse, logStoreLinkClick } from '@/lib/services/instances';
+
+// CSS-based Pattern Background Component
+function PatternBackgroundCSS() {
+  const imageUrls = useMemo(() => [
+    getAssetUrl('assets/zinzi-special-assets/balanceOil-one.png'),
+    getAssetUrl('assets/zinzi-special-assets/balanceOil-two.png'),
+    getAssetUrl('assets/zinzi-special-assets/xtend-one.png'),
+  ], []);
+
+  const tilesPerRow = 5; // More tiles per row = smaller images (halved from 10)
+  const rowsPerSet = 15; // More rows = smoother scrolling
+  const totalRows = rowsPerSet * 3; // 3 sets for seamless looping
+  const rowHeight = 120; // Height of each row in pixels (slightly increased)
+  const columnGap = 16; // Gap between columns in pixels (doubled for more spacing)
+  const rowGap = 48; // Gap between rows in pixels (doubled for much more vertical spacing)
+  const padding = 16; // Padding in pixels
+  // Calculate set height: rows * rowHeight + (rows - 1) rowGaps + 2 * padding
+  const setHeight = rowsPerSet * rowHeight + (rowsPerSet - 1) * rowGap + padding * 2;
+  // Total height: totalRows * rowHeight + (totalRows - 1) rowGaps + 2 * padding
+  const totalHeight = totalRows * rowHeight + (totalRows - 1) * rowGap + padding * 2;
+  const scrollDistance = setHeight; // Distance to scroll (one set height)
+
+  return (
+    <>
+      <style>{`
+        @keyframes patternScrollUp {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-${scrollDistance}px);
+          }
+        }
+        @keyframes rippleWave {
+          0%, 100% {
+            transform: scale(1);
+          }
+          50% {
+            transform: scale(1.3);
+          }
+        }
+        @keyframes rippleWaveStaggered {
+          0%, 100% {
+            transform: translateX(${100 / tilesPerRow / 2}%) scale(1);
+          }
+          50% {
+            transform: translateX(${100 / tilesPerRow / 2}%) scale(1.3);
+          }
+        }
+        .pattern-bg-container {
+          position: absolute;
+          inset: 0;
+          overflow: hidden;
+          background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 25%, #ffffff 50%, #f5f6f7 75%, #ffffff 100%);
+          background-size: 200% 200%;
+          animation: gradientShift 15s ease-in-out infinite;
+        }
+        @keyframes gradientShift {
+          0%, 100% {
+            background-position: 0% 50%;
+          }
+          50% {
+            background-position: 100% 50%;
+          }
+        }
+        .pattern-grid {
+          display: grid;
+          grid-template-columns: repeat(${tilesPerRow}, 1fr);
+          grid-auto-rows: ${rowHeight}px;
+          column-gap: ${columnGap}px;
+          row-gap: ${rowGap}px;
+          width: 100%;
+          height: ${totalHeight}px;
+          animation-name: patternScrollUp;
+          animation-duration: 6000s;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          animation-fill-mode: both;
+          padding: ${padding}px;
+          will-change: transform;
+        }
+        .pattern-grid-item {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          opacity: 0.9;
+          filter: 
+            brightness(1.05)
+            drop-shadow(0 0 8px rgba(0, 0, 0, 0.15))
+            drop-shadow(0 0 12px rgba(0, 0, 0, 0.12))
+            drop-shadow(0 0 16px rgba(0, 0, 0, 0.1))
+            drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2))
+            drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+          animation-duration: 6s;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
+        }
+        .pattern-grid-item:nth-child(${tilesPerRow}n + 1) {
+          margin-left: 0;
+        }
+      `}</style>
+      <div className="pattern-bg-container">
+        <div className="pattern-grid">
+          {Array.from({ length: totalRows }).map((_, rowIndex) => 
+            Array.from({ length: tilesPerRow }).map((_, colIndex) => {
+              const imageIndex = (rowIndex * tilesPerRow + colIndex) % imageUrls.length;
+              const isEvenRow = rowIndex % 2 === 1;
+              // Calculate diagonal position for ripple wave effect
+              // Diagonal = row + column, creates diagonal wave pattern from top-left to bottom-right
+              const diagonalPosition = rowIndex + colIndex;
+              // Delay based on diagonal position (0.16s per diagonal step for slower wave)
+              // Multiple waves by using modulo to create overlapping continuous waves
+              const waveDelay = (diagonalPosition * 0.16) % 6;
+              const animationName = isEvenRow ? 'rippleWaveStaggered' : 'rippleWave';
+              
+              return (
+                <img
+                  key={`pattern-img-${rowIndex}-${colIndex}`}
+                  src={imageUrls[imageIndex]}
+                  alt={`Product ${imageIndex + 1}`}
+                  className="pattern-grid-item"
+                  style={{
+                    animationName: animationName,
+                    animationDelay: `${waveDelay}s`,
+                  }}
+                  loading="lazy"
+                />
+              );
+            })
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
 
 interface OmegaBalancePlusPresentationViewerProps {
   presentation: Presentation;
+  instanceId?: string;
 }
 
 // Floating Image Component
@@ -150,8 +287,35 @@ function ConveyorImage({
   );
 }
 
-// Conveyor Belt Component for 2D Images
-function ConveyorBeltScene() {
+// Pattern Background Image Component (2D flat)
+function PatternImage({ 
+  position, 
+  textureUrl 
+}: { 
+  position: [number, number, number]; 
+  textureUrl: string;
+}) {
+  const texture = useLoader(THREE.TextureLoader, textureUrl);
+  texture.flipY = false;
+  texture.needsUpdate = true;
+  
+  return (
+    <mesh position={position} rotation={[0, 0, 0]}>
+      <planeGeometry args={[6, 6]} />
+      <meshStandardMaterial 
+        map={texture} 
+        transparent={false}
+        opacity={1.0}
+        side={THREE.FrontSide}
+        toneMapped={false}
+        color="#ffffff"
+      />
+    </mesh>
+  );
+}
+
+// Repeating Pattern Background Scene - Scrolls upward infinitely
+function PatternBackgroundScene() {
   const imageUrls = useMemo(() => [
     getAssetUrl('assets/zinzi-special-assets/balanceOil-one.png'),
     getAssetUrl('assets/zinzi-special-assets/balanceOil-two.png'),
@@ -159,40 +323,62 @@ function ConveyorBeltScene() {
   ], []);
 
   const groupRef = useRef<THREE.Group>(null);
-  const spacing = 8; // Increased spacing for bigger images
-  const speed = 0.02;
+  const spacing = 7; // Spacing between tiles (slightly larger for better visibility)
+  const scrollSpeed = 0.01; // Slow upward scroll speed
+  const tilesPerRow = 7; // Number of tiles per row
+  const rowsPerSet = 10; // Number of rows per set (for seamless looping)
 
-  useFrame(() => {
+  // Ensure camera looks at the center and animate pattern
+  useFrame((state) => {
+    // Make camera look at center of pattern
+    state.camera.lookAt(0, 0, 0);
+    
     if (groupRef.current) {
-      groupRef.current.position.x -= speed;
+      // Move upward
+      groupRef.current.position.y += scrollSpeed;
       
-      // Reset position when it moves too far left for seamless loop
-      if (groupRef.current.position.x <= -spacing * imageUrls.length) {
-        groupRef.current.position.x = 0;
+      // Reset position when it moves up one full set for seamless loop
+      const setHeight = rowsPerSet * spacing;
+      if (groupRef.current.position.y >= setHeight) {
+        groupRef.current.position.y -= setHeight;
       }
     }
   });
 
+  // Start pattern from below screen - one set height down
+  // This ensures seamless scrolling from bottom to top
+  const initialYOffset = -(rowsPerSet * spacing);
+
   return (
     <>
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[0, 0, 5]} intensity={1} color="#ffffff" />
+      {/* Bright lighting to ensure images are visible */}
+      <ambientLight intensity={1.5} />
+      <directionalLight position={[0, 0, 10]} intensity={1.2} color="#ffffff" />
+      <directionalLight position={[0, 10, 5]} intensity={0.8} color="#ffffff" />
+      <pointLight position={[0, 0, 10]} intensity={1.0} color="#ffffff" />
       
-      <group ref={groupRef} rotation={[0, 0, 0]}>
-        {/* Create multiple sets of images for seamless looping */}
+      <group ref={groupRef} position={[0, initialYOffset, 0]}>
+        {/* Create multiple sets vertically for seamless looping */}
         {[...Array(3)].map((_, setIndex) => 
-          imageUrls.map((imageUrl, imgIndex) => (
-            <Suspense key={`conveyor-${setIndex}-${imgIndex}`} fallback={null}>
-              <ConveyorImage
-                position={[
-                  (setIndex * imageUrls.length + imgIndex) * spacing,
-                  0,
-                  0
-                ]}
-                textureUrl={imageUrl}
-              />
-            </Suspense>
-          ))
+          // Create rows
+          Array.from({ length: rowsPerSet }).map((_, rowIndex) => 
+            // Create columns
+            Array.from({ length: tilesPerRow }).map((_, colIndex) => {
+              const imageIndex = (rowIndex * tilesPerRow + colIndex) % imageUrls.length;
+              // Offset every other row for a staggered/geometric pattern
+              const x = (colIndex - tilesPerRow / 2) * spacing + (rowIndex % 2) * (spacing / 2);
+              const y = (setIndex * rowsPerSet + rowIndex) * spacing;
+              
+              return (
+                <Suspense key={`pattern-${setIndex}-${rowIndex}-${colIndex}`} fallback={null}>
+                  <PatternImage
+                    position={[x, y, 0]}
+                    textureUrl={imageUrls[imageIndex]}
+                  />
+                </Suspense>
+              );
+            })
+          )
         )}
       </group>
     </>
@@ -300,7 +486,7 @@ function FloatingAssetsScene({ currentSlide }: { currentSlide: number }) {
   );
 }
 
-export default function OmegaBalancePlusPresentationViewer({ presentation }: OmegaBalancePlusPresentationViewerProps) {
+export default function OmegaBalancePlusPresentationViewer({ presentation, instanceId }: OmegaBalancePlusPresentationViewerProps) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<string, any>>({});
   const [omega3, setOmega3] = useState('');
@@ -344,17 +530,36 @@ export default function OmegaBalancePlusPresentationViewer({ presentation }: Ome
     return typeof next === 'number' ? next : currentSlideIndex + 1;
   };
 
-  const handleAnswer = (answer: string) => {
+  const handleAnswer = async (answer: string) => {
     const currentSlide = presentation.slides[currentSlideIndex];
     setUserAnswers({ ...userAnswers, [currentSlide.id]: answer });
+    
+    // Save response to database if instanceId is provided
+    if (instanceId && currentSlide.title) {
+      try {
+        await saveUserResponse(instanceId, currentSlide.id, currentSlide.title, answer);
+      } catch (error) {
+        console.error('Failed to save user response:', error);
+      }
+    }
     
     const nextIndex = getNextSlide(currentSlide.id, answer);
     setCurrentSlideIndex(nextIndex);
   };
 
-  const handleOmegaSubmit = () => {
+  const handleOmegaSubmit = async () => {
     const currentSlide = presentation.slides[currentSlideIndex];
-    setUserAnswers({ ...userAnswers, [currentSlide.id]: { omega3, omega6 } });
+    const answer = { omega3, omega6 };
+    setUserAnswers({ ...userAnswers, [currentSlide.id]: answer });
+    
+    // Save response to database if instanceId is provided
+    if (instanceId && currentSlide.title) {
+      try {
+        await saveUserResponse(instanceId, currentSlide.id, currentSlide.title, answer);
+      } catch (error) {
+        console.error('Failed to save user response:', error);
+      }
+    }
     
     const nextIndex = getNextSlide(currentSlide.id);
     setCurrentSlideIndex(nextIndex);
@@ -375,28 +580,29 @@ export default function OmegaBalancePlusPresentationViewer({ presentation }: Ome
 
   const currentSlide = presentation.slides[currentSlideIndex];
 
-  // Check if current slide is the conveyor belt slide
-  const isConveyorSlide = currentSlide.id === 'slide-11-conveyor';
+  // Check if current slide is the pattern background slide
+  const isPatternSlide = currentSlide.id === 'slide-11-conveyor';
 
   return (
     <div className="w-full h-screen bg-black flex items-center justify-center overflow-hidden relative">
-      {/* 3D Background - Conveyor Belt or Floating Assets */}
-      <div className="absolute inset-0 z-0">
-        <Canvas
-          camera={{ position: isConveyorSlide ? [0, 0, 15] : [0, 0, 25], fov: isConveyorSlide ? 60 : 75 }}
-          gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
-          dpr={[1, 1.5]} // Limit pixel ratio for performance
-        >
-          {isConveyorSlide ? (
-            <ConveyorBeltScene />
-          ) : (
-            <>
+      {/* CSS Pattern Background for slide 11 */}
+      {isPatternSlide ? (
+        <PatternBackgroundCSS />
+      ) : (
+        <>
+          {/* 3D Background - Floating Assets */}
+          <div className="absolute inset-0 z-0">
+            <Canvas
+              camera={{ position: [0, 0, 25], fov: 75 }}
+              gl={{ antialias: true, alpha: false, powerPreference: 'high-performance' }}
+              dpr={[1, 1.5]} // Limit pixel ratio for performance
+            >
               <FloatingAssetsScene currentSlide={currentSlideIndex} />
               <OrbitControls enableZoom={false} enablePan={false} autoRotate={false} />
-            </>
-          )}
-        </Canvas>
-      </div>
+            </Canvas>
+          </div>
+        </>
+      )}
 
       {/* Content Overlay */}
       <div className="relative z-10 max-w-4xl w-full mx-auto px-6">
@@ -677,6 +883,15 @@ export default function OmegaBalancePlusPresentationViewer({ presentation }: Ome
               href={currentSlide.content}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={async () => {
+                if (instanceId && currentSlide.content) {
+                  try {
+                    await logStoreLinkClick(instanceId, currentSlide.content, currentSlide.id);
+                  } catch (error) {
+                    console.error('Failed to log store link click:', error);
+                  }
+                }
+              }}
               className="inline-block px-16 py-6 text-3xl font-bold bg-gradient-to-r from-emerald-600/90 to-teal-600/90 hover:from-emerald-500/90 hover:to-teal-500/90 backdrop-blur-sm text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-emerald-400/50"
             >
               {currentSlide.content || 'Obtener Test'}
@@ -686,25 +901,32 @@ export default function OmegaBalancePlusPresentationViewer({ presentation }: Ome
               Haz clic para conseguir tu test
             </p>
             
-            <button
-              onClick={handleContinue}
-              className="mt-8 px-12 py-4 text-xl font-bold bg-indigo-600/90 hover:bg-indigo-500/90 backdrop-blur-sm text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-indigo-400/50"
-            >
-              Ver Productos →
-            </button>
+            {currentSlide.content && (
+              <a
+                href={currentSlide.content}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={async () => {
+                  if (instanceId && currentSlide.content) {
+                    try {
+                      await logStoreLinkClick(instanceId, currentSlide.content, 'slide-10-final-ver-productos');
+                    } catch (error) {
+                      console.error('Failed to log store link click:', error);
+                    }
+                  }
+                }}
+                className="mt-8 inline-block px-12 py-4 text-xl font-bold bg-indigo-600/90 hover:bg-indigo-500/90 backdrop-blur-sm text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-indigo-400/50"
+              >
+                Ver Productos →
+              </a>
+            )}
           </div>
         )}
 
-        {/* Slide 11: Conveyor Belt - Product Showcase */}
+        {/* Slide 11: Pattern Background - Product Images Repeating Pattern */}
         {currentSlide.id === 'slide-11-conveyor' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-6 drop-shadow-2xl">
-              Nuestros Productos
-            </h1>
-            <p className="text-2xl mb-8 text-indigo-300 drop-shadow-lg">
-              Descubre nuestra gama completa
-            </p>
-            {/* Content is minimal - the conveyor belt animation is the main focus */}
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            {/* No content - just the pattern background */}
           </div>
         )}
       </div>

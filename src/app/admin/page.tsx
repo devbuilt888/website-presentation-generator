@@ -14,6 +14,7 @@ import { getAllTemplates } from '@/lib/presentations/template-registry';
 import CustomizationForm from '@/components/presentations/CustomizationForm';
 import BatchImportForm from '@/components/presentations/BatchImportForm';
 import CreatePresentationModal from '@/components/dashboard/CreatePresentationModal';
+import UserResponsesModal from '@/components/presentations/UserResponsesModal';
 import type { BatchImportResult } from '@/lib/services/batch';
 
 export default function AdminPage() {
@@ -40,6 +41,8 @@ function AdminContent() {
   const [shareLink, setShareLink] = useState<string | null>(null);
   const [showBatchImport, setShowBatchImport] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
+  const [selectedRecipientName, setSelectedRecipientName] = useState<string | null>(null);
 
   useEffect(() => {
     checkAdminAccess();
@@ -342,6 +345,7 @@ function AdminContent() {
                   <th className="text-left py-3 px-4 text-slate-300">Email</th>
                   <th className="text-left py-3 px-4 text-slate-300">Status</th>
                   <th className="text-left py-3 px-4 text-slate-300">Created</th>
+                  <th className="text-left py-3 px-4 text-slate-300">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -357,12 +361,38 @@ function AdminContent() {
                     <td className="py-3 px-4 text-slate-400 text-sm">
                       {instance.created_at ? new Date(instance.created_at).toLocaleDateString() : '-'}
                     </td>
+                    <td className="py-3 px-4">
+                      {(instance.status === 'viewed' || instance.status === 'completed') && (
+                        <button
+                          onClick={() => {
+                            setSelectedInstanceId(instance.id);
+                            setSelectedRecipientName(instance.recipient_name);
+                          }}
+                          className="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded text-xs font-medium transition-colors"
+                        >
+                          View Responses
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
+
+        {/* User Responses Modal */}
+        {selectedInstanceId && (
+          <UserResponsesModal
+            instanceId={selectedInstanceId}
+            isOpen={!!selectedInstanceId}
+            onClose={() => {
+              setSelectedInstanceId(null);
+              setSelectedRecipientName(null);
+            }}
+            recipientName={selectedRecipientName}
+          />
+        )}
       </div>
     </div>
   );

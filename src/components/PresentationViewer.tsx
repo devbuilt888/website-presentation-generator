@@ -6,6 +6,7 @@ import { getAssetUrl } from '@/config/assets';
 import { speakText, extractSlideText, stopCurrentAudio } from '@/utils/tts';
 import { translateText } from '@/utils/translations';
 import ScaledViewport from './ScaledViewport';
+import { saveUserResponse } from '@/lib/services/instances';
 
 // Stable TypeWriter component to avoid resets on parent re-renders
 const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; delayMs?: number }> = ({ text, speed = 18, className, delayMs = 0 }) => {
@@ -56,9 +57,10 @@ const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; d
 
 interface PresentationViewerProps {
   presentation: Presentation;
+  instanceId?: string;
 }
 
-export default function PresentationViewer({ presentation }: PresentationViewerProps) {
+export default function PresentationViewer({ presentation, instanceId }: PresentationViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -932,13 +934,33 @@ export default function PresentationViewer({ presentation }: PresentationViewerP
                   )}
                   <div className="flex items-center justify-center gap-6 flex-wrap">
                     <button
-                      onClick={() => handleSlideChange((currentSlide + 1) % presentation.slides.length)}
+                      onClick={async () => {
+                        const slide = presentation.slides[currentSlide];
+                        if (instanceId && slide.title) {
+                          try {
+                            await saveUserResponse(instanceId, (slide as any).id, slide.title, 'Sí');
+                          } catch (error) {
+                            console.error('Failed to save user response:', error);
+                          }
+                        }
+                        handleSlideChange((currentSlide + 1) % presentation.slides.length);
+                      }}
                       className="quiz-btn quiz-btn-yes"
                     >
                       Sí
                     </button>
                     <button
-                      onClick={() => handleSlideChange((currentSlide + 1) % presentation.slides.length)}
+                      onClick={async () => {
+                        const slide = presentation.slides[currentSlide];
+                        if (instanceId && slide.title) {
+                          try {
+                            await saveUserResponse(instanceId, (slide as any).id, slide.title, 'No');
+                          } catch (error) {
+                            console.error('Failed to save user response:', error);
+                          }
+                        }
+                        handleSlideChange((currentSlide + 1) % presentation.slides.length);
+                      }}
                       className="quiz-btn quiz-btn-no"
                     >
                       No

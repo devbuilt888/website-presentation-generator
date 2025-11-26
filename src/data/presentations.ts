@@ -779,9 +779,9 @@ export const presentations: Presentation[] = [
       },
       {
         id: 'slide-11-conveyor',
-        type: 'hero',
-        title: 'Nuestros Productos',
-        subtitle: 'Descubre nuestra gama completa',
+        type: 'pattern',
+        title: '',
+        subtitle: '',
         content: '',
         duration: 0
       }

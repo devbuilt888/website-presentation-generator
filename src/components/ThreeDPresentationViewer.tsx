@@ -9,6 +9,7 @@ import { PlusButton, BatchImportButton } from '@/components/presentations/Tutori
 
 interface ThreeDPresentationViewerProps {
   presentation: Presentation;
+  instanceId?: string;
 }
 
 // Animated Planet Component
@@ -168,7 +169,7 @@ function Scene3D({ currentSlide, totalSlides, slideData }: { currentSlide: numbe
   );
 }
 
-export default function ThreeDPresentationViewer({ presentation }: ThreeDPresentationViewerProps) {
+export default function ThreeDPresentationViewer({ presentation, instanceId }: ThreeDPresentationViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);

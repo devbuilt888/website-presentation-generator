@@ -21,6 +21,7 @@ export default function ViewPresentationPage() {
   const [error, setError] = useState('');
   const [presentation, setPresentation] = useState<Presentation | null>(null);
   const [templateId, setTemplateId] = useState<string>('');
+  const [instanceId, setInstanceId] = useState<string>('');
 
   useEffect(() => {
     loadPresentation();
@@ -31,7 +32,10 @@ export default function ViewPresentationPage() {
       // Get instance with embedded presentation data
       const instance: any = await getInstanceByToken(token);
       
-      // Mark as viewed
+      // Store instance ID for saving responses
+      setInstanceId(instance.id);
+      
+      // Mark as viewed (logs link click)
       if (instance.status !== 'viewed' && instance.status !== 'completed') {
         await markInstanceAsViewed(instance.id);
       }
@@ -113,26 +117,26 @@ export default function ViewPresentationPage() {
 
   // Render the appropriate viewer based on template ID
   if (templateId === 'super-presentation-pro') {
-    return <ThreeDPresentationViewer presentation={presentation} />;
+    return <ThreeDPresentationViewer presentation={presentation} instanceId={instanceId} />;
   }
   
   if (templateId === 'forest-night-journey') {
-    return <ForestPresentationViewer presentation={presentation} />;
+    return <ForestPresentationViewer presentation={presentation} instanceId={instanceId} />;
   }
   
   if (templateId === 'omega-balance') {
-    return <OmegaBalancePresentationViewer presentation={presentation} />;
+    return <OmegaBalancePresentationViewer presentation={presentation} instanceId={instanceId} />;
   }
   
   if (templateId === 'omega-balance-space') {
-    return <OmegaBalanceSpacePresentationViewer presentation={presentation} />;
+    return <OmegaBalanceSpacePresentationViewer presentation={presentation} instanceId={instanceId} />;
   }
   
   if (templateId === 'omega-balance-plus') {
-    return <OmegaBalancePlusPresentationViewer presentation={presentation} />;
+    return <OmegaBalancePlusPresentationViewer presentation={presentation} instanceId={instanceId} />;
   }
   
   // Default to standard viewer for zinzino-mex and others
-  return <PresentationViewer presentation={presentation} />;
+  return <PresentationViewer presentation={presentation} instanceId={instanceId} />;
 }
 

@@ -179,3 +179,85 @@ export async function updateInstanceCustomFields(
   });
 }
 
+/**
+ * Save user response for a specific slide
+ * Stores responses in metadata.user_responses JSONB field
+ */
+export async function saveUserResponse(
+  instanceId: string,
+  slideId: string,
+  question: string,
+  answer: string | { [key: string]: any }
+) {
+  // Get current instance to merge with existing metadata
+  const instance = await getInstance(instanceId);
+  const currentMetadata = (instance.metadata as any) || {};
+  const currentResponses = currentMetadata.user_responses || {};
+  
+  // Update responses with new answer
+  const updatedResponses = {
+    ...currentResponses,
+    [slideId]: {
+      question,
+      answer,
+      answered_at: new Date().toISOString(),
+    },
+  };
+  
+  // Update metadata
+  return updateInstance(instanceId, {
+    metadata: {
+      ...currentMetadata,
+      user_responses: updatedResponses,
+    } as any,
+  });
+}
+
+/**
+ * Get user responses from instance metadata
+ */
+export async function getUserResponses(instanceId: string) {
+  const instance = await getInstance(instanceId);
+  const metadata = (instance.metadata as any) || {};
+  return metadata.user_responses || {};
+}
+
+/**
+ * Log store link click
+ * Stores store link clicks in metadata.store_link_clicks JSONB field
+ */
+export async function logStoreLinkClick(
+  instanceId: string,
+  storeLink: string,
+  slideId?: string
+) {
+  // Get current instance to merge with existing metadata
+  const instance = await getInstance(instanceId);
+  const currentMetadata = (instance.metadata as any) || {};
+  const currentClicks = currentMetadata.store_link_clicks || [];
+  
+  // Add new click with timestamp
+  const newClick = {
+    store_link: storeLink,
+    slide_id: slideId || null,
+    clicked_at: new Date().toISOString(),
+  };
+  
+  // Update metadata
+  return updateInstance(instanceId, {
+    metadata: {
+      ...currentMetadata,
+      store_link_clicks: [...currentClicks, newClick],
+    } as any,
+  });
+}
+
+/**
+ * Get store link clicks from instance metadata
+ */
+export async function getStoreLinkClicks(instanceId: string) {
+  const instance = await getInstance(instanceId);
+  const metadata = (instance.metadata as any) || {};
+  return metadata.store_link_clicks || [];
+}
+

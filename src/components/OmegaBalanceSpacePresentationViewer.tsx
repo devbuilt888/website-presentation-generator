@@ -6,9 +6,11 @@ import { Stars, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { Presentation } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
+import { saveUserResponse, logStoreLinkClick } from '@/lib/services/instances';
 
 interface OmegaBalanceSpacePresentationViewerProps {
   presentation: Presentation;
+  instanceId?: string;
 }
 
 // Animated Planet Component
@@ -175,7 +177,7 @@ function SpaceScene({ currentSlide }: { currentSlide: number }) {
   );
 }
 
-export default function OmegaBalanceSpacePresentationViewer({ presentation }: OmegaBalanceSpacePresentationViewerProps) {
+export default function OmegaBalanceSpacePresentationViewer({ presentation, instanceId }: OmegaBalanceSpacePresentationViewerProps) {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<Record<string, any>>({});
   const [omega3, setOmega3] = useState('');
@@ -218,17 +220,36 @@ export default function OmegaBalanceSpacePresentationViewer({ presentation }: Om
     return typeof next === 'number' ? next : currentSlideIndex + 1;
   };
 
-  const handleAnswer = (answer: string) => {
+  const handleAnswer = async (answer: string) => {
     const currentSlide = presentation.slides[currentSlideIndex];
     setUserAnswers({ ...userAnswers, [currentSlide.id]: answer });
+    
+    // Save response to database if instanceId is provided
+    if (instanceId && currentSlide.title) {
+      try {
+        await saveUserResponse(instanceId, currentSlide.id, currentSlide.title, answer);
+      } catch (error) {
+        console.error('Failed to save user response:', error);
+      }
+    }
     
     const nextIndex = getNextSlide(currentSlide.id, answer);
     setCurrentSlideIndex(nextIndex);
   };
 
-  const handleOmegaSubmit = () => {
+  const handleOmegaSubmit = async () => {
     const currentSlide = presentation.slides[currentSlideIndex];
-    setUserAnswers({ ...userAnswers, [currentSlide.id]: { omega3, omega6 } });
+    const answer = { omega3, omega6 };
+    setUserAnswers({ ...userAnswers, [currentSlide.id]: answer });
+    
+    // Save response to database if instanceId is provided
+    if (instanceId && currentSlide.title) {
+      try {
+        await saveUserResponse(instanceId, currentSlide.id, currentSlide.title, answer);
+      } catch (error) {
+        console.error('Failed to save user response:', error);
+      }
+    }
     
     const nextIndex = getNextSlide(currentSlide.id);
     setCurrentSlideIndex(nextIndex);
@@ -541,6 +562,15 @@ export default function OmegaBalanceSpacePresentationViewer({ presentation }: Om
               href={currentSlide.content}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={async () => {
+                if (instanceId && currentSlide.content) {
+                  try {
+                    await logStoreLinkClick(instanceId, currentSlide.content, currentSlide.id);
+                  } catch (error) {
+                    console.error('Failed to log store link click:', error);
+                  }
+                }
+              }}
               className="inline-block px-16 py-6 text-3xl font-bold bg-gradient-to-r from-emerald-600/90 to-teal-600/90 hover:from-emerald-500/90 hover:to-teal-500/90 backdrop-blur-sm text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-emerald-400/50"
             >
               {currentSlide.content || 'Obtener Test'}
