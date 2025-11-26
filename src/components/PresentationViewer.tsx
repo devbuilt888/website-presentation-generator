@@ -7,6 +7,9 @@ import { speakText, extractSlideText, stopCurrentAudio } from '@/utils/tts';
 import { translateText } from '@/utils/translations';
 import ScaledViewport from './ScaledViewport';
 import { saveUserResponse } from '@/lib/services/instances';
+import { useTranslation } from '@/hooks/useTranslation';
+import LanguageSwitcher from './LanguageSwitcher';
+import { usePresentationTranslation } from '@/utils/presentationTranslations';
 
 // Stable TypeWriter component to avoid resets on parent re-renders
 const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; delayMs?: number }> = ({ text, speed = 18, className, delayMs = 0 }) => {
@@ -68,7 +71,8 @@ export default function PresentationViewer({ presentation, instanceId }: Present
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [transition, setTransition] = useState<{ active: boolean; type: 'fade' | 'zoom-fade' | 'checkerboard' | 'fade-white' | 'prezoom'; duration: number }>({ active: false, type: 'fade', duration: 900 });
   const [pendingSlide, setPendingSlide] = useState<number | null>(null);
-  const [isTranslated, setIsTranslated] = useState(false); // Translation state
+  const { isSpanish } = useTranslation();
+  const { translateSlide } = usePresentationTranslation(presentation.id);
   
   // Timers for auto-play and progress
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -399,9 +403,9 @@ export default function PresentationViewer({ presentation, instanceId }: Present
               )}
               <div className="absolute inset-0 bg-black bg-opacity-30"></div>
               <div className="text-center text-white relative z-10 px-6">
-                <h1 className="text-5xl font-bold mb-4">{translateText(slide.title || '', isTranslated && presentation.id === 'zinzino-mex')}</h1>
-                <h2 className="text-2xl mb-4 text-white/90">{translateText(slide.subtitle || '', isTranslated && presentation.id === 'zinzino-mex')}</h2>
-                <p className="text-lg opacity-80 mb-6">{translateText(slide.content || '', isTranslated && presentation.id === 'zinzino-mex')}</p>
+                <h1 className="text-5xl font-bold mb-4">{translateText(slide.title || '', !isSpanish)}</h1>
+                <h2 className="text-2xl mb-4 text-white/90">{translateText(slide.subtitle || '', !isSpanish)}</h2>
+                <p className="text-lg opacity-80 mb-6">{translateText(slide.content || '', !isSpanish)}</p>
                 {slide.userName && (
                   <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 inline-block">
                     <p className="text-lg font-semibold">{slide.userName}</p>
@@ -448,7 +452,7 @@ export default function PresentationViewer({ presentation, instanceId }: Present
                 {/* Headline stack (no card; light glow) */}
                 <div className="intro-stack">
                   {(() => {
-                    const txt = translateText(slide.title || '', isTranslated && presentation.id === 'zinzino-mex');
+                    const txt = translateText(slide.title || '', !isSpanish);
                     const parts = txt.split(' ');
                     const last = parts.pop() || '';
                     const first = parts.join(' ');
@@ -456,7 +460,7 @@ export default function PresentationViewer({ presentation, instanceId }: Present
                       <h1 className="intro-title-modern"><span style={{ fontWeight: 300 }}>{first} </span><span style={{ fontWeight: 600 }}>{last}</span></h1>
                     );
                   })()}
-                  <h2 className="intro-subtitle-modern">{translateText(slide.subtitle || '', isTranslated && presentation.id === 'zinzino-mex')}</h2>
+                  <h2 className="intro-subtitle-modern">{translateText(slide.subtitle || '', !isSpanish)}</h2>
                   {/* Action buttons replacing content text */}
                   <div className="flex flex-col gap-4 mt-6">
                     <button className="action-button contact-btn">
@@ -666,13 +670,13 @@ export default function PresentationViewer({ presentation, instanceId }: Present
                 padding: '0 2%'
               }}>
                 {slide.title && (
-                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`text-black ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
+                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), !isSpanish)} className={`text-black ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
                 )}
                 {slide.subtitle && (
-                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), isTranslated && presentation.id === 'zinzino-mex')} className="text-black/80 mt-3 overlay-body" />
+                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), !isSpanish)} className="text-black/80 mt-3 overlay-body" />
                 )}
                 {slide.content && (
-                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`text-black/70 mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
+                  <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.content), !isSpanish)} className={`text-black/70 mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
                 )}
               </div>
             )}
@@ -909,7 +913,7 @@ export default function PresentationViewer({ presentation, instanceId }: Present
                 {slide.title && (
                   <div className="mb-8 text-center px-6 max-w-4xl">
                     <TypeWriter 
-                      text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} 
+                      text={translateText(applyHighlights((slide as any).id, slide.title), !isSpanish)} 
                       className="text-black overlay-sub" 
                     />
                   </div>
@@ -928,7 +932,7 @@ export default function PresentationViewer({ presentation, instanceId }: Present
                 <div className="text-center px-6 max-w-2xl">
                   {slide.title && (
                     <TypeWriter 
-                      text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} 
+                      text={translateText(applyHighlights((slide as any).id, slide.title), !isSpanish)} 
                       className="text-4xl md:text-5xl font-bold mb-12 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)] block" 
                     />
                   )}
@@ -1018,13 +1022,13 @@ export default function PresentationViewer({ presentation, instanceId }: Present
                   padding: '0 2%'
                 }}>
                   {slide.title && (
-                    <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
+                    <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), !isSpanish)} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />
                   )}
                   {slide.subtitle && (
-                    <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/80'} mt-3 overlay-body`} />
+                    <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.subtitle), !isSpanish)} className={`${(slide as any).id === 'slide-13' ? 'text-white/90' : 'text-black/80'} mt-3 overlay-body`} />
                   )}
                   {slide.content && (
-                    <TypeWriter delayMs={(slide as any).id === 'slide-3' && slide.title ? (slide.title.length * 18) + 400 : 0} text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/80' : 'text-black/70'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
+                    <TypeWriter delayMs={(slide as any).id === 'slide-3' && slide.title ? (slide.title.length * 18) + 400 : 0} text={translateText(applyHighlights((slide as any).id, slide.content), !isSpanish)} className={`${(slide as any).id === 'slide-13' ? 'text-white/80' : 'text-black/70'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />
                   )}
                 </div>
               )
@@ -1047,8 +1051,8 @@ export default function PresentationViewer({ presentation, instanceId }: Present
             {(slide as any).id === 'slide-13' && <div className="absolute inset-0 bg-black/35" />}
             {(slide as any).id && (slide.title || slide.content) && (
               <div className="absolute z-10 text-left" style={{ left: '8%', top: '10%', width: '84%', maxWidth: '84%', padding: '0 2%' }}>
-                {slide.title && <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />}
-                {slide.content && <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.content), isTranslated && presentation.id === 'zinzino-mex')} className={`${(slide as any).id === 'slide-13' ? 'text-white/85' : 'text-black/75'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />}
+                {slide.title && <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.title), !isSpanish)} className={`${(slide as any).id === 'slide-13' ? 'text-white' : 'text-black'} ${(slide as any).id === 'slide-1' ? 'overlay-title' : 'overlay-sub'}`} />}
+                {slide.content && <TypeWriter text={translateText(applyHighlights((slide as any).id, slide.content), !isSpanish)} className={`${(slide as any).id === 'slide-13' ? 'text-white/85' : 'text-black/75'} mt-4 ${((slide as any).id === 'slide-3') ? 'overlay-sub' : 'overlay-body'}`} />}
               </div>
             )}
           </div>
@@ -1287,37 +1291,8 @@ export default function PresentationViewer({ presentation, instanceId }: Present
           
           {/* Slide indicator and translation buttons */}
           <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-            {/* Translation buttons (only for Zinzino MX presentation) */}
-            {presentation.id === 'zinzino-mex' && (
-              <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-1.5 py-1">
-                <button
-                  onClick={() => setIsTranslated(false)}
-                  className={`transition-all flex items-center justify-center ${!isTranslated ? 'opacity-100 scale-110' : 'opacity-50 hover:opacity-75'}`}
-                  title="Spanish"
-                  style={{ width: '24px', height: '18px' }}
-                >
-                  <img 
-                    src={getAssetUrl('/assets/presentation1/spainFlagPres.png')} 
-                    alt="Spain Flag" 
-                    className="w-full h-full object-contain"
-                    style={{ borderRadius: '2px' }}
-                  />
-                </button>
-                <button
-                  onClick={() => setIsTranslated(true)}
-                  className={`transition-all flex items-center justify-center ${isTranslated ? 'opacity-100 scale-110' : 'opacity-50 hover:opacity-75'}`}
-                  title="English"
-                  style={{ width: '24px', height: '18px' }}
-                >
-                  <img 
-                    src={getAssetUrl('/assets/presentation1/englandFlagPres.jpg')} 
-                    alt="England Flag" 
-                    className="w-full h-full object-contain"
-                    style={{ borderRadius: '2px' }}
-                  />
-                </button>
-              </div>
-            )}
+            {/* Language switcher - available for all presentations */}
+            <LanguageSwitcher />
             {/* Slide counter */}
             <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
               {currentSlide + 1} / {presentation.slides.length}

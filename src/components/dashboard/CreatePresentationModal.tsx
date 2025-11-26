@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { presentations } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
+import { useTranslations } from 'next-intl';
 
 interface CreatePresentationModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export default function CreatePresentationModal({
   templates,
 }: CreatePresentationModalProps) {
   const [previewingId, setPreviewingId] = useState<string | null>(null);
+  const t = useTranslations();
 
   if (!isOpen) return null;
 
@@ -89,7 +91,7 @@ export default function CreatePresentationModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
-          <h2 className="text-2xl font-bold text-white">Choose a Template</h2>
+          <h2 className="text-2xl font-bold text-white">{t('dashboard.chooseTemplate')}</h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-800 rounded-lg"
@@ -119,7 +121,7 @@ export default function CreatePresentationModal({
                   {/* Tutorial Tag */}
                   {tutorial && (
                     <div className="absolute top-3 left-3 z-10 px-3 py-1.5 bg-gradient-to-r from-amber-600 to-amber-500 text-white text-xs font-bold rounded-full backdrop-blur-sm border border-amber-400/50 shadow-lg">
-                      📚 Tutorial
+                      📚 {t('dashboard.tutorial')}
                     </div>
                   )}
 
@@ -128,7 +130,7 @@ export default function CreatePresentationModal({
                     onClick={(e) => handlePreviewClick(e, template.id)}
                     className="preview-button absolute top-3 right-3 z-10 px-3 py-1.5 bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-semibold rounded-full backdrop-blur-sm border border-indigo-400/50 shadow-lg hover:shadow-indigo-500/50 transition-all duration-200"
                   >
-                    👁️ Preview
+                    👁️ {t('common.preview')}
                   </button>
 
                   {/* Image/Preview Area */}
@@ -173,7 +175,7 @@ export default function CreatePresentationModal({
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-slate-500">
-                        {presentation?.slides?.length || 0} slides
+                        {presentation?.slides?.length || 0} {t('dashboard.slides')}
                       </span>
                       <div className={`opacity-0 group-hover:opacity-100 transition-opacity ${
                         tutorial ? 'text-amber-400' : 'text-indigo-400'

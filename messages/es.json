@@ -1,0 +1,213 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "yes": "Sí",
+    "no": "No",
+    "preview": "Vista previa",
+    "submit": "Enviar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "dashboard": "Panel",
+    "presentations": "Presentaciones",
+    "admin": "Administrador",
+    "login": "Iniciar sesión",
+    "signup": "Registrarse",
+    "logout": "Cerrar sesión"
+  },
+  "auth": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "rememberMe": "Recordarme",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "signInToAccount": "Inicia sesión en tu cuenta",
+    "createAccount": "Crea tu cuenta"
+  },
+  "dashboard": {
+    "title": "Panel",
+    "welcome": "Bienvenido de nuevo",
+    "myPresentations": "Mis Presentaciones",
+    "createNew": "Crear Nuevo",
+    "noPresentations": "Aún no hay presentaciones",
+    "createFirst": "Crea tu primera presentación",
+    "name": "Nombre",
+    "template": "Plantilla",
+    "created": "Creado",
+    "actions": "Acciones",
+    "view": "Ver",
+    "share": "Compartir",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "chooseTemplate": "Elige una Plantilla",
+    "selectTemplate": "Selecciona una plantilla para comenzar",
+    "slides": "diapositivas",
+    "tutorial": "Tutorial"
+  },
+  "presentations": {
+    "title": "Presentaciones",
+    "createPresentation": "Crear Presentación",
+    "customizePresentation": "Personalizar Presentación",
+    "recipientName": "Nombre del Destinatario",
+    "recipientEmail": "Correo del Destinatario",
+    "storeLink": "Enlace de Tienda",
+    "optional": "Opcional",
+    "create": "Crear",
+    "preview": "Vista previa",
+    "shareLink": "Enlace para Compartir",
+    "copyLink": "Copiar Enlace",
+    "linkCopied": "¡Enlace copiado!",
+    "presentationCreated": "¡Presentación creada exitosamente!",
+    "contactSender": "Contacta a quien te mandó esto",
+    "moreInfo": "Más Información",
+    "weHopeYouLiked": "Esperamos que te haya gustado la presentación",
+    "forMoreInfo": "Para más información o para ponerte en contacto, elige una opción a continuación."
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "users": "Usuarios",
+    "presentations": "Presentaciones",
+    "instances": "Instancias",
+    "batchImport": "Importación Masiva",
+    "importContacts": "Importar Contactos",
+    "exportData": "Exportar Datos"
+  },
+  "templates": {
+    "zinzino-mex": {
+      "name": "Presentación Cliente MEX - Zinzino",
+      "description": "Presentación para clientes de Zinzino México"
+    },
+    "super-presentation-pro": {
+      "name": "Super Presentación Pro",
+      "description": "Experiencia de presentación interactiva en 3D"
+    },
+    "forest-night-journey": {
+      "name": "Viaje Nocturno por el Bosque",
+      "description": "Presentación inmersiva con temática de bosque"
+    },
+    "omega-balance": {
+      "name": "Tu Balance Omega 3/6",
+      "description": "Comprende el balance de ácidos grasos omega-3 y omega-6 para una salud óptima"
+    },
+    "omega-balance-space": {
+      "name": "Tu Balance Omega 3/6 - Espacio",
+      "description": "Comprende el balance de ácidos grasos omega-3 y omega-6 con una experiencia temática espacial"
+    },
+    "omega-balance-plus": {
+      "name": "Tu Balance Omega 3/6 +",
+      "description": "Comprende el balance de ácidos grasos omega-3 y omega-6 con activos flotantes 3D inmersivos"
+    },
+    "omega-balance-new": {
+      "name": "Tu Balance Omega 3/6 - Nuevo",
+      "description": "Comprende el balance de ácidos grasos omega-3 y omega-6 con fondos de patrones elegantes"
+    }
+  },
+  "presentationContent": {
+    "zinzino-mex": {
+      "slide1": {
+        "title": "Hola {{recipientName}}",
+        "subtitle": "Descubre tu Viaje de Salud",
+        "content": "Experimenta nuestras increíbles soluciones de salud y bienestar"
+      },
+      "slide2": {
+        "title": "Queremos sentirnos bien, estar en forma y sanos",
+        "subtitle": "",
+        "content": ""
+      },
+      "slide3": {
+        "title": "Sin embargo, los problemas de salud aumentan.",
+        "subtitle": "",
+        "content": "Es el momento de preguntarse por qué"
+      },
+      "slide4": {
+        "title": "Que tu alimento sea tu medicina y tu medicina tu alimento",
+        "content": "-Hipócrates\n460-370 a.C"
+      },
+      "slide5": {
+        "title": "Solíamos obtener nuestros alimentos de la naturaleza"
+      },
+      "slide6": {
+        "title": "Hoy en día comemos alimentos preparados por el ser humano"
+      },
+      "slide7": {
+        "title": "La historia del equilibrio entre omega-6 y omega-3"
+      },
+      "slide8": {
+        "title": "¿Cuáles son las consecuencias de un desequilibrio de omega-6 y omega-3?"
+      },
+      "slide9": {
+        "title": "Así es como afecta a las células de nuestro organismo"
+      },
+      "slide10": {
+        "title": "¿Está donde quería estar o se encuentra en la zona de riesgo?"
+      },
+      "slide11": {
+        "title": "¿Sabes tu proporción de Omega-3 y Omega-6?"
+      },
+      "slide12": {
+        "title": "¿Le gustaría hacerse una prueba para conocer sus resultados?"
+      },
+      "slide13": {
+        "title": "Las pruebas las analiza nuestro laboratorio asociado independientemente: Servicios Analíticos VITAS"
+      },
+      "slide14": {
+        "title": "Los resultados de más de 1.500.000 pruebas realizadas muestran un mundo en desequilibrio"
+      },
+      "slide15": {
+        "title": "Obtenga sus resultados personales"
+      },
+      "slide16": {
+        "title": "Obtenga sus resultados personales y siga su proceso"
+      },
+      "slide17": {
+        "title": "Podemos devolverle el equilibrio en 120 días"
+      },
+      "slide18": {
+        "title": "Es fresco y muy saludable"
+      },
+      "slide19": {
+        "title": "Nuestros productos son probados por terceros y han sido fabricados de la mejor manera y con el máximo cuidado"
+      },
+      "slide20": {
+        "title": "Hay ventajas saludables para cada etapa vital"
+      },
+      "slide24": {
+        "title": "El 95 % de las personas que toman suplementos de Zinzino Balance recuperan el equilibrio en 120 días"
+      },
+      "slide25": {
+        "title": "Alcanzar un equilibrio entre el omega-6 y el omega-3 es el primer paso para sentirse bien, estar en forma y sano"
+      },
+      "slide32": {
+        "title": "Obtenga sus productos gratis"
+      },
+      "slide33": {
+        "title": "Haga sus sueños realidad"
+      },
+      "slide34": {
+        "title": "Demos forma al futuro de la nutrición juntos"
+      },
+      "final": {
+        "title": "Esperamos que te haya gustado la presentación",
+        "content": "Para más información o para ponerte en contacto, elige una opción a continuación.",
+        "moreInfo": "Más Información",
+        "contactSender": "Contacta a quien te mandó esto"
+      }
+    }
+  }
+}
+

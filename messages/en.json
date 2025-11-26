@@ -1,0 +1,213 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "yes": "Yes",
+    "no": "No",
+    "preview": "Preview",
+    "submit": "Submit"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "presentations": "Presentations",
+    "admin": "Admin",
+    "login": "Login",
+    "signup": "Sign Up",
+    "logout": "Logout"
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "forgotPassword": "Forgot Password?",
+    "rememberMe": "Remember me",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signInToAccount": "Sign in to your account",
+    "createAccount": "Create your account"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "myPresentations": "My Presentations",
+    "createNew": "Create New",
+    "noPresentations": "No presentations yet",
+    "createFirst": "Create your first presentation",
+    "name": "Name",
+    "template": "Template",
+    "created": "Created",
+    "actions": "Actions",
+    "view": "View",
+    "share": "Share",
+    "edit": "Edit",
+    "delete": "Delete",
+    "chooseTemplate": "Choose a Template",
+    "selectTemplate": "Select a template to get started",
+    "slides": "slides",
+    "tutorial": "Tutorial"
+  },
+  "presentations": {
+    "title": "Presentations",
+    "createPresentation": "Create Presentation",
+    "customizePresentation": "Customize Presentation",
+    "recipientName": "Recipient Name",
+    "recipientEmail": "Recipient Email",
+    "storeLink": "Store Link",
+    "optional": "Optional",
+    "create": "Create",
+    "preview": "Preview",
+    "shareLink": "Share Link",
+    "copyLink": "Copy Link",
+    "linkCopied": "Link copied!",
+    "presentationCreated": "Presentation created successfully!",
+    "contactSender": "Contact The Sender",
+    "moreInfo": "More Information",
+    "weHopeYouLiked": "We hope you liked the presentation",
+    "forMoreInfo": "For more information or to get in touch, choose an option below."
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "users": "Users",
+    "presentations": "Presentations",
+    "instances": "Instances",
+    "batchImport": "Batch Import",
+    "importContacts": "Import Contacts",
+    "exportData": "Export Data"
+  },
+  "templates": {
+    "zinzino-mex": {
+      "name": "Customer Presentation MEX - Zinzino",
+      "description": "Presentation for Zinzino Mexico customers"
+    },
+    "super-presentation-pro": {
+      "name": "Super Presentation Pro",
+      "description": "3D interactive presentation experience"
+    },
+    "forest-night-journey": {
+      "name": "Forest Night Journey",
+      "description": "Immersive forest-themed presentation"
+    },
+    "omega-balance": {
+      "name": "Your Omega 3/6 Balance",
+      "description": "Understanding your omega-3 and omega-6 fatty acid balance for optimal health"
+    },
+    "omega-balance-space": {
+      "name": "Your Omega 3/6 Balance - Space",
+      "description": "Understanding your omega-3 and omega-6 fatty acid balance with a stunning space-themed experience"
+    },
+    "omega-balance-plus": {
+      "name": "Your Omega 3/6 Balance +",
+      "description": "Understanding your omega-3 and omega-6 fatty acid balance with immersive 3D floating assets"
+    },
+    "omega-balance-new": {
+      "name": "Your Omega 3/6 Balance - New",
+      "description": "Understanding your omega-3 and omega-6 fatty acid balance with elegant pattern backgrounds"
+    }
+  },
+  "presentationContent": {
+    "zinzino-mex": {
+      "slide1": {
+        "title": "Hello {{recipientName}}",
+        "subtitle": "Discover Your Health Journey",
+        "content": "Experience our amazing health and wellness solutions"
+      },
+      "slide2": {
+        "title": "We want to feel good, be fit and healthy",
+        "subtitle": "",
+        "content": ""
+      },
+      "slide3": {
+        "title": "However, health problems are increasing.",
+        "subtitle": "",
+        "content": "It's time to ask why"
+      },
+      "slide4": {
+        "title": "Let your food be your medicine and your medicine be your food",
+        "content": "-Hippocrates\n460-370 BC"
+      },
+      "slide5": {
+        "title": "We used to get our food from nature"
+      },
+      "slide6": {
+        "title": "Today we eat food prepared by humans"
+      },
+      "slide7": {
+        "title": "The history of the balance between omega-6 and omega-3"
+      },
+      "slide8": {
+        "title": "What are the consequences of an imbalance between omega-6 and omega-3?"
+      },
+      "slide9": {
+        "title": "This is how it affects the cells of our organism"
+      },
+      "slide10": {
+        "title": "Are you where you wanted to be or are you in the risk zone?"
+      },
+      "slide11": {
+        "title": "Do you know your Omega-3 and Omega-6 ratio?"
+      },
+      "slide12": {
+        "title": "Would you like to take a test to know your results?"
+      },
+      "slide13": {
+        "title": "Tests are analyzed by our independent partner laboratory: Servicios Analíticos VITAS"
+      },
+      "slide14": {
+        "title": "The results of more than 1,500,000 tests performed show a world in imbalance"
+      },
+      "slide15": {
+        "title": "Get your personal results"
+      },
+      "slide16": {
+        "title": "Get your personal results and follow your progress"
+      },
+      "slide17": {
+        "title": "We can restore your balance in 120 days"
+      },
+      "slide18": {
+        "title": "It's fresh and very healthy"
+      },
+      "slide19": {
+        "title": "Our products are tested by third parties and have been manufactured in the best way and with maximum care"
+      },
+      "slide20": {
+        "title": "There are health advantages for each life stage"
+      },
+      "slide24": {
+        "title": "95% of people who take Zinzino Balance supplements regain balance in 120 days"
+      },
+      "slide25": {
+        "title": "Achieving a balance between omega-6 and omega-3 is the first step to feeling good, being fit and healthy"
+      },
+      "slide32": {
+        "title": "Get your products for free"
+      },
+      "slide33": {
+        "title": "Make your dreams come true"
+      },
+      "slide34": {
+        "title": "Let's shape the future of nutrition together"
+      },
+      "final": {
+        "title": "We hope you liked the presentation",
+        "content": "For more information or to get in touch, choose an option below.",
+        "moreInfo": "More Information",
+        "contactSender": "Contact The Sender"
+      }
+    }
+  }
+}
+

@@ -4,6 +4,7 @@ import "./globals.css";
 import Navigation from "@/components/Navigation";
 import NavGate from "@/components/NavGate";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import I18nWrapper from "@/components/I18nWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -139,12 +140,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${roboto.variable} ${openSans.variable} ${lato.variable} ${montserrat.variable} antialiased`}
       >
-        <AuthProvider>
-          <NavGate>
-            <Navigation />
-          </NavGate>
-          {children}
-        </AuthProvider>
+        <I18nWrapper>
+          <AuthProvider>
+            <NavGate>
+              <Navigation />
+            </NavGate>
+            {children}
+          </AuthProvider>
+        </I18nWrapper>
       </body>
     </html>
   );

@@ -86,8 +86,19 @@ const translations: Record<string, string> = {
 };
 
 // Helper function to translate text while preserving brand names
+// isTranslated: true means translate TO English (from Spanish), false means keep Spanish
 export function translateText(text: string, isTranslated: boolean): string {
   if (!isTranslated || !text) return text;
+  
+  // Try to use next-intl if available (client-side)
+  if (typeof window !== 'undefined') {
+    try {
+      // This will be handled by the i18n system via the translation messages
+      // For now, fall back to the existing translation map
+    } catch (e) {
+      // Continue with existing logic
+    }
+  }
   
   // Split text into words and preserve HTML tags if present
   const hasHTML = /<[^>]+>/g.test(text);
