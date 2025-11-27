@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { Presentation } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
 import { saveUserResponse, logStoreLinkClick } from '@/lib/services/instances';
+import { useMobileTapNavigation, isInputSlide } from '@/hooks/useMobileTapNavigation';
 
 // CSS-based Pattern Background Component
 function PatternBackgroundCSS() {
@@ -240,8 +241,28 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
   const currentSlide = presentation.slides[currentSlideIndex];
 
+  // Mobile tap navigation - omega presentations are forward-only
+  const isInput = isInputSlide(currentSlide);
+  const { containerRef: mobileTapRef } = useMobileTapNavigation({
+    onRightTap: () => {
+      // Only allow forward navigation, and only if not on input slide
+      if (!isInput) {
+        const nextIndex = getNextSlide(currentSlide.id);
+        if (nextIndex !== currentSlideIndex) {
+          setCurrentSlideIndex(nextIndex);
+        }
+      }
+    },
+    enabled: true,
+    allowBackward: false, // Omega presentations are forward-only
+    isInputSlide: isInput,
+  });
+
   return (
-    <div className="w-full h-screen flex items-center justify-center overflow-hidden relative">
+    <div 
+      ref={mobileTapRef}
+      className="w-full h-screen flex items-center justify-center overflow-hidden relative"
+    >
       {/* Pattern Background - Always visible */}
       <PatternBackgroundCSS />
       

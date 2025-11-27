@@ -10,6 +10,7 @@ import { saveUserResponse } from '@/lib/services/instances';
 import { useTranslation } from '@/hooks/useTranslation';
 import LanguageSwitcher from './LanguageSwitcher';
 import { usePresentationTranslation } from '@/utils/presentationTranslations';
+import { useMobileTapNavigation, isInputSlide, isForwardOnlyPresentation } from '@/hooks/useMobileTapNavigation';
 
 // Stable TypeWriter component to avoid resets on parent re-renders
 const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; delayMs?: number }> = ({ text, speed = 18, className, delayMs = 0 }) => {
@@ -73,6 +74,27 @@ export default function PresentationViewer({ presentation, instanceId }: Present
   const [pendingSlide, setPendingSlide] = useState<number | null>(null);
   const { isSpanish } = useTranslation();
   const { translateSlide } = usePresentationTranslation(presentation.id);
+  
+  // Mobile tap navigation
+  const currentSlideObj = presentation.slides[currentSlide];
+  const allowBackward = !isForwardOnlyPresentation(presentation.id);
+  const isInput = isInputSlide(currentSlideObj);
+  
+  const { containerRef: mobileTapRef } = useMobileTapNavigation({
+    onLeftTap: () => {
+      if (allowBackward && currentSlide > 0) {
+        handleSlideChange(currentSlide - 1);
+      }
+    },
+    onRightTap: () => {
+      if (currentSlide < presentation.slides.length - 1) {
+        handleSlideChange(currentSlide + 1);
+      }
+    },
+    enabled: true,
+    allowBackward,
+    isInputSlide: isInput,
+  });
   
   // Timers for auto-play and progress
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -1278,6 +1300,7 @@ export default function PresentationViewer({ presentation, instanceId }: Present
 
   return (
     <div 
+      ref={mobileTapRef}
       className={`w-full h-screen bg-black ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}
       onMouseMove={handleMouseMove}
       onKeyDown={handleKeyDown}

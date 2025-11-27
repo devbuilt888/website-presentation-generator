@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { Presentation } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
 import { saveUserResponse, logStoreLinkClick } from '@/lib/services/instances';
+import { useMobileTapNavigation, isInputSlide } from '@/hooks/useMobileTapNavigation';
 
 // CSS-based Pattern Background Component
 function PatternBackgroundCSS() {
@@ -583,8 +584,28 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
   // Check if current slide is the pattern background slide
   const isPatternSlide = currentSlide.id === 'slide-11-conveyor';
 
+  // Mobile tap navigation - omega presentations are forward-only
+  const isInput = isInputSlide(currentSlide);
+  const { containerRef: mobileTapRef } = useMobileTapNavigation({
+    onRightTap: () => {
+      // Only allow forward navigation, and only if not on input slide
+      if (!isInput) {
+        const nextIndex = getNextSlide(currentSlide.id);
+        if (nextIndex !== currentSlideIndex) {
+          setCurrentSlideIndex(nextIndex);
+        }
+      }
+    },
+    enabled: true,
+    allowBackward: false, // Omega presentations are forward-only
+    isInputSlide: isInput,
+  });
+
   return (
-    <div className="w-full h-screen bg-black flex items-center justify-center overflow-hidden relative">
+    <div 
+      ref={mobileTapRef}
+      className="w-full h-screen bg-black flex items-center justify-center overflow-hidden relative"
+    >
       {/* CSS Pattern Background for slide 11 */}
       {isPatternSlide ? (
         <PatternBackgroundCSS />

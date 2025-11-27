@@ -7,6 +7,7 @@ import * as THREE from 'three';
 import { Presentation, PresentationSlide } from '@/data/presentations';
 import { PlusButton, BatchImportButton } from '@/components/presentations/TutorialButtons';
 import { TutorialFormPreview, TutorialPresentationCardPreview } from '@/components/presentations/TutorialPreviews';
+import { useMobileTapNavigation, isInputSlide } from '@/hooks/useMobileTapNavigation';
 
 interface ForestPresentationViewerProps {
   presentation: Presentation;
@@ -486,8 +487,27 @@ export default function ForestPresentationViewer({ presentation, instanceId }: F
 
   const currentSlideData = presentation.slides[currentSlide];
 
+  // Mobile tap navigation - allow backward navigation for this presentation
+  const isInput = isInputSlide(currentSlideData);
+  const { containerRef: mobileTapRef } = useMobileTapNavigation({
+    onLeftTap: () => {
+      if (currentSlide > 0) {
+        handleSlideChange(currentSlide - 1);
+      }
+    },
+    onRightTap: () => {
+      if (currentSlide < presentation.slides.length - 1) {
+        handleSlideChange(currentSlide + 1);
+      }
+    },
+    enabled: true,
+    allowBackward: true,
+    isInputSlide: isInput,
+  });
+
   return (
     <div 
+      ref={mobileTapRef}
       className={`w-full h-screen bg-black ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}
       onMouseMove={handleMouseMove}
       onKeyDown={handleKeyDown}
