@@ -270,14 +270,14 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
       <div className="relative z-10 max-w-4xl w-full mx-auto px-6">
         {/* Slide 1: Introduction with Play Button */}
         {currentSlide.id === 'slide-1' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-6xl font-bold mb-6 drop-shadow-lg">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-6xl font-bold mb-6 drop-shadow-lg text-slate-800">
               {currentSlide.title}
             </h1>
-            <h2 className="text-3xl mb-4 text-purple-200">
+            <h2 className="text-3xl mb-4 text-slate-700">
               {currentSlide.subtitle}
             </h2>
-            <p className="text-2xl mb-12 text-purple-100">
+            <p className="text-2xl mb-12 text-slate-600">
               {currentSlide.content}
             </p>
             
@@ -299,8 +299,8 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 2: Yes/No Question - Do you know your balance? */}
         {currentSlide.id === 'slide-2' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-12 drop-shadow-lg">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-5xl font-bold mb-12 drop-shadow-lg text-slate-800">
               {currentSlide.title}
             </h1>
             
@@ -323,17 +323,17 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 3: Input Omega Values */}
         {currentSlide.id === 'slide-3-input' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-5xl font-bold mb-4 drop-shadow-lg text-slate-800">
               {currentSlide.title}
             </h1>
-            <h2 className="text-2xl mb-12 text-purple-200">
+            <h2 className="text-2xl mb-12 text-slate-700">
               {currentSlide.subtitle}
             </h2>
             
             <div className="max-w-md mx-auto space-y-6">
               <div>
-                <label className="block text-2xl font-semibold mb-3">Omega 3</label>
+                <label className="block text-2xl font-semibold mb-3 text-slate-800">Omega 3</label>
                 <input
                   type="number"
                   value={omega3}
@@ -345,7 +345,7 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
               </div>
               
               <div>
-                <label className="block text-2xl font-semibold mb-3">Omega 6</label>
+                <label className="block text-2xl font-semibold mb-3 text-slate-800">Omega 6</label>
                 <input
                   type="number"
                   value={omega6}
@@ -369,11 +369,11 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 4: Unbalanced Message */}
         {currentSlide.id === 'slide-4-unbalanced' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-6 drop-shadow-lg text-yellow-300">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-5xl font-bold mb-6 drop-shadow-lg text-amber-700">
               {currentSlide.title}
             </h1>
-            <p className="text-2xl mb-12 text-purple-100 max-w-2xl mx-auto">
+            <p className="text-2xl mb-12 text-slate-700 max-w-2xl mx-auto">
               {currentSlide.content}
             </p>
             
@@ -388,14 +388,14 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 5: Perfect Balance + Health Concerns */}
         {currentSlide.id === 'slide-5-balanced' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-4 drop-shadow-lg text-green-300">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-5xl font-bold mb-4 drop-shadow-lg text-emerald-700">
               {currentSlide.title}
             </h1>
-            <h2 className="text-2xl mb-6 text-purple-200">
+            <h2 className="text-2xl mb-6 text-slate-700">
               {currentSlide.subtitle}
             </h2>
-            <p className="text-xl mb-8 text-purple-100">
+            <p className="text-xl mb-8 text-slate-600">
               {currentSlide.content}
             </p>
             
@@ -427,14 +427,14 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 6: Apology Message */}
         {currentSlide.id === 'slide-6-apology' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-6 drop-shadow-lg">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-5xl font-bold mb-6 drop-shadow-lg text-slate-800">
               {currentSlide.title}
             </h1>
-            <h2 className="text-3xl mb-4 text-purple-200">
+            <h2 className="text-3xl mb-4 text-slate-700">
               {currentSlide.subtitle}
             </h2>
-            <p className="text-2xl mb-12 text-purple-100">
+            <p className="text-2xl mb-12 text-slate-600">
               {currentSlide.content}
             </p>
             
@@ -449,8 +449,8 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 7: Video 1 - Embedded iframe */}
         {currentSlide.id === 'slide-7-video1' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-4xl font-bold mb-8 drop-shadow-lg">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-4xl font-bold mb-8 drop-shadow-lg text-slate-800">
               {currentSlide.title}
             </h1>
             
@@ -480,8 +480,8 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 8: Question - Would you like to know your level? */}
         {currentSlide.id === 'slide-8-question' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-12 drop-shadow-lg">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-5xl font-bold mb-12 drop-shadow-lg text-slate-800">
               {currentSlide.title}
             </h1>
             
@@ -504,11 +504,11 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 9: Video 2 - From Supabase Storage */}
         {currentSlide.id === 'slide-9-video2' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-4xl font-bold mb-4 drop-shadow-lg text-slate-800">
               {currentSlide.title}
             </h1>
-            <p className="text-2xl mb-8 text-purple-200">
+            <p className="text-2xl mb-8 text-slate-700">
               {currentSlide.subtitle}
             </p>
             
@@ -536,8 +536,8 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 10: Final - Get Your Test */}
         {currentSlide.id === 'slide-10-final' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-8 drop-shadow-lg">
+          <div className="text-center text-gray-900 animate-fadeIn">
+            <h1 className="text-5xl font-bold mb-8 drop-shadow-lg text-slate-800">
               {currentSlide.title}
             </h1>
             
@@ -559,7 +559,7 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
               {currentSlide.content || 'Obtener Test'}
             </a>
             
-            <p className="mt-8 text-lg text-purple-200 drop-shadow-lg">
+            <p className="mt-8 text-lg text-slate-700 drop-shadow-lg">
               Haz clic para conseguir tu test
             </p>
           </div>
@@ -567,8 +567,8 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
       </div>
 
       {/* Progress Indicator */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-black/50 backdrop-blur-sm rounded-full px-6 py-3 border border-indigo-400/50 z-20">
-        <p className="text-white text-sm">
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 border-2 border-slate-300 shadow-lg z-20">
+        <p className="text-slate-800 text-sm font-semibold">
           Paso {currentSlideIndex + 1} de {presentation.slides.length}
         </p>
       </div>
