@@ -11,6 +11,7 @@ export default function Navigation() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Check if user is admin
   useEffect(() => {
@@ -20,6 +21,21 @@ export default function Navigation() {
       setIsAdmin(false);
     }
   }, [user]);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (showMobileMenu && !target.closest('.mobile-menu-container')) {
+        setShowMobileMenu(false);
+      }
+    };
+
+    if (showMobileMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showMobileMenu]);
 
   // Don't show navigation on auth pages or view pages
   if (pathname?.startsWith('/auth') || pathname?.startsWith('/view')) {
@@ -75,7 +91,7 @@ export default function Navigation() {
             {/* Right: Navigation & User Actions */}
             {user && (
               <div className="flex items-center gap-4">
-                {/* Navigation Links */}
+                {/* Desktop Navigation Links */}
                 <div className="hidden md:flex items-center gap-2">
                   <Link 
                     href="/dashboard"
@@ -98,6 +114,53 @@ export default function Navigation() {
                     >
                       Admin
                     </Link>
+                  )}
+                </div>
+
+                {/* Mobile Menu Button */}
+                <div className="md:hidden relative mobile-menu-container">
+                  <button
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                    className="p-2 text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all duration-200 border border-slate-700/50 hover:border-slate-600/50"
+                    aria-label="Menu"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {showMobileMenu ? (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      ) : (
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                      )}
+                    </svg>
+                  </button>
+
+                  {/* Mobile Dropdown Menu */}
+                  {showMobileMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-slate-800/95 backdrop-blur-xl rounded-lg shadow-2xl border border-slate-700/50 py-2 z-50">
+                      <Link 
+                        href="/dashboard"
+                        onClick={() => setShowMobileMenu(false)}
+                        className={`block px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                          pathname === '/dashboard' 
+                            ? 'bg-indigo-600/20 text-indigo-300 border-l-2 border-indigo-500' 
+                            : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                        }`}
+                      >
+                        Dashboard
+                      </Link>
+                      {isAdmin && (
+                        <Link 
+                          href="/admin"
+                          onClick={() => setShowMobileMenu(false)}
+                          className={`block px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                            pathname === '/admin' 
+                              ? 'bg-purple-600/20 text-purple-300 border-l-2 border-purple-500' 
+                              : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                          }`}
+                        >
+                          Admin
+                        </Link>
+                      )}
+                    </div>
                   )}
                 </div>
                 

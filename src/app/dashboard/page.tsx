@@ -300,29 +300,31 @@ function DashboardContent() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {(instance.status === 'viewed' || instance.status === 'completed') && (
                           <button
                             onClick={() => {
                               setSelectedInstanceId(instance.id);
                               setSelectedRecipientName(instance.recipient_name);
                             }}
-                            className="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors border border-purple-500/50"
+                            className="px-2 py-1.5 md:px-4 md:py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs md:text-sm font-medium transition-colors border border-purple-500/50"
                           >
-                            View Responses
+                            <span className="hidden sm:inline">View Responses</span>
+                            <span className="sm:hidden">Responses</span>
                           </button>
                         )}
                         <button
                           onClick={() => copyLink(instance.share_token)}
-                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-medium transition-colors border border-indigo-500/50"
+                          className="px-2 py-1.5 md:px-4 md:py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs md:text-sm font-medium transition-colors border border-indigo-500/50"
                         >
-                          Copy Link
+                          <span className="hidden sm:inline">Copy Link</span>
+                          <span className="sm:hidden">Copy</span>
                         </button>
                         <a
                           href={link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-sm font-medium transition-colors border border-slate-600/50"
+                          className="px-2 py-1.5 md:px-4 md:py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs md:text-sm font-medium transition-colors border border-slate-600/50"
                         >
                           View
                         </a>
