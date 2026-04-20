@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from './auth/AuthProvider';
 import { isUserAdmin } from '@/lib/utils/user-roles';
 import Logo from './Logo';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -55,29 +56,35 @@ export default function Navigation() {
               Presentation Maker
             </Link>
             
-            {/* Top Right Actions - Minimal for non-authenticated */}
-            {!user && (
-              <div className="flex items-center gap-3">
-                <Link 
-                  href="/auth/login"
-                  className="px-4 py-1.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
-                >
-                  Sign In
-                </Link>
-                <Link 
-                  href="/auth/signup"
-                  className="px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            )}
+            {/* Top Right Actions */}
+            <div className="flex items-center gap-3">
+              {/* Language Switcher - Always visible */}
+              <LanguageSwitcher variant="light" />
+              
+              {/* Auth buttons - Only for non-authenticated */}
+              {!user && (
+                <>
+                  <Link 
+                    href="/auth/login"
+                    className="px-4 py-1.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
+                  >
+                    Sign In
+                  </Link>
+                  <Link 
+                    href="/auth/signup"
+                    className="px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Dark Bottom Section - Logo & Navigation */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl border-b border-slate-700/50 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 backdrop-blur-xl border-b border-slate-700/50 relative overflow-visible">
         {/* Subtle gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/10 via-transparent to-purple-900/10 pointer-events-none" />
         

@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import { presentations } from '@/data/presentations';
 import type { BatchImportResult } from '@/lib/services/batch';
+import { useTranslations } from 'next-intl';
 
 export default function DashboardPage() {
   return (
@@ -26,6 +27,9 @@ export default function DashboardPage() {
 function DashboardContent() {
   const { user, signOut } = useAuth();
   const router = useRouter();
+  const tCommon = useTranslations('common');
+  const tDashboard = useTranslations('dashboard');
+  const tPresentations = useTranslations('presentations');
   const [instances, setInstances] = useState<any[]>([]);
   const [templates, setTemplates] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,7 +117,7 @@ function DashboardContent() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-2 border-indigo-500 border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-slate-400">Loading...</p>
+          <p className="mt-4 text-slate-400">{tCommon('loading')}</p>
         </div>
       </div>
     );
@@ -128,12 +132,14 @@ function DashboardContent() {
           {/* Tooltip with Arrow */}
           <div className="mb-6 flex items-center gap-4">
             <div className="px-6 py-3 bg-slate-800/90 backdrop-blur-sm text-white text-sm md:text-base rounded-xl shadow-2xl border border-slate-700/50 max-w-md text-center">
-              Click to create a new presentation
+              {tDashboard('clickToCreate')}
             </div>
-            <div className="relative">
-              <svg className="w-8 h-8 text-indigo-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-              </svg>
+            <div className="relative" style={{ transform: 'rotate(130deg) translate(70px, 50px)', transformOrigin: 'center' }}>
+              <img 
+                src="/presenTarrow.png" 
+                alt="Arrow" 
+                className="w-24 h-24 animate-bounce"
+              />
             </div>
           </div>
           
@@ -175,7 +181,7 @@ function DashboardContent() {
 
         {shareLink && (
           <div className="mb-6 p-4 bg-emerald-900/30 border border-emerald-700/50 rounded-xl backdrop-blur-sm">
-            <p className="text-emerald-300 font-medium mb-2">Presentation created successfully!</p>
+            <p className="text-emerald-300 font-medium mb-2">{tDashboard('presentationCreatedSuccess')}</p>
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -187,11 +193,11 @@ function DashboardContent() {
                 onClick={() => {
                   if (!shareLink) return;
                   navigator.clipboard.writeText(shareLink);
-                  showToast('Link copied to clipboard');
+                  showToast(tDashboard('linkCopied'));
                 }}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 text-sm transition-colors"
               >
-                Copy
+                {tDashboard('copy')}
               </button>
             </div>
           </div>
@@ -213,7 +219,7 @@ function DashboardContent() {
           <div className="mb-8">
             <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-white">Customize Presentation</h2>
+                <h2 className="text-xl font-semibold text-white">{tPresentations('customizePresentation')}</h2>
                 <button
                   onClick={() => {
                     setShowForm(false);
@@ -242,14 +248,14 @@ function DashboardContent() {
               onClick={() => setShowBatchImport(true)}
               className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-500 hover:to-teal-500 text-sm font-semibold shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 border border-emerald-500/50"
             >
-              📥 Batch Import Contacts
+              📥 {tDashboard('batchImportContacts')}
             </button>
           </div>
         )}
 
         {/* Sent Presentations */}
         <div>
-          <h2 className="text-xl font-semibold text-white mb-6">Your Presentations</h2>
+          <h2 className="text-xl font-semibold text-white mb-6">{tDashboard('yourPresentations')}</h2>
           {instances.length === 0 ? (
             <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 p-12 text-center">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-indigo-600/20 to-purple-600/20 flex items-center justify-center border border-indigo-500/30">
@@ -257,8 +263,8 @@ function DashboardContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <p className="text-slate-400 mb-2">No presentations created yet</p>
-              <p className="text-slate-500 text-sm">Click the + button to create your first presentation</p>
+              <p className="text-slate-400 mb-2">{tDashboard('noPresentationsYet')}</p>
+              <p className="text-slate-500 text-sm">{tDashboard('clickPlusToCreate')}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
@@ -279,7 +285,7 @@ function DashboardContent() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="font-semibold text-white text-lg">
-                            {instance.recipient_name || 'Unnamed Recipient'}
+                            {instance.recipient_name || tDashboard('unnamedRecipient')}
                           </h3>
                           <span
                             className={`px-2 py-1 text-xs font-semibold rounded-full text-white ${
@@ -290,13 +296,13 @@ function DashboardContent() {
                           </span>
                         </div>
                         <p className="text-sm text-slate-400 mb-3">
-                          {instance.recipient_email || 'No email'}
+                          {instance.recipient_email || tDashboard('noEmail')}
                         </p>
                         <div className="flex items-center gap-4 text-sm text-slate-500">
                           <span>
                             {instance.sent_at
                               ? new Date(instance.sent_at).toLocaleDateString()
-                              : 'Not sent'}
+                              : tDashboard('notSent')}
                           </span>
                         </div>
                       </div>
@@ -309,16 +315,16 @@ function DashboardContent() {
                             }}
                             className="px-2 py-1.5 md:px-4 md:py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs md:text-sm font-medium transition-colors border border-purple-500/50"
                           >
-                            <span className="hidden sm:inline">View Responses</span>
-                            <span className="sm:hidden">Responses</span>
+                            <span className="hidden sm:inline">{tDashboard('viewResponses')}</span>
+                            <span className="sm:hidden">{tDashboard('responses')}</span>
                           </button>
                         )}
                         <button
                           onClick={() => copyLink(instance.share_token)}
                           className="px-2 py-1.5 md:px-4 md:py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs md:text-sm font-medium transition-colors border border-indigo-500/50"
                         >
-                          <span className="hidden sm:inline">Copy Link</span>
-                          <span className="sm:hidden">Copy</span>
+                          <span className="hidden sm:inline">{tDashboard('copyLink')}</span>
+                          <span className="sm:hidden">{tDashboard('copy')}</span>
                         </button>
                         <a
                           href={link}
@@ -326,7 +332,7 @@ function DashboardContent() {
                           rel="noopener noreferrer"
                           className="px-2 py-1.5 md:px-4 md:py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs md:text-sm font-medium transition-colors border border-slate-600/50"
                         >
-                          View
+                          {tDashboard('view')}
                         </a>
                       </div>
                     </div>

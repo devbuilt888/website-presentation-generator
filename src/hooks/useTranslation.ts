@@ -1,26 +1,31 @@
 'use client';
 
-import { useTranslations, useLocale as useNextIntlLocale } from 'next-intl';
 import { useEffect, useState } from 'react';
 
+// Fallback translation function
+const fallbackT = (key: string) => key;
+
 export function useTranslation() {
-  const t = useTranslations();
-  const locale = useNextIntlLocale();
-  const [currentLocale, setCurrentLocale] = useState<string>(locale);
+  const [currentLocale, setCurrentLocale] = useState<string>('en');
 
   useEffect(() => {
-    const savedLocale = localStorage.getItem('locale') || locale;
-    setCurrentLocale(savedLocale);
-  }, [locale]);
+    // Load locale from localStorage
+    if (typeof window !== 'undefined') {
+      const savedLocale = localStorage.getItem('locale') || 'en';
+      setCurrentLocale(savedLocale);
+    }
+  }, []);
 
   const changeLocale = (newLocale: string) => {
-    localStorage.setItem('locale', newLocale);
-    setCurrentLocale(newLocale);
-    window.location.reload();
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('locale', newLocale);
+      setCurrentLocale(newLocale);
+      window.location.reload();
+    }
   };
 
   return {
-    t,
+    t: fallbackT, // Components should use useTranslations directly from next-intl when in context
     locale: currentLocale,
     changeLocale,
     isSpanish: currentLocale === 'es',

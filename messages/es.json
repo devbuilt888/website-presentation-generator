@@ -57,7 +57,19 @@
     "chooseTemplate": "Elige una Plantilla",
     "selectTemplate": "Selecciona una plantilla para comenzar",
     "slides": "diapositivas",
-    "tutorial": "Tutorial"
+    "tutorial": "Tutorial",
+    "clickToCreate": "Haz clic para crear una nueva presentación",
+    "yourPresentations": "Tus Presentaciones",
+    "unnamedRecipient": "Destinatario sin nombre",
+    "noEmail": "Sin correo",
+    "notSent": "No enviado",
+    "viewResponses": "Ver Respuestas",
+    "responses": "Respuestas",
+    "copy": "Copiar",
+    "copyLink": "Copiar Enlace",
+    "linkCopied": "Enlace copiado al portapapeles",
+    "presentationCreatedSuccess": "¡Presentación creada exitosamente!",
+    "batchImportContacts": "Importación Masiva de Contactos"
   },
   "presentations": {
     "title": "Presentaciones",
@@ -85,7 +97,19 @@
     "instances": "Instancias",
     "batchImport": "Importación Masiva",
     "importContacts": "Importar Contactos",
-    "exportData": "Exportar Datos"
+    "exportData": "Exportar Datos",
+    "email": "Correo",
+    "createdAt": "Creado En",
+    "id": "ID",
+    "status": "Estado",
+    "recipientName": "Nombre del Destinatario",
+    "recipientEmail": "Correo del Destinatario",
+    "sentAt": "Enviado En",
+    "shareToken": "Token de Compartir",
+    "templateId": "ID de Plantilla",
+    "noDescription": "Sin descripción disponible",
+    "howToUsePresenT": "Cómo usar PresenT",
+    "howToUseDescription": "Aprende a crear y personalizar presentaciones impresionantes"
   },
   "templates": {
     "zinzino-mex": {

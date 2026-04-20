@@ -7,7 +7,7 @@ import { saveUserResponse, logStoreLinkClick } from '@/lib/services/instances';
 import { useMobileTapNavigation, isInputSlide } from '@/hooks/useMobileTapNavigation';
 
 // CSS-based Pattern Background Component
-function PatternBackgroundCSS() {
+function PatternBackgroundCSS({ currentSlideIndex }: { currentSlideIndex: number }) {
   const imageUrls = useMemo(() => [
     getAssetUrl('assets/zinzi-special-assets/balanceOil-one.png'),
     getAssetUrl('assets/zinzi-special-assets/balanceOil-two.png'),
@@ -30,14 +30,64 @@ function PatternBackgroundCSS() {
   return (
     <>
       <style>{`
+        /* Slide 1: Upward scroll */
         @keyframes patternScrollUp {
-          0% {
-            transform: translateY(0);
-          }
-          100% {
-            transform: translateY(-${scrollDistance}px);
-          }
+          0% { transform: translateY(0); }
+          100% { transform: translateY(-${scrollDistance}px); }
         }
+        /* Slide 2: Downward scroll */
+        @keyframes patternScrollDown {
+          0% { transform: translateY(-${scrollDistance}px); }
+          100% { transform: translateY(0); }
+        }
+        /* Slide 3: Left to right */
+        @keyframes patternScrollRight {
+          0% { transform: translateX(-${scrollDistance}px); }
+          100% { transform: translateX(0); }
+        }
+        /* Slide 4: Right to left */
+        @keyframes patternScrollLeft {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-${scrollDistance}px); }
+        }
+        /* Slide 5: Diagonal top-left to bottom-right */
+        @keyframes patternScrollDiagonal1 {
+          0% { transform: translate(-${scrollDistance}px, -${scrollDistance}px); }
+          100% { transform: translate(0, 0); }
+        }
+        /* Slide 6: Diagonal top-right to bottom-left */
+        @keyframes patternScrollDiagonal2 {
+          0% { transform: translate(${scrollDistance}px, -${scrollDistance}px); }
+          100% { transform: translate(0, 0); }
+        }
+        /* Slide 7: Circular/spiral */
+        @keyframes patternScrollCircular {
+          0% { transform: translate(0, 0) rotate(0deg); }
+          25% { transform: translate(${scrollDistance * 0.5}px, -${scrollDistance * 0.5}px) rotate(90deg); }
+          50% { transform: translate(0, -${scrollDistance}px) rotate(180deg); }
+          75% { transform: translate(-${scrollDistance * 0.5}px, -${scrollDistance * 0.5}px) rotate(270deg); }
+          100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        /* Slide 8: Horizontal wave */
+        @keyframes patternScrollWaveH {
+          0%, 100% { transform: translateX(0) translateY(0); }
+          25% { transform: translateX(${scrollDistance * 0.3}px) translateY(-${scrollDistance * 0.2}px); }
+          50% { transform: translateX(0) translateY(-${scrollDistance * 0.4}px); }
+          75% { transform: translateX(-${scrollDistance * 0.3}px) translateY(-${scrollDistance * 0.2}px); }
+        }
+        /* Slide 9: Vertical wave */
+        @keyframes patternScrollWaveV {
+          0%, 100% { transform: translateX(0) translateY(0); }
+          25% { transform: translateX(-${scrollDistance * 0.2}px) translateY(-${scrollDistance * 0.3}px); }
+          50% { transform: translateX(-${scrollDistance * 0.4}px) translateY(0); }
+          75% { transform: translateX(-${scrollDistance * 0.2}px) translateY(${scrollDistance * 0.3}px); }
+        }
+        /* Slide 10: Slow pulse/zoom */
+        @keyframes patternScrollPulse {
+          0%, 100% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-${scrollDistance * 0.2}px) scale(1.05); }
+        }
+        
         @keyframes rippleWave {
           0%, 100% {
             transform: scale(1);
@@ -78,7 +128,6 @@ function PatternBackgroundCSS() {
           row-gap: ${rowGap}px;
           width: 100%;
           height: ${totalHeight}px;
-          animation-name: patternScrollUp;
           animation-duration: 6000s;
           animation-timing-function: linear;
           animation-iteration-count: infinite;
@@ -86,6 +135,18 @@ function PatternBackgroundCSS() {
           padding: ${padding}px;
           will-change: transform;
         }
+        
+        /* Different animations based on slide */
+        .pattern-grid.slide-0 { animation-name: patternScrollUp; }
+        .pattern-grid.slide-1 { animation-name: patternScrollDown; }
+        .pattern-grid.slide-2 { animation-name: patternScrollRight; }
+        .pattern-grid.slide-3 { animation-name: patternScrollLeft; }
+        .pattern-grid.slide-4 { animation-name: patternScrollDiagonal1; }
+        .pattern-grid.slide-5 { animation-name: patternScrollDiagonal2; }
+        .pattern-grid.slide-6 { animation-name: patternScrollCircular; animation-duration: 8000s; }
+        .pattern-grid.slide-7 { animation-name: patternScrollWaveH; animation-duration: 7000s; }
+        .pattern-grid.slide-8 { animation-name: patternScrollWaveV; animation-duration: 7000s; }
+        .pattern-grid.slide-9 { animation-name: patternScrollPulse; animation-duration: 5000s; }
         .pattern-grid-item {
           width: 100%;
           height: 100%;
@@ -107,7 +168,7 @@ function PatternBackgroundCSS() {
         }
       `}</style>
       <div className="pattern-bg-container">
-        <div className="pattern-grid">
+        <div className={`pattern-grid slide-${currentSlideIndex}`}>
           {Array.from({ length: totalRows }).map((_, rowIndex) => 
             Array.from({ length: tilesPerRow }).map((_, colIndex) => {
               const imageIndex = (rowIndex * tilesPerRow + colIndex) % imageUrls.length;
@@ -264,7 +325,7 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
       className="w-full h-screen flex items-center justify-center overflow-hidden relative"
     >
       {/* Pattern Background - Always visible */}
-      <PatternBackgroundCSS />
+      <PatternBackgroundCSS currentSlideIndex={currentSlideIndex} />
       
       {/* Content Container */}
       <div className="relative z-10 max-w-4xl w-full mx-auto px-6">

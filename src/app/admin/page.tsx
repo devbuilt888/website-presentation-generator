@@ -16,6 +16,7 @@ import BatchImportForm from '@/components/presentations/BatchImportForm';
 import CreatePresentationModal from '@/components/dashboard/CreatePresentationModal';
 import UserResponsesModal from '@/components/presentations/UserResponsesModal';
 import type { BatchImportResult } from '@/lib/services/batch';
+import { useTranslations } from 'next-intl';
 
 export default function AdminPage() {
   return (
@@ -28,6 +29,10 @@ export default function AdminPage() {
 function AdminContent() {
   const { user } = useAuth();
   const router = useRouter();
+  const tCommon = useTranslations('common');
+  const tDashboard = useTranslations('dashboard');
+  const tAdmin = useTranslations('admin');
+  const tPresentations = useTranslations('presentations');
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<any[]>([]);
@@ -118,7 +123,7 @@ function AdminContent() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-2 border-indigo-500 border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-slate-400">Loading...</p>
+          <p className="mt-4 text-slate-400">{tCommon('loading')}</p>
         </div>
       </div>
     );
@@ -132,7 +137,7 @@ function AdminContent() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
+          <h1 className="text-3xl font-bold text-white">{tAdmin('title')}</h1>
           <Link
             href="/editor"
             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-500 hover:to-indigo-500 text-sm font-semibold shadow-lg hover:shadow-purple-500/50 transition-all duration-300 border border-purple-500/50"
@@ -144,15 +149,15 @@ function AdminContent() {
         {/* Statistics */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
-            <h3 className="text-slate-400 text-sm mb-2">Total Users</h3>
+            <h3 className="text-slate-400 text-sm mb-2">{tAdmin('users')}</h3>
             <p className="text-3xl font-bold text-white">{users.length}</p>
           </div>
           <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
-            <h3 className="text-slate-400 text-sm mb-2">Total Presentations</h3>
+            <h3 className="text-slate-400 text-sm mb-2">{tAdmin('presentations')}</h3>
             <p className="text-3xl font-bold text-white">{presentations.length}</p>
           </div>
           <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
-            <h3 className="text-slate-400 text-sm mb-2">Total Instances</h3>
+            <h3 className="text-slate-400 text-sm mb-2">{tAdmin('instances')}</h3>
             <p className="text-3xl font-bold text-white">{instances.length}</p>
           </div>
         </div>
@@ -163,7 +168,7 @@ function AdminContent() {
             {/* Tooltip with Arrow */}
             <div className="mb-4 flex items-center gap-3">
               <div className="px-4 py-2 bg-slate-800/90 backdrop-blur-sm text-white text-sm rounded-lg shadow-xl border border-slate-700/50">
-                Click to create a new presentation
+                {tDashboard('clickToCreate')}
               </div>
               <div className="relative">
                 <svg className="w-8 h-8 text-indigo-500 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,7 +211,7 @@ function AdminContent() {
         {/* Share Link Display */}
         {shareLink && (
           <div className="mb-6 p-4 bg-emerald-900/30 border border-emerald-700/50 rounded-xl backdrop-blur-sm">
-            <p className="text-emerald-300 font-medium mb-2">Presentation created successfully!</p>
+            <p className="text-emerald-300 font-medium mb-2">{tDashboard('presentationCreatedSuccess')}</p>
             <div className="flex items-center gap-2">
               <input
                 type="text"
@@ -218,11 +223,11 @@ function AdminContent() {
                 onClick={() => {
                   if (!shareLink) return;
                   navigator.clipboard.writeText(shareLink);
-                  showToast('Link copied to clipboard');
+                  showToast(tDashboard('linkCopied'));
                 }}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 text-sm transition-colors"
               >
-                Copy
+                {tDashboard('copy')}
               </button>
             </div>
           </div>
@@ -235,7 +240,7 @@ function AdminContent() {
               onClick={() => setShowBatchImport(true)}
               className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl hover:from-emerald-500 hover:to-teal-500 text-sm font-semibold shadow-lg hover:shadow-emerald-500/50 transition-all duration-300 border border-emerald-500/50"
             >
-              📥 Batch Import Contacts
+              📥 {tDashboard('batchImportContacts')}
             </button>
           </div>
         )}
@@ -255,7 +260,7 @@ function AdminContent() {
           <div className="mb-8">
             <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-semibold text-white">Customize Presentation</h2>
+                <h2 className="text-xl font-semibold text-white">{tPresentations('customizePresentation')}</h2>
                 <button
                   onClick={() => {
                     setShowForm(false);
@@ -279,15 +284,15 @@ function AdminContent() {
 
         {/* Users Table */}
         <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 mb-6">
-          <h2 className="text-xl font-semibold text-white mb-4">All Users</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">{tAdmin('users')}</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-700">
-                  <th className="text-left py-3 px-4 text-slate-300">Email</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Name</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Role</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Created</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('email')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tDashboard('name')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('status')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('createdAt')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -316,15 +321,15 @@ function AdminContent() {
 
         {/* Presentations Table */}
         <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 mb-6">
-          <h2 className="text-xl font-semibold text-white mb-4">All Presentations</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">{tAdmin('presentations')}</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-700">
-                  <th className="text-left py-3 px-4 text-slate-300">Name</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Template</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Created By</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Created</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tDashboard('name')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tDashboard('template')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('createdAt')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('createdAt')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -345,16 +350,16 @@ function AdminContent() {
 
         {/* Instances Table */}
         <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50">
-          <h2 className="text-xl font-semibold text-white mb-4">All Instances</h2>
+          <h2 className="text-xl font-semibold text-white mb-4">{tAdmin('instances')}</h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-700">
-                  <th className="text-left py-3 px-4 text-slate-300">Recipient</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Email</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Status</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Created</th>
-                  <th className="text-left py-3 px-4 text-slate-300">Actions</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('recipientName')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('email')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('status')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tAdmin('createdAt')}</th>
+                  <th className="text-left py-3 px-4 text-slate-300">{tDashboard('actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -379,7 +384,7 @@ function AdminContent() {
                           }}
                           className="px-3 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded text-xs font-medium transition-colors"
                         >
-                          View Responses
+                          {tDashboard('viewResponses')}
                         </button>
                       )}
                     </td>

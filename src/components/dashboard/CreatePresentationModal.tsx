@@ -20,7 +20,10 @@ export default function CreatePresentationModal({
   templates,
 }: CreatePresentationModalProps) {
   const [previewingId, setPreviewingId] = useState<string | null>(null);
-  const t = useTranslations();
+  const tCommon = useTranslations('common');
+  const tDashboard = useTranslations('dashboard');
+  const tAdmin = useTranslations('admin');
+  const tTemplates = useTranslations('templates');
 
   if (!isOpen) return null;
 
@@ -92,7 +95,7 @@ export default function CreatePresentationModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-slate-700/50">
-          <h2 className="text-2xl font-bold text-white">{t('dashboard.chooseTemplate')}</h2>
+          <h2 className="text-2xl font-bold text-white">{tDashboard('chooseTemplate')}</h2>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-white transition-colors p-2 hover:bg-slate-800 rounded-lg"
@@ -113,7 +116,7 @@ export default function CreatePresentationModal({
             >
               {/* Tutorial Tag */}
               <div className="absolute top-3 left-3 z-10 px-3 py-1.5 bg-gradient-to-r from-amber-600 to-amber-500 text-white text-xs font-bold rounded-full backdrop-blur-sm border border-amber-400/50 shadow-lg">
-                📚 {t('dashboard.tutorial')}
+                📚 {tDashboard('tutorial')}
               </div>
 
               {/* Image/Preview Area */}
@@ -137,14 +140,14 @@ export default function CreatePresentationModal({
               {/* Content */}
               <div className="p-5">
                 <h3 className="text-lg font-bold text-white mb-2 transition-colors group-hover:text-amber-400">
-                  How to use PresenT
+                  {tAdmin('howToUsePresenT')}
                 </h3>
                 <p className="text-sm text-slate-300 line-clamp-2 mb-3">
-                  Learn how to create and customize stunning presentations
+                  {tAdmin('howToUseDescription')}
                 </p>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-400">
-                    Tutorial
+                    {tDashboard('tutorial')}
                   </span>
                   <div className="opacity-0 group-hover:opacity-100 transition-opacity text-amber-400">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +175,7 @@ export default function CreatePresentationModal({
                     onClick={(e) => handlePreviewClick(e, template.id)}
                     className="preview-button absolute top-3 right-3 z-10 px-3 py-1.5 bg-indigo-600/90 hover:bg-indigo-500 text-white text-xs font-semibold rounded-full backdrop-blur-sm border border-indigo-400/50 shadow-lg hover:shadow-indigo-500/50 transition-all duration-200"
                   >
-                    👁️ {t('common.preview')}
+                    👁️ {tCommon('preview')}
                   </button>
 
                   {/* Image/Preview Area */}
@@ -207,11 +210,22 @@ export default function CreatePresentationModal({
                       {template.name}
                     </h3>
                     <p className="text-sm text-slate-400 line-clamp-2 mb-3">
-                      {template.description || 'No description available'}
+                      {(() => {
+                        try {
+                          const translatedDesc = tTemplates(`${template.id}.description`);
+                          // If translation returns the key itself, it means translation not found, use original
+                          if (translatedDesc && translatedDesc !== `${template.id}.description`) {
+                            return translatedDesc;
+                          }
+                        } catch (e) {
+                          // Fall through to use original description
+                        }
+                        return template.description || tAdmin('noDescription');
+                      })()}
                     </p>
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-slate-500">
-                        {presentation?.slides?.length || 0} {t('dashboard.slides')}
+                        {presentation?.slides?.length || 0} {tDashboard('slides')}
                       </span>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity text-indigo-400">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

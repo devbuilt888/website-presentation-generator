@@ -1,13 +1,30 @@
 'use client';
 
-import { useTranslation } from '@/hooks/useTranslation';
+import { useEffect, useState } from 'react';
 import { getAssetUrl } from '@/config/assets';
 
-export default function LanguageSwitcher() {
-  const { locale, changeLocale } = useTranslation();
+export default function LanguageSwitcher({ variant = 'dark' }: { variant?: 'dark' | 'light' }) {
+  const [locale, setLocale] = useState<string>('en');
+
+  useEffect(() => {
+    // Load locale from localStorage
+    const savedLocale = localStorage.getItem('locale') || 'en';
+    setLocale(savedLocale);
+  }, []);
+
+  const changeLocale = (newLocale: string) => {
+    localStorage.setItem('locale', newLocale);
+    setLocale(newLocale);
+    window.location.reload();
+  };
+
+  const isLight = variant === 'light';
+  const containerClass = isLight
+    ? 'flex items-center gap-1 bg-gray-100/80 hover:bg-gray-200/80 backdrop-blur-sm rounded-full px-1.5 py-1 border border-gray-300/50'
+    : 'flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-1.5 py-1';
 
   return (
-    <div className="flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-1.5 py-1">
+    <div className={containerClass}>
       <button
         onClick={() => changeLocale('es')}
         className={`transition-all flex items-center justify-center ${

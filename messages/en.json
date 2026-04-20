@@ -57,7 +57,19 @@
     "chooseTemplate": "Choose a Template",
     "selectTemplate": "Select a template to get started",
     "slides": "slides",
-    "tutorial": "Tutorial"
+    "tutorial": "Tutorial",
+    "clickToCreate": "Click to create a new presentation",
+    "yourPresentations": "Your Presentations",
+    "unnamedRecipient": "Unnamed Recipient",
+    "noEmail": "No email",
+    "notSent": "Not sent",
+    "viewResponses": "View Responses",
+    "responses": "Responses",
+    "copy": "Copy",
+    "copyLink": "Copy Link",
+    "linkCopied": "Link copied to clipboard",
+    "presentationCreatedSuccess": "Presentation created successfully!",
+    "batchImportContacts": "Batch Import Contacts"
   },
   "presentations": {
     "title": "Presentations",
@@ -85,7 +97,19 @@
     "instances": "Instances",
     "batchImport": "Batch Import",
     "importContacts": "Import Contacts",
-    "exportData": "Export Data"
+    "exportData": "Export Data",
+    "email": "Email",
+    "createdAt": "Created At",
+    "id": "ID",
+    "status": "Status",
+    "recipientName": "Recipient Name",
+    "recipientEmail": "Recipient Email",
+    "sentAt": "Sent At",
+    "shareToken": "Share Token",
+    "templateId": "Template ID",
+    "noDescription": "No description available",
+    "howToUsePresenT": "How to use PresenT",
+    "howToUseDescription": "Learn how to create and customize stunning presentations"
   },
   "templates": {
     "zinzino-mex": {
