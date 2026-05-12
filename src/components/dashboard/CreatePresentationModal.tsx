@@ -48,8 +48,24 @@ export default function CreatePresentationModal({
     return templateId === 'super-presentation-pro' || templateId === 'forest-night-journey';
   };
 
-  // Filter out tutorial templates from normal list
-  const normalTemplates = templates.filter(t => !isTutorial(t.id));
+  /** "Elige una Plantilla": only these (the tutorial card is separate). */
+  const TEMPLATE_CHOOSER_IDS = new Set(['omega-balance-space']);
+
+  const normalTemplates = templates.filter(
+    (t) => !isTutorial(t.id) && TEMPLATE_CHOOSER_IDS.has(t.id)
+  );
+
+  const getTemplateDisplayName = (templateId: string, fallback: string) => {
+    try {
+      const translated = tTemplates(`${templateId}.name`);
+      if (translated && translated !== `${templateId}.name`) {
+        return translated;
+      }
+    } catch {
+      // use fallback
+    }
+    return fallback;
+  };
 
   // Handle tutorial card click - randomly go to one of the two presentations
   const handleTutorialClick = (e: React.MouseEvent) => {
@@ -183,7 +199,7 @@ export default function CreatePresentationModal({
                     {getPreviewImage(template.id) ? (
                       <img
                         src={getPreviewImage(template.id)!}
-                        alt={template.name}
+                        alt={getTemplateDisplayName(template.id, template.name)}
                         className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity duration-300"
                         onError={(e) => {
                           // Fallback to placeholder if image fails to load
@@ -198,7 +214,7 @@ export default function CreatePresentationModal({
                       className={`w-full h-full flex items-center justify-center ${getPreviewImage(template.id) ? 'hidden' : ''}`}
                     >
                       <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                        {template.name.charAt(0)}
+                        {getTemplateDisplayName(template.id, template.name).charAt(0)}
                       </div>
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
@@ -207,7 +223,7 @@ export default function CreatePresentationModal({
                   {/* Content */}
                   <div className="p-5">
                     <h3 className="text-lg font-bold text-white mb-2 transition-colors group-hover:text-indigo-400">
-                      {template.name}
+                      {getTemplateDisplayName(template.id, template.name)}
                     </h3>
                     <p className="text-sm text-slate-400 line-clamp-2 mb-3">
                       {(() => {

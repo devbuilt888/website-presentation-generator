@@ -692,18 +692,6 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
             
             <div className="max-w-md mx-auto space-y-6">
               <div>
-                <label className="block text-2xl font-semibold mb-3">Omega 3</label>
-                <input
-                  type="number"
-                  value={omega3}
-                  onChange={(e) => setOmega3(e.target.value)}
-                  className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-indigo-400/50 focus:border-indigo-500 focus:outline-none bg-white/95 backdrop-blur-sm"
-                  placeholder="Ejemplo: 1"
-                  step="0.1"
-                />
-              </div>
-              
-              <div>
                 <label className="block text-2xl font-semibold mb-3">Omega 6</label>
                 <input
                   type="number"
@@ -711,6 +699,18 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
                   onChange={(e) => setOmega6(e.target.value)}
                   className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-indigo-400/50 focus:border-indigo-500 focus:outline-none bg-white/95 backdrop-blur-sm"
                   placeholder="Ejemplo: 3"
+                  step="0.1"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-2xl font-semibold mb-3">Omega 3</label>
+                <input
+                  type="number"
+                  value={omega3}
+                  onChange={(e) => setOmega3(e.target.value)}
+                  className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-indigo-400/50 focus:border-indigo-500 focus:outline-none bg-white/95 backdrop-blur-sm"
+                  placeholder="Ejemplo: 1"
                   step="0.1"
                 />
               </div>

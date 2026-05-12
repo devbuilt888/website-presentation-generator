@@ -219,7 +219,7 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
     const slideMap: Record<string, any> = {
       'slide-1': 1, // Always go to question
       'slide-2': (answer: string) => {
-        // "¿Conoces tu balance de omega 3 / 6?"
+        // "¿Conoces tu balance de omega 6 / 3?"
         if (answer === 'Sí') return 2; // Go to input slide
         if (answer === 'No') return 5; // Go to apology slide
         return 1;
@@ -394,18 +394,6 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
             
             <div className="max-w-md mx-auto space-y-6">
               <div>
-                <label className="block text-2xl font-semibold mb-3 text-slate-800">Omega 3</label>
-                <input
-                  type="number"
-                  value={omega3}
-                  onChange={(e) => setOmega3(e.target.value)}
-                  className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-purple-300 focus:border-purple-500 focus:outline-none"
-                  placeholder="Ejemplo: 1"
-                  step="0.1"
-                />
-              </div>
-              
-              <div>
                 <label className="block text-2xl font-semibold mb-3 text-slate-800">Omega 6</label>
                 <input
                   type="number"
@@ -413,6 +401,18 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
                   onChange={(e) => setOmega6(e.target.value)}
                   className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-purple-300 focus:border-purple-500 focus:outline-none"
                   placeholder="Ejemplo: 3"
+                  step="0.1"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-2xl font-semibold mb-3 text-slate-800">Omega 3</label>
+                <input
+                  type="number"
+                  value={omega3}
+                  onChange={(e) => setOmega3(e.target.value)}
+                  className="w-full px-6 py-4 text-2xl text-gray-900 rounded-xl border-4 border-purple-300 focus:border-purple-500 focus:outline-none"
+                  placeholder="Ejemplo: 1"
                   step="0.1"
                 />
               </div>

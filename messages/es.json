@@ -126,19 +126,19 @@
     },
     "omega-balance": {
       "name": "Tu Balance Omega 3/6",
-      "description": "Comprende el balance de ácidos grasos omega-3 y omega-6 para una salud óptima"
+      "description": "Comprende el balance de ácidos grasos omega-6 y omega-3 para una salud óptima"
     },
     "omega-balance-space": {
-      "name": "Tu Balance Omega 3/6 - Espacio",
-      "description": "Comprende el balance de ácidos grasos omega-3 y omega-6 con una experiencia temática espacial"
+      "name": "Es importante el Omega-3?",
+      "description": "Comprende el balance de ácidos grasos omega-6 y omega-3 con una experiencia temática espacial"
     },
     "omega-balance-plus": {
       "name": "Tu Balance Omega 3/6 +",
-      "description": "Comprende el balance de ácidos grasos omega-3 y omega-6 con activos flotantes 3D inmersivos"
+      "description": "Comprende el balance de ácidos grasos omega-6 y omega-3 con activos flotantes 3D inmersivos"
     },
     "omega-balance-new": {
       "name": "Tu Balance Omega 3/6 - Nuevo",
-      "description": "Comprende el balance de ácidos grasos omega-3 y omega-6 con fondos de patrones elegantes"
+      "description": "Comprende el balance de ácidos grasos omega-6 y omega-3 con fondos de patrones elegantes"
     }
   },
   "presentationContent": {

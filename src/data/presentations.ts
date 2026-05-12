@@ -395,7 +395,7 @@ export const presentations: Presentation[] = [
   {
     id: 'omega-balance',
     title: 'Your Omega 3/6 Balance',
-    description: 'Understanding your omega-3 and omega-6 fatty acid balance for optimal health',
+    description: 'Understanding your omega-6 and omega-3 fatty acid balance for optimal health',
     createdAt: new Date().toISOString(),
     slides: [
       {
@@ -409,13 +409,13 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-2',
         type: 'quiz',
-        title: '¿Conoces tu balance de omega 3 / 6?',
+        title: '¿Conoces tu balance de omega 6 / 3?',
         subtitle: '',
         content: '',
         duration: 0,
         questions: [
           {
-            question: '¿Conoces tu balance de omega 3 / 6?',
+            question: '¿Conoces tu balance de omega 6 / 3?',
             options: ['Sí', 'No']
           }
         ]
@@ -429,11 +429,11 @@ export const presentations: Presentation[] = [
         duration: 0,
         questions: [
           {
-            question: 'Omega 3',
+            question: 'Omega 6',
             options: []
           },
           {
-            question: 'Omega 6',
+            question: 'Omega 3',
             options: []
           }
         ]
@@ -484,7 +484,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-7-video1',
         type: 'hero',
-        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 3 y 6',
+        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 6 y 3',
         subtitle: '',
         content: '[Video Placeholder 1 - Se actualizará con el enlace más tarde]',
         duration: 0
@@ -524,7 +524,7 @@ export const presentations: Presentation[] = [
   {
     id: 'omega-balance-space',
     title: 'Your Omega 3/6 Balance - Space Edition',
-    description: 'Understanding your omega-3 and omega-6 fatty acid balance with a stunning space-themed experience',
+    description: 'Understanding your omega-6 and omega-3 fatty acid balance with a stunning space-themed experience',
     createdAt: new Date().toISOString(),
     slides: [
       {
@@ -538,13 +538,13 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-2',
         type: 'quiz',
-        title: '¿Conoces tu balance de omega 3 / 6?',
+        title: '¿Conoces tu balance de omega 6 / 3?',
         subtitle: '',
         content: '',
         duration: 0,
         questions: [
           {
-            question: '¿Conoces tu balance de omega 3 / 6?',
+            question: '¿Conoces tu balance de omega 6 / 3?',
             options: ['Sí', 'No']
           }
         ]
@@ -558,11 +558,11 @@ export const presentations: Presentation[] = [
         duration: 0,
         questions: [
           {
-            question: 'Omega 3',
+            question: 'Omega 6',
             options: []
           },
           {
-            question: 'Omega 6',
+            question: 'Omega 3',
             options: []
           }
         ]
@@ -613,7 +613,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-7-video1',
         type: 'hero',
-        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 3 y 6',
+        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 6 y 3',
         subtitle: '',
         content: '[Video Placeholder 1 - Se actualizará con el enlace más tarde]',
         duration: 0
@@ -653,7 +653,7 @@ export const presentations: Presentation[] = [
   {
     id: 'omega-balance-plus',
     title: 'Your Omega 3/6 Balance +',
-    description: 'Understanding your omega-3 and omega-6 fatty acid balance with immersive 3D floating assets',
+    description: 'Understanding your omega-6 and omega-3 fatty acid balance with immersive 3D floating assets',
     createdAt: new Date().toISOString(),
     slides: [
       {
@@ -667,13 +667,13 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-2',
         type: 'quiz',
-        title: '¿Conoces tu balance de omega 3 / 6?',
+        title: '¿Conoces tu balance de omega 6 / 3?',
         subtitle: '',
         content: '',
         duration: 0,
         questions: [
           {
-            question: '¿Conoces tu balance de omega 3 / 6?',
+            question: '¿Conoces tu balance de omega 6 / 3?',
             options: ['Sí', 'No']
           }
         ]
@@ -687,11 +687,11 @@ export const presentations: Presentation[] = [
         duration: 0,
         questions: [
           {
-            question: 'Omega 3',
+            question: 'Omega 6',
             options: []
           },
           {
-            question: 'Omega 6',
+            question: 'Omega 3',
             options: []
           }
         ]
@@ -742,7 +742,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-7-video1',
         type: 'hero',
-        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 3 y 6',
+        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 6 y 3',
         subtitle: '',
         content: '[Video Placeholder 1 - Se actualizará con el enlace más tarde]',
         duration: 0
@@ -782,7 +782,7 @@ export const presentations: Presentation[] = [
   {
     id: 'omega-balance-new',
     title: 'Your Omega 3/6 Balance New',
-    description: 'Understanding your omega-3 and omega-6 fatty acid balance with elegant pattern backgrounds',
+    description: 'Understanding your omega-6 and omega-3 fatty acid balance with elegant pattern backgrounds',
     createdAt: new Date().toISOString(),
     slides: [
       {
@@ -796,13 +796,13 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-2',
         type: 'quiz',
-        title: '¿Conoces tu balance de omega 3 / 6?',
+        title: '¿Conoces tu balance de omega 6 / 3?',
         subtitle: '',
         content: '',
         duration: 0,
         questions: [
           {
-            question: '¿Conoces tu balance de omega 3 / 6?',
+            question: '¿Conoces tu balance de omega 6 / 3?',
             options: ['Sí', 'No']
           }
         ]
@@ -816,11 +816,11 @@ export const presentations: Presentation[] = [
         duration: 0,
         questions: [
           {
-            question: 'Omega 3',
+            question: 'Omega 6',
             options: []
           },
           {
-            question: 'Omega 6',
+            question: 'Omega 3',
             options: []
           }
         ]
@@ -871,7 +871,7 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-7-video1',
         type: 'hero',
-        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 3 y 6',
+        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 6 y 3',
         subtitle: '',
         content: '[Video Placeholder 1 - Se actualizará con el enlace más tarde]',
         duration: 0
