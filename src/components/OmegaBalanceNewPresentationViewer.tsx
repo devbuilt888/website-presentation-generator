@@ -322,13 +322,14 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
   return (
     <div 
       ref={mobileTapRef}
-      className="w-full h-screen flex items-center justify-center overflow-hidden relative"
+      className="w-full h-[100dvh] min-h-0 max-h-[100dvh] flex flex-col overflow-hidden relative"
     >
       {/* Pattern Background - Always visible */}
       <PatternBackgroundCSS currentSlideIndex={currentSlideIndex} />
       
-      {/* Content Container */}
-      <div className="relative z-10 max-w-4xl w-full mx-auto px-6">
+      {/* Content: sin scroll; encaja en viewport */}
+      <div className="relative z-10 flex-1 min-h-0 w-full flex items-center justify-center px-3 sm:px-6 pt-1 pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))]">
+        <div className="w-full min-w-0 max-w-4xl max-h-full min-h-0 overflow-hidden mx-auto flex flex-col justify-center">
         {/* Slide 1: Introduction with Play Button */}
         {currentSlide.id === 'slide-1' && (
           <div className="text-center text-gray-900 animate-fadeIn">
@@ -510,22 +511,19 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 7: Video 1 - Embedded iframe */}
         {currentSlide.id === 'slide-7-video1' && (
-          <div className="text-center text-gray-900 animate-fadeIn">
-            <h1 className="text-4xl font-bold mb-8 drop-shadow-lg text-slate-800">
+          <div className="omega-slide-tight text-center text-gray-900 animate-fadeIn w-full min-w-0">
+            <h1 className="text-4xl font-bold mb-8 drop-shadow-lg text-slate-800 max-w-4xl mx-auto px-1">
               {currentSlide.title}
             </h1>
             
-            <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-12 mb-8 border-2 border-indigo-400/50">
-              <div className="aspect-video rounded-xl overflow-hidden">
+            <div className="omega-tight-box bg-black/50 backdrop-blur-sm rounded-2xl p-12 mb-8 border-2 border-indigo-400/50 w-full max-w-full min-w-0 mx-auto">
+              <div className="omega-video-shell relative aspect-video w-full overflow-hidden rounded-xl bg-black">
                 <iframe
-                  width="800"
-                  height="450"
                   src="https://www.zinzinoplay.com/embedded/assets/86"
                   title="Balance Concept explained - ES"
-                  style={{ border: 0 }}
+                  className="absolute inset-0 h-full w-full border-0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
                   allowFullScreen
-                  className="w-full h-full"
                 />
               </div>
             </div>
@@ -565,21 +563,20 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
 
         {/* Slide 9: Video 2 - From Supabase Storage */}
         {currentSlide.id === 'slide-9-video2' && (
-          <div className="text-center text-gray-900 animate-fadeIn">
-            <h1 className="text-4xl font-bold mb-4 drop-shadow-lg text-slate-800">
+          <div className="omega-slide-tight text-center text-gray-900 animate-fadeIn w-full min-w-0">
+            <h1 className="text-4xl font-bold mb-4 drop-shadow-lg text-slate-800 max-w-4xl mx-auto px-1">
               {currentSlide.title}
             </h1>
-            <p className="text-2xl mb-8 text-slate-700">
+            <p className="text-2xl mb-8 text-slate-700 max-w-3xl mx-auto px-1">
               {currentSlide.subtitle}
             </p>
             
-            <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-12 mb-8 border-2 border-indigo-400/50">
-              <div className="aspect-video rounded-xl overflow-hidden">
+            <div className="omega-tight-box bg-black/50 backdrop-blur-sm rounded-2xl p-12 mb-8 border-2 border-indigo-400/50 w-full max-w-full min-w-0 mx-auto">
+              <div className="omega-video-shell relative aspect-video w-full overflow-hidden rounded-xl bg-black">
                 <video
                   src={getAssetUrl('assets/presentation-omega3-6/video2.mp4')}
                   controls
-                  className="w-full h-full"
-                  style={{ objectFit: 'contain' }}
+                  className="absolute inset-0 h-full w-full object-contain"
                 >
                   Your browser does not support the video tag.
                 </video>
@@ -625,10 +622,11 @@ export default function OmegaBalanceNewPresentationViewer({ presentation, instan
             </p>
           </div>
         )}
+        </div>
       </div>
 
       {/* Progress Indicator */}
-      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm rounded-full px-6 py-3 border-2 border-slate-300 shadow-lg z-20">
+      <div className="fixed left-1/2 z-20 -translate-x-1/2 bottom-[max(1rem,env(safe-area-inset-bottom))] bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 sm:px-6 sm:py-3 border-2 border-slate-300 shadow-lg">
         <p className="text-slate-800 text-sm font-semibold">
           Paso {currentSlideIndex + 1} de {presentation.slides.length}
         </p>
