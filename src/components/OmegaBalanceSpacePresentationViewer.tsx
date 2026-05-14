@@ -8,6 +8,7 @@ import { Presentation } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
 import { saveUserResponse, logStoreLinkClick } from '@/lib/services/instances';
 import { useMobileTapNavigation, isInputSlide } from '@/hooks/useMobileTapNavigation';
+import ChatGptSimulator from '@/components/ChatGptSimulator';
 
 interface OmegaBalanceSpacePresentationViewerProps {
   presentation: Presentation;
@@ -486,26 +487,39 @@ export default function OmegaBalanceSpacePresentationViewer({ presentation, inst
           </div>
         )}
 
-        {/* Slide 7: Video 1 - Embedded iframe */}
+        {/* Slide 7: Chat demo (replaces first embedded video) */}
         {currentSlide.id === 'slide-7-video1' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-4xl font-bold mb-8 drop-shadow-2xl">
-              {currentSlide.title}
-            </h1>
-            
-            <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-12 mb-8 border-2 border-indigo-400/50">
-              <div className="aspect-video rounded-xl overflow-hidden">
-                <iframe
-                  width="800"
-                  height="450"
-                  src="https://www.zinzinoplay.com/embedded/assets/86"
-                  title="Balance Concept explained - ES"
-                  style={{ border: 0 }}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
-              </div>
+          <div className="text-center text-white animate-fadeIn w-full max-w-[min(1200px,96vw)] mx-auto px-2 sm:px-4">
+            <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-6 border-2 border-indigo-400/50 w-full">
+              <ChatGptSimulator
+                key={`${currentSlide.id}-omega-index`}
+                headingText="¿En qué puedo ayudarte?"
+                inputPlaceholder="Pregunta lo que quieras"
+                promptText="¿Qué índice en tu sangre es más importante para prevenir enfermedades cardiovasculares cuando hay baja DHA?"
+                answerText={`En la sangre, el **Índice Omega-3** es un marcador muy citado: mide el **porcentaje de omega-3 de cadena larga (EPA y DHA, incluida la DHA)** en las **membranas de los glóbulos rojos**. Valores más altos se han **asociado con menor riesgo de muerte por enfermedad cardiovascular**.
+
+**Por qué importa el DHA y el EPA**
+
+- El organismo **sintetiza poco** EPA y DHA a partir de otros ácidos grasos; conviene aportarlos con la dieta o, si aplica, suplementación.
+- La **DHA** tiene un papel relevante en la salud cardiovascular; el **EPA** también se estudia de forma destacada en prevención.
+
+**Dosis orientativas que suelen citarse**
+
+- Objetivo frecuente en guías populares: **~1000 mg/día de EPA + DHA combinados** para apoyo cardiovascular general.
+- En **mujeres con enfermedad coronaria previa**, a veces se menciona **>1 g/día de EPA+DHA** (siempre con criterio médico).
+- Los omega-3 suelen usarse como **complemento** de tratamientos estándar (por ejemplo, estatinas) en personas de **alto riesgo**.
+
+**EPA frente a mezclas EPA+DHA**
+
+- Hay evidencia de que **EPA “puro”** añadido a la terapia estándar puede reducir la mortalidad cardiovascular en algunos ensayos.
+- Las **formulaciones con EPA y DHA juntos** también se han relacionado con **menor mortalidad cardiovascular** en otros estudios.
+
+¿Te gustaría conocer más sobre **cómo subir tus niveles de DHA y EPA** con la dieta?`}
+                promptCharDelayMs={38}
+                answerCharDelayMs={11}
+                promptSubmitDelayMs={500}
+                className="text-left shadow-xl w-full !min-h-[min(58vh,640px)] max-h-[min(88vh,900px)]"
+              />
             </div>
             
             <button

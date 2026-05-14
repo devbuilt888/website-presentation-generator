@@ -613,9 +613,9 @@ export const presentations: Presentation[] = [
       {
         id: 'slide-7-video1',
         type: 'hero',
-        title: 'Este video explica la importancia de este equilibrio de tus niveles de Omega 6 y 3',
+        title: 'Así se explica la importancia del equilibrio entre Omega 6 y 3',
         subtitle: '',
-        content: '[Video Placeholder 1 - Se actualizará con el enlace más tarde]',
+        content: '',
         duration: 0
       },
       {
