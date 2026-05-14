@@ -107,8 +107,23 @@ function AdminContent() {
 
   const handleBatchImportSuccess = (result: BatchImportResult) => {
     setShowBatchImport(false);
-    loadAdminData(); // Reload instances
-    alert(`Batch import complete! ${result.succeeded} successful, ${result.failedCount} failed.`);
+    loadAdminData();
+    showToast(
+      tDashboard('batchImportComplete', {
+        succeeded: result.succeeded,
+        failedCount: result.failedCount,
+      })
+    );
+  };
+
+  const instanceStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      draft: tDashboard('statusDraft'),
+      sent: tDashboard('statusSent'),
+      viewed: tDashboard('statusViewed'),
+      completed: tDashboard('statusCompleted'),
+    };
+    return map[status] ?? status;
   };
 
   const handleTemplateSelect = (templateId: string) => {
@@ -142,7 +157,7 @@ function AdminContent() {
             href="/editor"
             className="px-6 py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl hover:from-purple-500 hover:to-indigo-500 text-sm font-semibold shadow-lg hover:shadow-purple-500/50 transition-all duration-300 border border-purple-500/50"
           >
-            🎨 Presentation Editor
+            🎨 {tAdmin('presentationEditor')}
           </Link>
         </div>
 
@@ -251,6 +266,7 @@ function AdminContent() {
             <BatchImportForm
               onSuccess={handleBatchImportSuccess}
               onCancel={() => setShowBatchImport(false)}
+              onToast={showToast}
             />
           </div>
         )}
@@ -306,11 +322,11 @@ function AdminContent() {
                           ? 'bg-purple-600 text-white' 
                           : 'bg-slate-600 text-slate-200'
                       }`}>
-                        {userItem.role}
+                        {userItem.role === 'admin' ? tAdmin('roleAdmin') : tAdmin('roleUser')}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-slate-400 text-sm">
-                      {userItem.created_at ? new Date(userItem.created_at).toLocaleDateString() : '-'}
+                      {userItem.created_at ? new Date(userItem.created_at).toLocaleDateString('es') : '-'}
                     </td>
                   </tr>
                 ))}
@@ -339,7 +355,7 @@ function AdminContent() {
                     <td className="py-3 px-4 text-slate-300">{pres.template_id}</td>
                     <td className="py-3 px-4 text-slate-300">{pres.created_by}</td>
                     <td className="py-3 px-4 text-slate-400 text-sm">
-                      {pres.created_at ? new Date(pres.created_at).toLocaleDateString() : '-'}
+                      {pres.created_at ? new Date(pres.created_at).toLocaleDateString('es') : '-'}
                     </td>
                   </tr>
                 ))}
@@ -369,11 +385,11 @@ function AdminContent() {
                     <td className="py-3 px-4 text-slate-300">{instance.recipient_email || '-'}</td>
                     <td className="py-3 px-4">
                       <span className="px-2 py-1 rounded text-xs font-semibold bg-slate-600 text-slate-200">
-                        {instance.status}
+                        {instanceStatusLabel(String(instance.status))}
                       </span>
                     </td>
                     <td className="py-3 px-4 text-slate-400 text-sm">
-                      {instance.created_at ? new Date(instance.created_at).toLocaleDateString() : '-'}
+                      {instance.created_at ? new Date(instance.created_at).toLocaleDateString('es') : '-'}
                     </td>
                     <td className="py-3 px-4">
                       {(instance.status === 'viewed' || instance.status === 'completed') && (

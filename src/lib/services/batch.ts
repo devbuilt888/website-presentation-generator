@@ -65,7 +65,7 @@ export async function createBatchInstances(
   // Get template to validate it exists
   const template = getTemplate(templateId);
   if (!template) {
-    throw new Error(`Template ${templateId} not found`);
+    throw new Error(`Plantilla no encontrada: ${templateId}`);
   }
 
   // Process contacts sequentially to avoid overwhelming the database
@@ -76,7 +76,7 @@ export async function createBatchInstances(
       if (!contact.name || contact.name.trim() === '') {
         result.failed.push({
           contact,
-          error: 'Name is required',
+          error: 'El nombre es obligatorio',
         });
         result.failedCount++;
         continue;
@@ -124,7 +124,7 @@ export async function createBatchInstances(
     } catch (error: any) {
       result.failed.push({
         contact,
-        error: error.message || 'Unknown error occurred',
+        error: error.message || 'Error desconocido',
       });
       result.failedCount++;
       console.error(`Failed to create instance for ${contact.name}:`, error);
@@ -157,7 +157,7 @@ export function parseCSV(csvContent: string): ContactRow[] {
   );
 
   if (nameIndex === -1) {
-    throw new Error('CSV must contain a "name" column');
+    throw new Error('El CSV debe incluir una columna "name" o "nombre"');
   }
 
   // Parse data rows
@@ -198,15 +198,15 @@ export function validateContact(contact: ContactRow): { valid: boolean; errors: 
   const errors: string[] = [];
 
   if (!contact.name || contact.name.trim() === '') {
-    errors.push('Name is required');
+    errors.push('El nombre es obligatorio');
   }
 
   if (contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) {
-    errors.push('Invalid email format');
+    errors.push('Formato de correo no válido');
   }
 
   if (contact.storeLink && !/^https?:\/\/.+/.test(contact.storeLink)) {
-    errors.push('Store link must be a valid URL (http:// or https://)');
+    errors.push('El enlace de tienda debe ser una URL válida (http:// o https://)');
   }
 
   return {

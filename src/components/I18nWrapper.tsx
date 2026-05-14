@@ -1,77 +1,89 @@
 'use client';
 
 import { I18nProvider } from '@/i18n/provider';
+import { defaultLocale, locales, type Locale } from '@/i18n/constants';
 import { ReactNode, useEffect, useState } from 'react';
 
 type Props = {
   children: ReactNode;
 };
 
-// Default fallback messages structure
 const defaultMessages = {
-  common: { loading: 'Loading...', error: 'Error', success: 'Success' },
+  common: { loading: 'Cargando...', error: 'Error', success: 'Éxito' },
   dashboard: {},
   admin: {},
   presentations: {},
   nav: {},
   auth: {},
   templates: {},
-  presentationContent: {}
+  presentationContent: {},
 };
 
+function normalizeStoredLocale(raw: string | null): Locale {
+  if (raw && (locales as readonly string[]).includes(raw)) {
+    return raw as Locale;
+  }
+  return defaultLocale;
+}
+
 export default function I18nWrapper({ children }: Props) {
-  const [locale, setLocale] = useState<string>('en');
+  const [locale, setLocale] = useState<Locale>(defaultLocale);
   const [messages, setMessages] = useState<any>(defaultMessages);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load locale from localStorage or default to 'en'
-    const savedLocale = localStorage.getItem('locale') || 'en';
-    setLocale(savedLocale);
+    let stored: Locale = defaultLocale;
+    try {
+      const raw = localStorage.getItem('locale');
+      stored = normalizeStoredLocale(raw);
+      if (raw !== null && raw !== stored) {
+        localStorage.setItem('locale', stored);
+      }
+    } catch {
+      /* ignore */
+    }
 
-    // Load messages for the locale
+    setLocale(stored);
+
     const loadMessages = async () => {
       try {
-        const module = await import(`../../messages/${savedLocale}.json`);
-        const loadedMessages = module.default || module;
-        // Ensure messages have the expected structure
-        if (loadedMessages && typeof loadedMessages === 'object') {
-          setMessages(loadedMessages);
-        } else {
-          console.warn('Messages loaded but structure is invalid, using fallback');
-          // Load English as fallback
-          const enModule = await import(`../../messages/en.json`);
-          setMessages(enModule.default || enModule);
+        const mod = await import(`../../messages/${stored}.json`);
+        const loaded = mod.default || mod;
+        if (loaded && typeof loaded === 'object') {
+          setMessages(loaded);
+          return;
         }
-        setLoading(false);
-      } catch (error) {
-        console.error('Error loading messages:', error);
-        // Fallback to English if locale file doesn't exist
+        throw new Error('Invalid messages');
+      } catch (e) {
+        console.error('Error loading messages:', e);
         try {
-          const module = await import(`../../messages/en.json`);
-          const loadedMessages = module.default || module;
-          setMessages(loadedMessages);
-          setLocale('en');
-          setLoading(false);
-        } catch (fallbackError) {
-          console.error('Failed to load translation messages:', fallbackError);
-          setLoading(false);
+          const esMod = await import(`../../messages/es.json`);
+          setMessages(esMod.default || esMod);
+          setLocale(defaultLocale);
+          try {
+            localStorage.setItem('locale', defaultLocale);
+          } catch {
+            /* ignore */
+          }
+        } catch {
+          try {
+            const enMod = await import(`../../messages/en.json`);
+            setMessages(enMod.default || enMod);
+            setLocale('en');
+          } catch {
+            /* keep defaultMessages */
+          }
         }
       }
     };
 
-    loadMessages();
+    void loadMessages();
   }, []);
 
-  // Always provide a context with valid structure
-  // Merge loaded messages with defaults to ensure all namespaces exist
   const safeMessages = messages || defaultMessages;
-  const safeLocale = locale || 'en';
 
   return (
-    <I18nProvider locale={safeLocale} messages={safeMessages}>
+    <I18nProvider locale={locale} messages={safeMessages}>
       {children}
     </I18nProvider>
   );
 }
-

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { getTemplate } from '@/lib/presentations/template-registry';
 import { createCustomizedPresentation } from '@/lib/presentations/customization';
 import { createInstance } from '@/lib/services/instances';
@@ -19,6 +20,7 @@ type Step = 'name' | 'email' | 'link' | 'complete';
 export default function CustomizationForm({ templateId, onSuccess }: CustomizationFormProps) {
   const { user } = useAuth();
   const router = useRouter();
+  const t = useTranslations('customization');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -43,15 +45,15 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
 
   const handleNextStep = (current: Step) => {
     if (current === 'name' && !recipientName.trim()) {
-      setError('Please enter a recipient name');
+      setError(t('errorNameRequired'));
       return;
     }
     if (current === 'email' && recipientEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipientEmail)) {
-      setError('Please enter a valid email address');
+      setError(t('errorInvalidEmail'));
       return;
     }
     if (current === 'link' && storeLink && !/^https?:\/\/.+/.test(storeLink)) {
-      setError('Please enter a valid URL (starting with http:// or https://)');
+      setError(t('errorInvalidUrl'));
       return;
     }
 
@@ -88,10 +90,10 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
     setCurrentStep('complete');
 
     try {
-      if (!user) throw new Error('Not authenticated');
+      if (!user) throw new Error(t('notAuthenticated'));
 
       const template = getTemplate(templateId);
-      if (!template) throw new Error('Template not found');
+      if (!template) throw new Error(t('templateNotFound'));
 
       const customized = createCustomizedPresentation(template, {
         level: 'simple',
@@ -115,9 +117,7 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
           err.message?.includes('foreign key constraint') ||
           err.message?.includes('presentations_created_by_fkey')
         ) {
-          throw new Error(
-            'User profile not found. Please try logging out and logging back in. If the problem persists, contact support.'
-          );
+          throw new Error(t('userProfileMissing'));
         }
         throw err;
       }
@@ -139,7 +139,7 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
         .eq('id', instance.id);
 
       if (updateError) {
-        throw new Error(`Failed to update presentation status: ${updateError.message}`);
+        throw new Error(`${t('failedUpdateStatus')}: ${updateError.message}`);
       }
 
       if (onSuccess && instance.share_token) {
@@ -148,7 +148,7 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
         router.push('/dashboard');
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to create presentation');
+      setError(err.message || t('failedCreate'));
     } finally {
       setLoading(false);
     }
@@ -157,11 +157,11 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
   const getStepLabel = (step: Step) => {
     switch (step) {
       case 'name':
-        return 'Recipient Name';
+        return t('stepName');
       case 'email':
-        return 'Recipient Email';
+        return t('stepEmail');
       case 'link':
-        return 'Store/Product Link';
+        return t('stepLink');
       default:
         return '';
     }
@@ -170,11 +170,11 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
   const getStepPlaceholder = (step: Step) => {
     switch (step) {
       case 'name':
-        return 'e.g., John Doe';
+        return t('placeholderName');
       case 'email':
-        return 'recipient@example.com (optional)';
+        return t('placeholderEmail');
       case 'link':
-        return 'https://yourstore.com (optional)';
+        return t('placeholderLink');
       default:
         return '';
     }
@@ -304,9 +304,9 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
 
               <div className="mt-4 flex items-center justify-between">
                 <p className="text-sm text-slate-400">
-                  {currentStep === 'name' && 'Press Enter to continue'}
-                  {currentStep === 'email' && 'Press Enter to continue (or skip)'}
-                  {currentStep === 'link' && 'Press Enter to continue (or skip)'}
+                  {currentStep === 'name' && t('hintEnter')}
+                  {currentStep === 'email' && t('hintEnterOptional')}
+                  {currentStep === 'link' && t('hintEnterOptional')}
                 </p>
                 {currentStep !== 'name' && (
                   <button
@@ -314,7 +314,7 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
                     onClick={handleBack}
                     className="text-sm text-slate-400 hover:text-white transition-colors"
                   >
-                    ← Back
+                    {t('back')}
                   </button>
                 )}
               </div>
@@ -325,7 +325,7 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
         {currentStep === 'complete' && loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-2 border-indigo-500 border-t-transparent mx-auto mb-4"></div>
-            <p className="text-slate-400">Creating your presentation...</p>
+            <p className="text-slate-400">{t('creating')}</p>
           </div>
         )}
       </form>

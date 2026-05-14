@@ -96,13 +96,28 @@ function DashboardContent() {
   const handleBatchImportSuccess = (result: BatchImportResult) => {
     setShowBatchImport(false);
     loadData(); // Reload instances
-    showToast(`Batch import complete – ${result.succeeded} succeeded, ${result.failedCount} failed`);
+    showToast(
+      tDashboard('batchImportComplete', {
+        succeeded: result.succeeded,
+        failedCount: result.failedCount,
+      })
+    );
   };
 
   const copyLink = (token: string) => {
     const link = `${window.location.origin}/view/${token}`;
     navigator.clipboard.writeText(link);
-    showToast('Link copied to clipboard');
+    showToast(tDashboard('linkCopied'));
+  };
+
+  const instanceStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      draft: tDashboard('statusDraft'),
+      sent: tDashboard('statusSent'),
+      viewed: tDashboard('statusViewed'),
+      completed: tDashboard('statusCompleted'),
+    };
+    return map[status] ?? status;
   };
 
   const handleTemplateSelect = (templateId: string) => {
@@ -292,7 +307,7 @@ function DashboardContent() {
                               statusColors[instance.status as keyof typeof statusColors] || 'bg-slate-600'
                             }`}
                           >
-                            {instance.status}
+                            {instanceStatusLabel(String(instance.status))}
                           </span>
                         </div>
                         <p className="text-sm text-slate-400 mb-3">
@@ -301,7 +316,7 @@ function DashboardContent() {
                         <div className="flex items-center gap-4 text-sm text-slate-500">
                           <span>
                             {instance.sent_at
-                              ? new Date(instance.sent_at).toLocaleDateString()
+                              ? new Date(instance.sent_at).toLocaleDateString('es')
                               : tDashboard('notSent')}
                           </span>
                         </div>

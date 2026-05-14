@@ -6,6 +6,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { isUserAdmin } from '@/lib/utils/user-roles';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import CuttingEdgeTemplateBuilder from '@/components/CuttingEdgeTemplateBuilder';
+import { useTranslations } from 'next-intl';
 
 export default function EditorPage() {
   return (
@@ -18,6 +19,7 @@ export default function EditorPage() {
 function EditorContent() {
   const { user } = useAuth();
   const router = useRouter();
+  const tCommon = useTranslations('common');
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +49,7 @@ function EditorContent() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-2 border-indigo-500 border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-slate-400">Loading...</p>
+          <p className="mt-4 text-slate-400">{tCommon('loading')}</p>
         </div>
       </div>
     );

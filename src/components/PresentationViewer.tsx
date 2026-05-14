@@ -8,9 +8,9 @@ import { translateText } from '@/utils/translations';
 import ScaledViewport from './ScaledViewport';
 import { saveUserResponse } from '@/lib/services/instances';
 import { useTranslation } from '@/hooks/useTranslation';
-import LanguageSwitcher from './LanguageSwitcher';
 import { usePresentationTranslation } from '@/utils/presentationTranslations';
 import { useMobileTapNavigation, isInputSlide, isForwardOnlyPresentation } from '@/hooks/useMobileTapNavigation';
+import LanguageSwitcher from './LanguageSwitcher';
 
 // Stable TypeWriter component to avoid resets on parent re-renders
 const TypeWriter: React.FC<{ text: string; speed?: number; className?: string; delayMs?: number }> = ({ text, speed = 18, className, delayMs = 0 }) => {
@@ -1314,11 +1314,11 @@ export default function PresentationViewer({ presentation, instanceId }: Present
           
           {/* Slide indicator and translation buttons */}
           <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
-            {presentation.id !== 'zinzino-mex' && <LanguageSwitcher />}
             {/* Slide counter */}
             <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
               {currentSlide + 1} / {presentation.slides.length}
             </div>
+            {presentation.id !== 'zinzino-mex' && <LanguageSwitcher />}
           </div>
           
           {/* Slide content */}

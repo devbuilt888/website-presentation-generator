@@ -2,6 +2,7 @@
 
 import { NextIntlClientProvider } from 'next-intl';
 import { ReactNode, useState, useEffect } from 'react';
+import { defaultLocale, locales, type Locale } from '@/i18n/constants';
 
 type Props = {
   children: ReactNode;
@@ -17,23 +18,29 @@ export function I18nProvider({ children, locale, messages }: Props) {
   );
 }
 
-// Hook to get and set locale
+function normalizeStoredLocale(raw: string | null): Locale {
+  if (raw && (locales as readonly string[]).includes(raw)) {
+    return raw as Locale;
+  }
+  return defaultLocale;
+}
+
 export function useLocale() {
-  const [locale, setLocale] = useState<string>('en');
+  const [locale, setLocale] = useState<string>(defaultLocale);
 
   useEffect(() => {
-    // Load locale from localStorage or default to 'en'
-    const savedLocale = localStorage.getItem('locale') || 'en';
+    const savedLocale = normalizeStoredLocale(
+      typeof window !== 'undefined' ? localStorage.getItem('locale') : null
+    );
     setLocale(savedLocale);
   }, []);
 
   const changeLocale = (newLocale: string) => {
+    if (!(locales as readonly string[]).includes(newLocale)) return;
     setLocale(newLocale);
     localStorage.setItem('locale', newLocale);
-    // Reload to apply new locale
     window.location.reload();
   };
 
   return { locale, changeLocale };
 }
-
