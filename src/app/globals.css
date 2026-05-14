@@ -327,3 +327,51 @@ body {
     box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.3), -8px -8px 16px rgba(255, 255, 255, 0.05);
   }
 }
+
+/* Solo pasos Omega con título largo + vídeo (7 y 9): el resto de slides conservan sus tamaños Tailwind */
+.omega-slide-tight h1 {
+  font-size: clamp(1rem, 2.2dvh + 0.55vw, 2.25rem) !important;
+  line-height: 1.12 !important;
+  text-wrap: balance;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+}
+
+.omega-slide-tight p {
+  font-size: clamp(0.85rem, 1.55dvh + 0.25vw, 1.25rem) !important;
+  line-height: 1.32 !important;
+  text-wrap: balance;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+.omega-slide-tight .omega-tight-box {
+  padding: clamp(0.5rem, 1.5dvh, 2rem) !important;
+  margin-bottom: clamp(0.5rem, 1.5dvh, 1.5rem) !important;
+}
+
+.omega-slide-tight .omega-video-shell.aspect-video {
+  max-height: min(42dvh, 78vw);
+  width: min(100%, 92vw);
+  margin-inline: auto;
+}
+
+@media (max-height: 900px) {
+  .omega-slide-tight h1 {
+    -webkit-line-clamp: 4;
+    font-size: clamp(0.95rem, 2dvh, 1.65rem) !important;
+  }
+
+  .omega-slide-tight p {
+    -webkit-line-clamp: 3;
+    font-size: clamp(0.8rem, 1.4dvh, 1.05rem) !important;
+  }
+
+  .omega-slide-tight .omega-video-shell.aspect-video {
+    max-height: min(36dvh, 72vw);
+  }
+}
