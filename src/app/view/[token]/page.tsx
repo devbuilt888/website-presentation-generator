@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { getInstanceByToken, markInstanceAsViewed } from '@/lib/services/instances';
 import { getTemplate } from '@/lib/presentations/template-registry';
 import { applySimpleCustomization } from '@/lib/presentations/customization';
@@ -18,6 +19,7 @@ import { Presentation } from '@/data/presentations';
 export default function ViewPresentationPage() {
   const params = useParams();
   const token = params.token as string;
+  const t = useTranslations('viewPresentation');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [presentation, setPresentation] = useState<Presentation | null>(null);
@@ -44,7 +46,7 @@ export default function ViewPresentationPage() {
       // Get template_id from the embedded presentation data
       const templateIdFromDb = instance.presentation?.template_id;
       if (!templateIdFromDb) {
-        throw new Error('Template ID not found in presentation data');
+        throw new Error(t('templateIdMissing'));
       }
       
       // Store the template ID for viewer selection
@@ -53,7 +55,7 @@ export default function ViewPresentationPage() {
       // Get template using the template_id from the presentation
       const template = getTemplate(templateIdFromDb);
       if (!template) {
-        throw new Error('Template not found');
+        throw new Error(t('templateNotFound'));
       }
 
       // Apply customization
@@ -88,7 +90,7 @@ export default function ViewPresentationPage() {
 
       setPresentation(presentationData);
     } catch (err: any) {
-      setError(err.message || 'Failed to load presentation');
+      setError(err.message || t('failedLoad'));
     } finally {
       setLoading(false);
     }
@@ -99,7 +101,7 @@ export default function ViewPresentationPage() {
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-white">Loading presentation...</p>
+          <p className="mt-4 text-white">{t('loading')}</p>
         </div>
       </div>
     );
@@ -109,8 +111,8 @@ export default function ViewPresentationPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="text-center text-white">
-          <h1 className="text-2xl font-bold mb-4">Presentation Not Found</h1>
-          <p className="text-gray-400">{error || 'The presentation you are looking for does not exist.'}</p>
+          <h1 className="text-2xl font-bold mb-4">{t('notFoundTitle')}</h1>
+          <p className="text-gray-400">{error || t('notFoundBody')}</p>
         </div>
       </div>
     );

@@ -53,40 +53,40 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: {
-    default: "PresenT - Create Stunning Presentations",
+    default: "PresenT - Crea presentaciones impactantes",
     template: "%s | PresenT",
   },
-  description: "Create stunning, personalized presentations with PresenT. Choose from beautiful templates, customize for your audience, and share with ease. Perfect for businesses, educators, and professionals.",
-  keywords: ["presentation maker", "presentation builder", "custom presentations", "presentation templates", "slide creator", "interactive presentations"],
-  authors: [{ name: "PresenT Team" }],
+  description: "Crea presentaciones personalizadas y atractivas con PresenT. Elige plantillas, adapta el contenido a tu audiencia y comparte con facilidad.",
+  keywords: ["creador de presentaciones", "plantillas", "presentaciones interactivas", "diapositivas", "PresenT"],
+  authors: [{ name: "PresenT" }],
   creator: "PresenT",
   publisher: "PresenT",
   applicationName: "PresenT",
-  category: "Productivity",
+  category: "Productividad",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
-    locale: "en_US",
+    locale: "es_ES",
     url: "/",
     siteName: "PresenT",
-    title: "PresenT - Create Stunning Presentations",
-    description: "Create stunning, personalized presentations with PresenT. Choose from beautiful templates, customize for your audience, and share with ease.",
+    title: "PresenT - Crea presentaciones impactantes",
+    description: "Crea presentaciones personalizadas con PresenT: plantillas, personalización y compartir en un solo lugar.",
     images: [
       {
         url: "/og-image",
         width: 1200,
         height: 630,
-        alt: "PresenT - Presentation Maker",
+        alt: "PresenT - Creador de presentaciones",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PresenT - Create Stunning Presentations",
-    description: "Create stunning, personalized presentations with PresenT. Choose from beautiful templates, customize for your audience, and share with ease.",
+    title: "PresenT - Crea presentaciones impactantes",
+    description: "Crea presentaciones personalizadas con PresenT. Plantillas, personalización y compartir con facilidad.",
     images: ["/og-image"],
     creator: "@present",
   },
@@ -136,7 +136,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${poppins.variable} ${roboto.variable} ${openSans.variable} ${lato.variable} ${montserrat.variable} antialiased`}
       >

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { getUserResponses, getStoreLinkClicks } from '@/lib/services/instances';
 import { X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 interface UserResponsesModalProps {
   instanceId: string;
@@ -29,6 +30,7 @@ export default function UserResponsesModal({
   onClose,
   recipientName,
 }: UserResponsesModalProps) {
+  const t = useTranslations('responses');
   const [responses, setResponses] = useState<Record<string, UserResponse>>({});
   const [storeLinkClicks, setStoreLinkClicks] = useState<StoreLinkClick[]>([]);
   const [loading, setLoading] = useState(true);
@@ -69,7 +71,7 @@ export default function UserResponsesModal({
 
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleString();
+      return new Date(dateString).toLocaleString('es');
     } catch {
       return dateString;
     }
@@ -83,9 +85,9 @@ export default function UserResponsesModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-indigo-500/30 bg-gradient-to-r from-indigo-900/50 to-purple-900/50">
           <div>
-            <h2 className="text-2xl font-bold text-white">User Responses</h2>
+            <h2 className="text-2xl font-bold text-white">{t('title')}</h2>
             {recipientName && (
-              <p className="text-sm text-gray-400 mt-1">Recipient: {recipientName}</p>
+              <p className="text-sm text-gray-400 mt-1">{t('recipient', { name: recipientName })}</p>
             )}
           </div>
           <button
@@ -104,9 +106,9 @@ export default function UserResponsesModal({
             </div>
           ) : Object.keys(responses).length === 0 && storeLinkClicks.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-gray-400 text-lg">No responses yet</p>
+              <p className="text-gray-400 text-lg">{t('noResponses')}</p>
               <p className="text-gray-500 text-sm mt-2">
-                The recipient hasn't provided any answers or clicked any store links yet.
+                {t('noResponsesHint')}
               </p>
             </div>
           ) : (
@@ -114,7 +116,7 @@ export default function UserResponsesModal({
               {/* User Responses */}
               {Object.keys(responses).length > 0 && (
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Question Responses</h3>
+                  <h3 className="text-xl font-semibold text-white mb-4">{t('questionResponses')}</h3>
                   <div className="space-y-4">
                     {Object.entries(responses).map(([slideId, response]) => (
                       <div
@@ -134,7 +136,7 @@ export default function UserResponsesModal({
                         </div>
                         {response.answered_at && (
                           <p className="text-xs text-gray-500 mt-2">
-                            Answered: {formatDate(response.answered_at)}
+                            {t('answeredAt', { date: formatDate(response.answered_at) })}
                           </p>
                         )}
                       </div>
@@ -146,7 +148,7 @@ export default function UserResponsesModal({
               {/* Store Link Clicks */}
               {storeLinkClicks.length > 0 && (
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-4">Store Link Clicks</h3>
+                  <h3 className="text-xl font-semibold text-white mb-4">{t('storeLinkClicks')}</h3>
                   <div className="space-y-4">
                     {storeLinkClicks.map((click, index) => (
                       <div
@@ -154,7 +156,7 @@ export default function UserResponsesModal({
                         className="bg-slate-800/50 rounded-lg p-4 border border-emerald-500/20 hover:border-emerald-500/40 transition-colors"
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="text-lg font-semibold text-white">Store Link Clicked</h3>
+                          <h3 className="text-lg font-semibold text-white">{t('storeLinkClicked')}</h3>
                           {click.slide_id && (
                             <span className="text-xs text-gray-500 bg-slate-700/50 px-2 py-1 rounded">
                               {click.slide_id}
@@ -172,7 +174,7 @@ export default function UserResponsesModal({
                           </a>
                         </div>
                         <p className="text-xs text-gray-500 mt-2">
-                          Clicked: {formatDate(click.clicked_at)}
+                          {t('clickedAt', { date: formatDate(click.clicked_at) })}
                         </p>
                       </div>
                     ))}

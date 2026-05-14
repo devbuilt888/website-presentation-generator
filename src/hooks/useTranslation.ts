@@ -1,23 +1,30 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { defaultLocale, locales, type Locale } from '@/i18n/constants';
 
-// Fallback translation function
 const fallbackT = (key: string) => key;
 
+function normalizeStoredLocale(raw: string | null): Locale {
+  if (raw && (locales as readonly string[]).includes(raw)) {
+    return raw as Locale;
+  }
+  return defaultLocale;
+}
+
 export function useTranslation() {
-  const [currentLocale, setCurrentLocale] = useState<string>('en');
+  const [currentLocale, setCurrentLocale] = useState<string>(defaultLocale);
 
   useEffect(() => {
-    // Load locale from localStorage
     if (typeof window !== 'undefined') {
-      const savedLocale = localStorage.getItem('locale') || 'en';
+      const savedLocale = normalizeStoredLocale(localStorage.getItem('locale'));
       setCurrentLocale(savedLocale);
     }
   }, []);
 
   const changeLocale = (newLocale: string) => {
     if (typeof window !== 'undefined') {
+      if (!(locales as readonly string[]).includes(newLocale)) return;
       localStorage.setItem('locale', newLocale);
       setCurrentLocale(newLocale);
       window.location.reload();
@@ -25,11 +32,10 @@ export function useTranslation() {
   };
 
   return {
-    t: fallbackT, // Components should use useTranslations directly from next-intl when in context
+    t: fallbackT,
     locale: currentLocale,
     changeLocale,
     isSpanish: currentLocale === 'es',
     isEnglish: currentLocale === 'en',
   };
 }
-

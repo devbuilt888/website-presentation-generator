@@ -1,17 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function SignupPage() {
+  const t = useTranslations('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +20,6 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      // Sign up user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -27,58 +27,58 @@ export default function SignupPage() {
 
       if (authError) throw authError;
 
-      // Note: User profile is automatically created by database trigger
-      // This is a backup in case the trigger fails
       if (authData.user) {
-        const { error: profileError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: authData.user.email!,
-            full_name: fullName || null,
-          });
+        const { error: profileError } = await supabase.from('users').insert({
+          id: authData.user.id,
+          email: authData.user.email!,
+          full_name: fullName || null,
+        });
 
         if (profileError) {
-          // Ignore duplicate key errors (profile was already created by trigger)
-          if (!profileError.message.includes('duplicate key') && 
-              !profileError.message.includes('already exists')) {
+          if (
+            !profileError.message.includes('duplicate key') &&
+            !profileError.message.includes('already exists')
+          ) {
             console.error('Profile creation error:', profileError);
-            throw new Error('Failed to create user profile. Please contact support.');
+            throw new Error(t('profileCreateError'));
           }
         }
       }
 
-      // Wait a moment for session to be established and cookies to be set
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Verify session was created
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
       if (sessionError) {
         throw sessionError;
       }
-      
+
       if (session && session.user) {
-        // Force a page reload to ensure middleware sees the cookies
-        // Using window.location ensures cookies are read by middleware
         window.location.href = '/dashboard';
       } else {
-        // If email confirmation is required, show message
-        setError('Please check your email to confirm your account before signing in.');
+        setError(t('confirmEmailMessage'));
         setLoading(false);
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred during signup');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : t('signupError');
+      setError(message || t('signupError'));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-6">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-6">
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitcher variant="light" />
+      </div>
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-900">Create Account</h1>
-        <p className="text-center text-gray-600 mb-8">Sign up to get started</p>
+        <h1 className="text-3xl font-bold text-center mb-2 text-gray-900">{t('signupTitle')}</h1>
+        <p className="text-center text-gray-600 mb-8">{t('signupSubtitle')}</p>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -89,7 +89,7 @@ export default function SignupPage() {
         <form onSubmit={handleSignup} className="space-y-6">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
+              {t('fullName')}
             </label>
             <input
               id="fullName"
@@ -97,13 +97,13 @@ export default function SignupPage() {
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              placeholder="John Doe"
+              placeholder={t('fullNamePlaceholder')}
             />
           </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              {t('email')}
             </label>
             <input
               id="email"
@@ -112,13 +112,13 @@ export default function SignupPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              placeholder="you@example.com"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+              {t('password')}
             </label>
             <input
               id="password"
@@ -130,7 +130,7 @@ export default function SignupPage() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder="••••••••"
             />
-            <p className="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
+            <p className="mt-1 text-xs text-gray-500">{t('passwordMinHint')}</p>
           </div>
 
           <button
@@ -138,18 +138,17 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Creating account...' : 'Sign Up'}
+            {loading ? t('creatingAccount') : t('signUp')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
-          Already have an account?{' '}
+          {t('alreadyHaveAccount')}{' '}
           <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-semibold">
-            Sign in
+            {t('signIn')}
           </Link>
         </p>
       </div>
     </div>
   );
 }
-

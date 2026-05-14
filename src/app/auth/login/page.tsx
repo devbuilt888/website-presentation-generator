@@ -1,16 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export default function LoginPage() {
+  const t = useTranslations('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,41 +19,45 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) throw error;
 
-      // Wait a moment for session to be established and cookies to be set
-      await new Promise(resolve => setTimeout(resolve, 300));
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-      // Verify session was created
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
       if (sessionError) {
         throw sessionError;
       }
-      
+
       if (session && session.user) {
-        // Force a page reload to ensure middleware sees the cookies
-        // Using window.location ensures cookies are read by middleware
         window.location.href = '/dashboard';
       } else {
-        throw new Error('Session not established. Please try again.');
+        throw new Error(t('sessionError'));
       }
-    } catch (error: any) {
-      setError(error.message || 'An error occurred during login');
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : t('loginError');
+      setError(message || t('loginError'));
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-6">
+    <div className="relative min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-6">
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageSwitcher variant="light" />
+      </div>
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold text-center mb-2 text-gray-900">Welcome Back</h1>
-        <p className="text-center text-gray-600 mb-8">Sign in to your account</p>
+        <h1 className="text-3xl font-bold text-center mb-2 text-gray-900">{t('welcomeBack')}</h1>
+        <p className="text-center text-gray-600 mb-8">{t('loginSubtitle')}</p>
 
         {error && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -63,7 +68,7 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              {t('email')}
             </label>
             <input
               id="email"
@@ -72,13 +77,13 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              placeholder="you@example.com"
+              placeholder={t('emailPlaceholder')}
             />
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Password
+              {t('password')}
             </label>
             <input
               id="password"
@@ -96,18 +101,17 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('signingIn') : t('signIn')}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
+          {t('dontHaveAccount')}{' '}
           <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-semibold">
-            Sign up
+            {t('signUp')}
           </Link>
         </p>
       </div>
     </div>
   );
 }
-

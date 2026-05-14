@@ -10,6 +10,7 @@ import {
   type ContactRow,
   type BatchImportResult 
 } from '@/lib/services/batch';
+import { useTranslations } from 'next-intl';
 
 interface BatchImportFormProps {
   onSuccess?: (result: BatchImportResult) => void;
@@ -19,6 +20,7 @@ interface BatchImportFormProps {
 
 export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchImportFormProps) {
   const { user } = useAuth();
+  const t = useTranslations('batchImport');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [step, setStep] = useState<'upload' | 'preview' | 'processing' | 'complete'>('upload');
@@ -98,7 +100,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
 
     // Validate file type
     if (!file.name.endsWith('.csv') && !file.name.endsWith('.txt')) {
-      setError('Please upload a CSV file (.csv or .txt)');
+      setError(t('errorWrongFile'));
       return;
     }
 
@@ -107,7 +109,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
       const parsedContacts = parseCSV(content);
       
       if (parsedContacts.length === 0) {
-        setError('No contacts found in file. Please check the CSV format.');
+        setError(t('errorNoContactsFile'));
         return;
       }
 
@@ -124,7 +126,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
       setContacts(parsedContacts);
       setStep('preview');
     } catch (err: any) {
-      setError(err.message || 'Failed to parse CSV file');
+      setError(err.message || t('errorParseCsv'));
     }
   };
 
@@ -141,7 +143,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
       const parsedContacts = parseBatchText(text);
       
       if (parsedContacts.length === 0) {
-        setError('No contacts found. Please check the format.');
+        setError(t('errorNoContactsFormat'));
         setContacts([]);
         return;
       }
@@ -158,20 +160,20 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
       setValidationErrors(errors);
       setContacts(parsedContacts);
     } catch (err: any) {
-      setError(err.message || 'Failed to parse contacts');
+      setError(err.message || t('errorParseContacts'));
     }
   };
 
   const handleTextInputPreview = () => {
     if (!batchText.trim()) {
-      setError('Please enter contact information');
+      setError(t('errorEnterContacts'));
       return;
     }
 
     const parsedContacts = parseBatchText(batchText);
     
     if (parsedContacts.length === 0) {
-      setError('No contacts found. Please check the format.');
+      setError(t('errorNoContactsFormat'));
       return;
     }
 
@@ -191,7 +193,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
 
   const handleImport = async () => {
     if (!user || !selectedTemplate) {
-      setError('Please select a template');
+      setError(t('errorSelectTemplate'));
       return;
     }
 
@@ -214,7 +216,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
         onSuccess(importResult);
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to import contacts');
+      setError(err.message || t('errorImportFailed'));
       setStep('preview');
     }
   };
@@ -227,12 +229,12 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
     if (!result) return;
 
     const csvLines = [
-      'Name,Email,Store Link,Share Link,Status,Error',
+      t('csvHeader'),
       ...result.success.map(instance => 
-        `"${instance.recipient_name || ''}","${instance.recipient_email || ''}","${instance.store_link || ''}","${getShareLink(instance.share_token)}","Success",""`
+        `"${instance.recipient_name || ''}","${instance.recipient_email || ''}","${instance.store_link || ''}","${getShareLink(instance.share_token)}","${t('csvSuccess')}",""`
       ),
       ...result.failed.map(f => 
-        `"${f.contact.name}","${f.contact.email || ''}","${f.contact.storeLink || ''}","","Failed","${f.error}"`
+        `"${f.contact.name}","${f.contact.email || ''}","${f.contact.storeLink || ''}","","${t('csvFailed')}","${f.error}"`
       ),
     ];
 
@@ -248,7 +250,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
   return (
     <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-700/50 p-6 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-white">Batch Import Contacts</h2>
+        <h2 className="text-2xl font-bold text-white">{t('title')}</h2>
         {onCancel && (
           <button
             onClick={onCancel}
@@ -286,7 +288,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
                   : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
               }`}
             >
-              📁 Upload CSV
+              📁 {t('uploadCsv')}
             </button>
             <button
               type="button"
@@ -303,7 +305,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
                   : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
               }`}
             >
-              ✏️ Text Input
+              ✏️ {t('textInput')}
             </button>
           </div>
 
@@ -311,10 +313,10 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
             <>
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Upload CSV File
+                  {t('uploadCsvFile')}
                 </label>
                 <p className="text-sm text-gray-500 mb-4">
-                  CSV should have columns: <strong>name</strong> (required), <strong>email</strong> (optional), <strong>store link</strong> (optional)
+                  {t('csvColumnsHint')}
                 </p>
                 <input
                   ref={fileInputRef}
@@ -326,7 +328,7 @@ export default function BatchImportForm({ onSuccess, onCancel, onToast }: BatchI
               </div>
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="font-semibold text-blue-900 mb-2">CSV Format Example:</h3>
+                <h3 className="font-semibold text-blue-900 mb-2">{t('csvExampleTitle')}</h3>
                 <pre className="text-sm text-blue-800">
 {`name,email,store link
 John Doe,john@example.com,https://store.com/john
@@ -340,9 +342,9 @@ Bob Johnson,bob@example.com,`}
               {/* Column Toggles */}
               <div className="flex flex-wrap gap-3 mb-4">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-300">Name</span>
+                  <span className="text-sm text-gray-300">{t('name')}</span>
                   <span className="px-2 py-1 bg-emerald-600/30 text-emerald-300 text-xs rounded border border-emerald-500/50">
-                    Required
+                    {t('required')}
                   </span>
                 </div>
                 <button
@@ -354,7 +356,7 @@ Bob Johnson,bob@example.com,`}
                       : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
                   }`}
                 >
-                  {useEmail ? '✓' : ''} Email
+                  {useEmail ? '✓' : ''} {t('email')}
                 </button>
               </div>
 
@@ -370,7 +372,7 @@ Bob Johnson,bob@example.com,`}
                         : 'bg-slate-700 text-slate-300 border border-slate-600 hover:bg-slate-600'
                     }`}
                   >
-                    {useSameLink ? '✓' : ''} Same Link for All
+                    {useSameLink ? '✓' : ''} {t('sameLinkForAll')}
                   </button>
                   {useSameLink && (
                     <input
@@ -387,7 +389,7 @@ Bob Johnson,bob@example.com,`}
               {/* Text Input */}
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-300 mb-2">
-                  Enter Contacts {useEmail ? '(Name, Email pairs)' : '(Names only)'}
+                  {useEmail ? t('enterContactsPairs') : t('enterContactsNames')}
                 </label>
                 <textarea
                   value={batchText}
@@ -400,13 +402,11 @@ Bob Johnson,bob@example.com,`}
                   className="w-full h-40 px-4 py-3 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
                 />
                 <p className="text-xs text-slate-400 mt-2">
-                  {useEmail 
-                    ? 'Enter contacts as: Name, Email, Name, Email... (comma-separated)'
-                    : 'Enter names separated by commas: Name, Name, Name...'}
+                  {useEmail ? t('hintPairs') : t('hintNames')}
                 </p>
                 {contacts.length > 0 && (
                   <p className="text-xs text-emerald-400 mt-1">
-                    ✓ {contacts.length} contact{contacts.length !== 1 ? 's' : ''} detected
+                    ✓ {t('contactsDetected', { count: contacts.length })}
                   </p>
                 )}
               </div>
@@ -417,7 +417,7 @@ Bob Johnson,bob@example.com,`}
                   onClick={handleTextInputPreview}
                   className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold transition-colors"
                 >
-                  Preview {contacts.length} Contact{contacts.length !== 1 ? 's' : ''}
+                  {t('previewButton', { count: contacts.length })}
                 </button>
               )}
             </div>
@@ -430,19 +430,19 @@ Bob Johnson,bob@example.com,`}
         <div>
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Preview ({contacts.length} contacts found)
+              {t('previewNContacts', { count: contacts.length })}
             </h3>
 
             <div className="mb-4">
               <label className="block text-sm font-medium text-white mb-2">
-                Select Template *
+                {t('selectTemplate')}
               </label>
               <select
                 value={selectedTemplate}
                 onChange={(e) => setSelectedTemplate(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="">Choose a template...</option>
+                <option value="">{t('chooseTemplate')}</option>
                 {templates.map(template => (
                   <option key={template.id} value={template.id}>
                     {template.name}
@@ -454,7 +454,7 @@ Bob Johnson,bob@example.com,`}
             {!useSameLink && (
               <div className="mb-4">
                 <label className="block text-sm font-medium text-white mb-2">
-                  Default Store Link (optional)
+                  {t('defaultStoreLink')}
                 </label>
                 <input
                   type="url"
@@ -464,7 +464,7 @@ Bob Johnson,bob@example.com,`}
                   className="w-full px-3 py-2 bg-slate-800 border border-slate-600 rounded-lg text-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <p className="text-xs text-slate-400 mt-1">
-                  This will be used if a contact doesn't have a store link
+                  {t('defaultStoreLinkHint')}
                 </p>
               </div>
             )}
@@ -473,12 +473,12 @@ Bob Johnson,bob@example.com,`}
               <table className="min-w-full divide-y divide-slate-700">
                 <thead className="bg-slate-800/50 sticky top-0">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">Name</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">{t('name')}</th>
                     {useEmail && (
-                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">Email</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">{t('email')}</th>
                     )}
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">Store Link</th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">Status</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">{t('colStoreLink')}</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-300 uppercase">{t('colStatus')}</th>
                   </tr>
                 </thead>
                 <tbody className="bg-slate-900/30 divide-y divide-slate-700">
@@ -499,7 +499,7 @@ Bob Johnson,bob@example.com,`}
                               ⚠️ {errors[0]}
                             </span>
                           ) : (
-                            <span className="text-emerald-400">✓ Valid</span>
+                            <span className="text-emerald-400">{t('valid')}</span>
                           )}
                         </td>
                       </tr>
@@ -521,14 +521,14 @@ Bob Johnson,bob@example.com,`}
               }}
               className="px-4 py-2 border border-slate-600 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors"
             >
-              Back
+              {t('back')}
             </button>
             <button
               onClick={handleImport}
               disabled={!selectedTemplate || contacts.length === 0}
               className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Import {contacts.length} Contact{contacts.length !== 1 ? 's' : ''}
+              {t('importN', { count: contacts.length })}
             </button>
           </div>
         </div>
@@ -538,8 +538,8 @@ Bob Johnson,bob@example.com,`}
       {step === 'processing' && (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-2 border-indigo-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-slate-300">Creating presentations...</p>
-          <p className="text-sm text-slate-400 mt-2">This may take a moment</p>
+          <p className="text-slate-300">{t('processing')}</p>
+          <p className="text-sm text-slate-400 mt-2">{t('processingWait')}</p>
         </div>
       )}
 
@@ -552,25 +552,25 @@ Bob Johnson,bob@example.com,`}
               : 'bg-yellow-900/30 border border-yellow-700/50'
           }`}>
             <h3 className="font-semibold mb-2 text-white">
-              Import Complete!
+              {t('importComplete')}
             </h3>
             <p className="text-sm text-slate-300">
-              ✅ {result.succeeded} successful | ❌ {result.failedCount} failed
+              {t('importSummary', { succeeded: result.succeeded, failedCount: result.failedCount })}
             </p>
           </div>
 
           {result.success.length > 0 && (
             <div className="mb-6">
-              <h4 className="font-semibold text-white mb-3">Successful Imports ({result.success.length})</h4>
+              <h4 className="font-semibold text-white mb-3">{t('successfulImports', { count: result.success.length })}</h4>
               <div className="max-h-64 overflow-y-auto border border-slate-700 rounded-lg">
                 <table className="min-w-full divide-y divide-slate-700">
                   <thead className="bg-slate-800/50">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">Name</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">{t('name')}</th>
                       {useEmail && (
-                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">Email</th>
+                        <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">{t('email')}</th>
                       )}
-                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">Share Link</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">{t('colShareLink')}</th>
                     </tr>
                   </thead>
                   <tbody className="bg-slate-900/30 divide-y divide-slate-700">
@@ -585,12 +585,12 @@ Bob Johnson,bob@example.com,`}
                             onClick={() => {
                               navigator.clipboard.writeText(getShareLink(instance.share_token));
                               if (onToast) {
-                                onToast('Share link copied to clipboard');
+                                onToast(t('shareLinkCopied'));
                               }
                             }}
                             className="text-indigo-400 hover:text-indigo-300 text-xs transition-colors"
                           >
-                            Copy Link
+                            {t('copyLink')}
                           </button>
                         </td>
                       </tr>
@@ -603,13 +603,13 @@ Bob Johnson,bob@example.com,`}
 
           {result.failed.length > 0 && (
             <div className="mb-6">
-              <h4 className="font-semibold text-white mb-3">Failed Imports ({result.failed.length})</h4>
+              <h4 className="font-semibold text-white mb-3">{t('failedImports', { count: result.failed.length })}</h4>
               <div className="max-h-64 overflow-y-auto border border-slate-700 rounded-lg">
                 <table className="min-w-full divide-y divide-slate-700">
                   <thead className="bg-slate-800/50">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">Name</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">Error</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">{t('name')}</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-slate-300">{t('colError')}</th>
                     </tr>
                   </thead>
                   <tbody className="bg-slate-900/30 divide-y divide-slate-700">
@@ -630,14 +630,14 @@ Bob Johnson,bob@example.com,`}
               onClick={downloadResults}
               className="px-4 py-2 border border-slate-600 rounded-lg text-slate-300 hover:bg-slate-800 transition-colors"
             >
-              Download Results CSV
+              {t('downloadCsv')}
             </button>
             {onCancel && (
               <button
                 onClick={onCancel}
                 className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 transition-colors"
               >
-                Done
+                {t('done')}
               </button>
             )}
           </div>

@@ -7,8 +7,10 @@ import { useAuth } from './auth/AuthProvider';
 import { isUserAdmin } from '@/lib/utils/user-roles';
 import Logo from './Logo';
 import LanguageSwitcher from './LanguageSwitcher';
+import { useTranslations } from 'next-intl';
 
 export default function Navigation() {
+  const tNav = useTranslations('nav');
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -53,14 +55,12 @@ export default function Navigation() {
               href={user ? "/dashboard" : "/"} 
               className="text-xl font-bold bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent hover:from-indigo-600 hover:via-purple-600 hover:to-indigo-600 transition-all duration-300"
             >
-              Presentation Maker
+              {tNav('brand')}
             </Link>
             
             {/* Top Right Actions */}
             <div className="flex items-center gap-3">
-              {/* Language Switcher - Always visible */}
               <LanguageSwitcher variant="light" />
-              
               {/* Auth buttons - Only for non-authenticated */}
               {!user && (
                 <>
@@ -68,13 +68,13 @@ export default function Navigation() {
                     href="/auth/login"
                     className="px-4 py-1.5 text-sm text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-all duration-200 font-medium"
                   >
-                    Sign In
+                    {tNav('login')}
                   </Link>
                   <Link 
                     href="/auth/signup"
                     className="px-4 py-1.5 text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-500 hover:to-purple-500 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
                   >
-                    Sign Up
+                    {tNav('signup')}
                   </Link>
                 </>
               )}
@@ -108,7 +108,7 @@ export default function Navigation() {
                         : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
                     }`}
                   >
-                    Dashboard
+                    {tNav('dashboard')}
                   </Link>
                   {isAdmin && (
                     <Link 
@@ -119,7 +119,7 @@ export default function Navigation() {
                           : 'text-slate-300 hover:text-white hover:bg-slate-800/50 border border-transparent'
                       }`}
                     >
-                      Admin
+                      {tNav('admin')}
                     </Link>
                   )}
                 </div>
@@ -129,7 +129,7 @@ export default function Navigation() {
                   <button
                     onClick={() => setShowMobileMenu(!showMobileMenu)}
                     className="p-2 text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all duration-200 border border-slate-700/50 hover:border-slate-600/50"
-                    aria-label="Menu"
+                    aria-label={tNav('menu')}
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       {showMobileMenu ? (
@@ -152,7 +152,7 @@ export default function Navigation() {
                             : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                         }`}
                       >
-                        Dashboard
+                        {tNav('dashboard')}
                       </Link>
                       {isAdmin && (
                         <Link 
@@ -164,7 +164,7 @@ export default function Navigation() {
                               : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
                           }`}
                         >
-                          Admin
+                          {tNav('admin')}
                         </Link>
                       )}
                     </div>
@@ -180,7 +180,7 @@ export default function Navigation() {
                     onClick={signOut}
                     className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all duration-200 border border-slate-700/50 hover:border-slate-600/50 font-medium"
                   >
-                    Sign Out
+                    {tNav('logout')}
                   </button>
                 </div>
               </div>
