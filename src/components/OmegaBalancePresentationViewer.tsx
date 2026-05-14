@@ -248,14 +248,18 @@ export default function OmegaBalancePresentationViewer({ presentation, instanceI
               onClick={() => handleContinue()}
               className="group relative inline-flex items-center justify-center w-32 h-32 bg-white rounded-full hover:scale-110 transition-all duration-300 shadow-2xl"
             >
-              <svg 
-                className="w-16 h-16 text-purple-900 ml-2" 
-                fill="currentColor" 
+              <svg
+                className="w-16 h-16 text-purple-900 ml-2"
+                fill="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path d="M8 5v14l11-7z" />
               </svg>
             </button>
+            <div className="mt-4 flex items-center justify-center gap-2 text-purple-100 text-sm animate-pulse">
+              <span className="text-2xl leading-none">↑</span>
+              <span>Click here</span>
+            </div>
           </div>
         )}
 

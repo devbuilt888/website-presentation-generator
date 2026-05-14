@@ -645,15 +645,19 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
               onClick={() => handleContinue()}
               className="group relative inline-flex items-center justify-center w-32 h-32 bg-gradient-to-br from-indigo-600/90 to-purple-600/90 backdrop-blur-sm rounded-full hover:scale-110 transition-all duration-300 shadow-2xl border-2 border-indigo-400/50"
             >
-              <svg 
-                className="w-16 h-16 text-white ml-2" 
-                fill="currentColor" 
+              <svg
+                className="w-16 h-16 text-white ml-2"
+                fill="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path d="M8 5v14l11-7z" />
               </svg>
               <div className="absolute inset-0 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-full opacity-0 group-hover:opacity-100 blur-xl transition-opacity" />
             </button>
+            <div className="mt-4 flex items-center justify-center gap-2 text-indigo-100 text-sm animate-pulse">
+              <span className="text-2xl leading-none">↑</span>
+              <span>Click here</span>
+            </div>
           </div>
         )}
 
