@@ -3,20 +3,16 @@
 import { I18nProvider } from '@/i18n/provider';
 import { defaultLocale, locales, type Locale } from '@/i18n/constants';
 import { ReactNode, useEffect, useState } from 'react';
+import enMessages from '../../messages/en.json';
+import esMessages from '../../messages/es.json';
 
 type Props = {
   children: ReactNode;
 };
 
-const defaultMessages = {
-  common: { loading: 'Cargando...', error: 'Error', success: 'Éxito' },
-  dashboard: {},
-  admin: {},
-  presentations: {},
-  nav: {},
-  auth: {},
-  templates: {},
-  presentationContent: {},
+const messagesByLocale: Record<Locale, typeof esMessages> = {
+  es: esMessages,
+  en: enMessages,
 };
 
 function normalizeStoredLocale(raw: string | null): Locale {
@@ -28,7 +24,7 @@ function normalizeStoredLocale(raw: string | null): Locale {
 
 export default function I18nWrapper({ children }: Props) {
   const [locale, setLocale] = useState<Locale>(defaultLocale);
-  const [messages, setMessages] = useState<any>(defaultMessages);
+  const [messages, setMessages] = useState(messagesByLocale[defaultLocale]);
 
   useEffect(() => {
     let stored: Locale = defaultLocale;
@@ -43,46 +39,11 @@ export default function I18nWrapper({ children }: Props) {
     }
 
     setLocale(stored);
-
-    const loadMessages = async () => {
-      try {
-        const mod = await import(`../../messages/${stored}.json`);
-        const loaded = mod.default || mod;
-        if (loaded && typeof loaded === 'object') {
-          setMessages(loaded);
-          return;
-        }
-        throw new Error('Invalid messages');
-      } catch (e) {
-        console.error('Error loading messages:', e);
-        try {
-          const esMod = await import(`../../messages/es.json`);
-          setMessages(esMod.default || esMod);
-          setLocale(defaultLocale);
-          try {
-            localStorage.setItem('locale', defaultLocale);
-          } catch {
-            /* ignore */
-          }
-        } catch {
-          try {
-            const enMod = await import(`../../messages/en.json`);
-            setMessages(enMod.default || enMod);
-            setLocale('en');
-          } catch {
-            /* keep defaultMessages */
-          }
-        }
-      }
-    };
-
-    void loadMessages();
+    setMessages(messagesByLocale[stored]);
   }, []);
 
-  const safeMessages = messages || defaultMessages;
-
   return (
-    <I18nProvider locale={locale} messages={safeMessages}>
+    <I18nProvider locale={locale} messages={messages}>
       {children}
     </I18nProvider>
   );

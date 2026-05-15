@@ -10,9 +10,11 @@ type Props = {
   messages: any;
 };
 
+const timeZone = 'Europe/Madrid';
+
 export function I18nProvider({ children, locale, messages }: Props) {
   return (
-    <NextIntlClientProvider locale={locale} messages={messages}>
+    <NextIntlClientProvider locale={locale} messages={messages} timeZone={timeZone}>
       {children}
     </NextIntlClientProvider>
   );

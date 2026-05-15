@@ -1,149 +1,63 @@
-'use client';
+import type { Metadata } from 'next';
+import ViewPresentationClient from './ViewPresentationClient';
+import { getInstanceByTokenServer } from '@/lib/services/instances-server';
+import {
+  buildPresentationSharePreview,
+  getSiteUrl,
+  resolveShareImageUrl,
+} from '@/lib/presentations/share-metadata';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { getInstanceByToken, markInstanceAsViewed } from '@/lib/services/instances';
-import { getTemplate } from '@/lib/presentations/template-registry';
-import { applySimpleCustomization } from '@/lib/presentations/customization';
-import { getInstanceQuestions, getInstanceAnswers } from '@/lib/services/questions';
-import PresentationViewer from '@/components/PresentationViewer';
-import ThreeDPresentationViewer from '@/components/ThreeDPresentationViewer';
-import ForestPresentationViewer from '@/components/ForestPresentationViewer';
-import OmegaBalancePresentationViewer from '@/components/OmegaBalancePresentationViewer';
-import OmegaBalanceSpacePresentationViewer from '@/components/OmegaBalanceSpacePresentationViewer';
-import OmegaBalancePlusPresentationViewer from '@/components/OmegaBalancePlusPresentationViewer';
-import OmegaBalanceNewPresentationViewer from '@/components/OmegaBalanceNewPresentationViewer';
-import { Presentation } from '@/data/presentations';
+export const dynamic = 'force-dynamic';
 
-export default function ViewPresentationPage() {
-  const params = useParams();
-  const token = params.token as string;
-  const t = useTranslations('viewPresentation');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [presentation, setPresentation] = useState<Presentation | null>(null);
-  const [templateId, setTemplateId] = useState<string>('');
-  const [instanceId, setInstanceId] = useState<string>('');
+type PageProps = {
+  params: Promise<{ token: string }>;
+};
 
-  useEffect(() => {
-    loadPresentation();
-  }, [token]);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { token } = await params;
 
-  const loadPresentation = async () => {
-    try {
-      // Get instance with embedded presentation data
-      const instance: any = await getInstanceByToken(token);
-      
-      // Store instance ID for saving responses
-      setInstanceId(instance.id);
-      
-      // Mark as viewed (logs link click)
-      if (instance.status !== 'viewed' && instance.status !== 'completed') {
-        await markInstanceAsViewed(instance.id);
-      }
+  try {
+    const instance = await getInstanceByTokenServer(token);
+    const preview = buildPresentationSharePreview(instance);
+    const siteUrl = getSiteUrl();
+    const pageUrl = `${siteUrl}/view/${token}`;
+    const ogImageUrl = resolveShareImageUrl(token, preview);
 
-      // Get template_id from the embedded presentation data
-      const templateIdFromDb = instance.presentation?.template_id;
-      if (!templateIdFromDb) {
-        throw new Error(t('templateIdMissing'));
-      }
-      
-      // Store the template ID for viewer selection
-      setTemplateId(templateIdFromDb);
-      
-      // Get template using the template_id from the presentation
-      const template = getTemplate(templateIdFromDb);
-      if (!template) {
-        throw new Error(t('templateNotFound'));
-      }
-
-      // Apply customization
-      const customized = applySimpleCustomization(template, {
-        recipientName: instance.recipient_name || '',
-        storeLink: instance.store_link || '',
-        ...(instance.custom_fields as any || {}),
-      });
-
-      // Get questions and answers if advanced
-      let questions: any[] = [];
-      let answers: any[] = [];
-      
-      if (instance.customization_level === 'advanced') {
-        questions = await getInstanceQuestions(instance.id);
-        answers = await getInstanceAnswers(instance.id);
-      }
-
-      // Convert to Presentation format
-      const presentationData: Presentation = {
-        id: templateIdFromDb, // Use template_id so viewers can identify which to use
-        title: customized.name,
-        description: customized.description,
-        createdAt: instance.created_at,
-        slides: customized.slides.map((slide) => ({
-          ...slide,
-          id: slide.id,
-          type: slide.type,
-          duration: slide.duration || 5000,
-        })),
-      };
-
-      setPresentation(presentationData);
-    } catch (err: any) {
-      setError(err.message || t('failedLoad'));
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto"></div>
-          <p className="mt-4 text-white">{t('loading')}</p>
-        </div>
-      </div>
-    );
+    return {
+      title: preview.title,
+      description: preview.description,
+      openGraph: {
+        title: preview.title,
+        description: preview.description,
+        url: pageUrl,
+        type: 'website',
+        siteName: 'PresenT',
+        locale: 'es_ES',
+        images: [
+          {
+            url: ogImageUrl,
+            width: 1200,
+            height: 630,
+            alt: preview.title,
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: preview.title,
+        description: preview.description,
+        images: [ogImageUrl],
+      },
+    };
+  } catch {
+    return {
+      title: 'Presentación no encontrada | PresenT',
+      description: 'Este enlace de presentación no es válido o ha expirado.',
+      robots: { index: false, follow: false },
+    };
   }
-
-  if (error || !presentation) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-center text-white">
-          <h1 className="text-2xl font-bold mb-4">{t('notFoundTitle')}</h1>
-          <p className="text-gray-400">{error || t('notFoundBody')}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Render the appropriate viewer based on template ID
-  if (templateId === 'super-presentation-pro') {
-    return <ThreeDPresentationViewer presentation={presentation} instanceId={instanceId} />;
-  }
-  
-  if (templateId === 'forest-night-journey') {
-    return <ForestPresentationViewer presentation={presentation} instanceId={instanceId} />;
-  }
-  
-  if (templateId === 'omega-balance') {
-    return <OmegaBalancePresentationViewer presentation={presentation} instanceId={instanceId} />;
-  }
-  
-  if (templateId === 'omega-balance-space') {
-    return <OmegaBalanceSpacePresentationViewer presentation={presentation} instanceId={instanceId} />;
-  }
-  
-  if (templateId === 'omega-balance-plus') {
-    return <OmegaBalancePlusPresentationViewer presentation={presentation} instanceId={instanceId} />;
-  }
-  
-  if (templateId === 'omega-balance-new') {
-    return <OmegaBalanceNewPresentationViewer presentation={presentation} instanceId={instanceId} />;
-  }
-  
-  // Default to standard viewer for zinzino-mex and others
-  return <PresentationViewer presentation={presentation} instanceId={instanceId} />;
 }
 
+export default function ViewPresentationPage() {
+  return <ViewPresentationClient />;
+}
