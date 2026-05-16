@@ -25,7 +25,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex h-[100dvh] w-full items-center justify-center bg-black">
+      <div className="flex h-[calc(100dvh-9rem)] min-h-[320px] w-full items-center justify-center bg-black">
         <div
           className="h-12 w-12 animate-spin rounded-full border-2 border-white/25 border-t-white"
           aria-hidden
@@ -39,12 +39,18 @@ export default function Home() {
   }
 
   if (!tutorialPresentation) {
-    return <div className="h-[100dvh] w-full bg-black" />;
+    return <div className="h-[calc(100dvh-9rem)] min-h-[320px] w-full bg-black" />;
   }
 
   return (
-    <div className="h-[100dvh] w-full overflow-hidden">
-      <ForestPresentationViewer presentation={tutorialPresentation} />
+    <div className="flex h-[calc(100dvh-9rem)] min-h-[320px] w-full flex-col overflow-hidden bg-black">
+      <div className="relative min-h-0 flex-1">
+        <ForestPresentationViewer
+          presentation={tutorialPresentation}
+          embedded
+          fillHeight
+        />
+      </div>
     </div>
   );
 }

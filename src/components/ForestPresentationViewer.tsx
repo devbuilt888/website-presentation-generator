@@ -14,6 +14,8 @@ interface ForestPresentationViewerProps {
   instanceId?: string;
   /** When true, height fits under the main nav instead of full viewport (e.g. landing page). */
   embedded?: boolean;
+  /** With embedded, fill the parent flex area (landing page below navbar). */
+  fillHeight?: boolean;
 }
 
 // Tree component with teal/green gradients
@@ -380,7 +382,12 @@ function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: n
   );
 }
 
-export default function ForestPresentationViewer({ presentation, instanceId, embedded = false }: ForestPresentationViewerProps) {
+export default function ForestPresentationViewer({
+  presentation,
+  instanceId,
+  embedded = false,
+  fillHeight = false,
+}: ForestPresentationViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -508,7 +515,9 @@ export default function ForestPresentationViewer({ presentation, instanceId, emb
   });
 
   const heightClass = embedded
-    ? 'h-[min(70vh,840px)] min-h-[320px] w-full sm:h-[min(72vh,880px)]'
+    ? fillHeight
+      ? 'h-full min-h-0 w-full'
+      : 'h-[min(70vh,840px)] min-h-[320px] w-full sm:h-[min(72vh,880px)]'
     : 'h-screen';
 
   return (
