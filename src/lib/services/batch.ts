@@ -6,9 +6,11 @@
 
 import { createPresentation } from './presentations';
 import { createInstance, markInstanceAsSent } from './instances';
+import { getUserPhone } from './users';
 import { Database } from '@/lib/supabase/types';
 import { getTemplate } from '@/lib/presentations/template-registry';
 import { createCustomizedPresentation } from '@/lib/presentations/customization';
+import { resolveInstanceContactStoreLink } from '@/lib/utils/contact-phone';
 
 type InstanceRow = Database['public']['Tables']['presentation_instances']['Row'];
 
@@ -68,6 +70,8 @@ export async function createBatchInstances(
     throw new Error(`Plantilla no encontrada: ${templateId}`);
   }
 
+  const ownerPhone = await getUserPhone(userId);
+
   // Process contacts sequentially to avoid overwhelming the database
   // For very large batches, consider using a queue/background job
   for (const contact of contacts) {
@@ -82,12 +86,18 @@ export async function createBatchInstances(
         continue;
       }
 
+      const contactStoreLink = resolveInstanceContactStoreLink(
+        templateId,
+        contact.storeLink || defaultStoreLink,
+        ownerPhone
+      );
+
       // Create customized presentation data
       const customized = createCustomizedPresentation(template, {
         level: customizationLevel,
         simple: {
           recipientName: contact.name.trim(),
-          storeLink: contact.storeLink || defaultStoreLink || '',
+          storeLink: contactStoreLink || '',
         },
         questions: customQuestions,
       });
@@ -107,7 +117,7 @@ export async function createBatchInstances(
         created_by: userId,
         recipient_name: contact.name.trim(),
         recipient_email: contact.email?.trim() || null,
-        store_link: contact.storeLink || defaultStoreLink || null,
+        store_link: contactStoreLink,
         customization_level: customizationLevel,
         custom_fields: customized.customization.simple as any,
         status: 'draft',

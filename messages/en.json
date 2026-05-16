@@ -27,7 +27,8 @@
     "logout": "Logout",
     "brand": "PresenT",
     "presentationEditor": "Presentation editor",
-    "menu": "Menu"
+    "menu": "Menu",
+    "settings": "Account"
   },
   "auth": {
     "email": "Email",
@@ -50,12 +51,31 @@
     "signupSubtitle": "Sign up to get started",
     "fullName": "Full name",
     "fullNamePlaceholder": "Jane Doe",
+    "phone": "Phone number",
+    "phonePlaceholder": "407-555-1234",
+    "phoneRequired": "Phone number is required",
+    "phoneInvalid": "Enter a valid phone number (at least 10 digits)",
     "emailPlaceholder": "you@example.com",
     "passwordMinHint": "Minimum 6 characters",
     "creatingAccount": "Creating account…",
     "signupError": "An error occurred during signup",
     "confirmEmailMessage": "Please check your email to confirm your account before signing in.",
     "profileCreateError": "Could not create user profile. Please contact support."
+  },
+  "settings": {
+    "title": "Account settings",
+    "subtitle": "Update your profile. Your phone is used as the contact number on shared omega presentations when no store link is set.",
+    "emailLabel": "Email",
+    "emailHint": "Email cannot be changed here.",
+    "fullNameLabel": "Full name",
+    "phoneLabel": "Phone number",
+    "phoneHint": "Shown to recipients on the final slide of your shared omega presentations (when applicable).",
+    "phoneInvalid": "Enter a valid phone number (at least 10 digits).",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Profile updated.",
+    "loadError": "Could not load your profile.",
+    "saveError": "Could not save changes. Please try again."
   },
   "home": {
     "title": "PresenT",

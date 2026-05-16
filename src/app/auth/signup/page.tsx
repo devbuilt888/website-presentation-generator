@@ -5,43 +5,61 @@ import { supabase } from '@/lib/supabase/client';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { normalizePhoneDigits } from '@/lib/utils/contact-phone';
 
 export default function SignupPage() {
   const t = useTranslations('auth');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
+  const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    const phoneTrimmed = phone.trim();
+    if (!phoneTrimmed) {
+      setError(t('phoneRequired'));
+      return;
+    }
+    if (normalizePhoneDigits(phoneTrimmed).length < 10) {
+      setError(t('phoneInvalid'));
+      return;
+    }
+
     setLoading(true);
 
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: fullName || null,
+            phone: phoneTrimmed,
+          },
+        },
       });
 
       if (authError) throw authError;
 
       if (authData.user) {
-        const { error: profileError } = await supabase.from('users').insert({
-          id: authData.user.id,
-          email: authData.user.email!,
-          full_name: fullName || null,
-        });
+        const { error: profileError } = await supabase.from('users').upsert(
+          {
+            id: authData.user.id,
+            email: authData.user.email!,
+            full_name: fullName || null,
+            phone: phoneTrimmed,
+          },
+          { onConflict: 'id' }
+        );
 
         if (profileError) {
-          if (
-            !profileError.message.includes('duplicate key') &&
-            !profileError.message.includes('already exists')
-          ) {
-            console.error('Profile creation error:', profileError);
-            throw new Error(t('profileCreateError'));
-          }
+          console.error('Profile creation error:', profileError);
+          throw new Error(t('profileCreateError'));
         }
       }
 
@@ -63,8 +81,7 @@ export default function SignupPage() {
         setLoading(false);
       }
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : t('signupError');
+      const message = error instanceof Error ? error.message : t('signupError');
       setError(message || t('signupError'));
     } finally {
       setLoading(false);
@@ -98,6 +115,22 @@ export default function SignupPage() {
               onChange={(e) => setFullName(e.target.value)}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
               placeholder={t('fullNamePlaceholder')}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+              {t('phone')}
+            </label>
+            <input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              autoComplete="tel"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              placeholder={t('phonePlaceholder')}
             />
           </div>
 

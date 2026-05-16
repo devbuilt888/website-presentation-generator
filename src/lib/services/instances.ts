@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase/client';
 import { Database } from '@/lib/supabase/types';
 import { PresentationInstance, SimpleCustomization } from '@/types/presentation';
 import { generateShareToken } from '@/lib/utils/token';
+import { isHttpUrl, usesOwnerPhoneOnFinalSlide } from '@/lib/utils/contact-phone';
 
 type InstanceRow = Database['public']['Tables']['presentation_instances']['Row'];
 type InstanceInsert = Database['public']['Tables']['presentation_instances']['Insert'];
@@ -68,6 +69,22 @@ export async function getInstanceByToken(shareToken: string) {
     .single();
 
   if (error) throw error;
+
+  const templateId = (data.presentation as { template_id?: string } | null)?.template_id;
+  const needsOwnerPhone =
+    templateId &&
+    usesOwnerPhoneOnFinalSlide(templateId) &&
+    (!data.store_link || isHttpUrl(data.store_link));
+
+  if (needsOwnerPhone) {
+    const { data: ownerPhone } = await supabase.rpc('get_shared_instance_owner_phone', {
+      p_token: shareToken,
+    });
+    if (ownerPhone) {
+      return { ...data, store_link: ownerPhone };
+    }
+  }
+
   return data;
 }
 

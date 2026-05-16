@@ -7,6 +7,8 @@ import { getTemplate } from '@/lib/presentations/template-registry';
 import { createCustomizedPresentation } from '@/lib/presentations/customization';
 import { createInstance } from '@/lib/services/instances';
 import { createPresentation } from '@/lib/services/presentations';
+import { getUserPhone } from '@/lib/services/users';
+import { resolveInstanceContactStoreLink } from '@/lib/utils/contact-phone';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { supabase } from '@/lib/supabase/client';
 
@@ -95,11 +97,18 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
       const template = getTemplate(templateId);
       if (!template) throw new Error(t('templateNotFound'));
 
+      const ownerPhone = await getUserPhone(user.id);
+      const contactStoreLink = resolveInstanceContactStoreLink(
+        templateId,
+        storeLink,
+        ownerPhone
+      );
+
       const customized = createCustomizedPresentation(template, {
         level: 'simple',
         simple: {
           recipientName,
-          storeLink,
+          storeLink: contactStoreLink || '',
         },
       });
 
@@ -127,7 +136,7 @@ export default function CustomizationForm({ templateId, onSuccess }: Customizati
         created_by: user.id,
         recipient_name: recipientName || null,
         recipient_email: recipientEmail || null,
-        store_link: storeLink || null,
+        store_link: contactStoreLink,
         customization_level: 'simple',
         custom_fields: customized.customization.simple as any,
         status: 'draft',

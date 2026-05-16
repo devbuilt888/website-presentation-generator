@@ -13,6 +13,7 @@ export interface UserWithRole {
   email: string;
   role: UserRole;
   full_name?: string;
+  phone?: string;
   created_at?: string;
 }
 

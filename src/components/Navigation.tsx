@@ -144,6 +144,17 @@ export default function Navigation() {
                   {showMobileMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-slate-800/95 backdrop-blur-xl rounded-lg shadow-2xl border border-slate-700/50 py-2 z-50">
                       <Link 
+                        href="/settings"
+                        onClick={() => setShowMobileMenu(false)}
+                        className={`block px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                          pathname === '/settings'
+                            ? 'bg-indigo-600/20 text-indigo-300 border-l-2 border-indigo-500'
+                            : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                        }`}
+                      >
+                        {tNav('settings')}
+                      </Link>
+                      <Link 
                         href="/dashboard"
                         onClick={() => setShowMobileMenu(false)}
                         className={`block px-4 py-2 text-sm font-medium transition-all duration-200 ${
@@ -173,10 +184,15 @@ export default function Navigation() {
                 
                 {/* User Info & Sign Out */}
                 <div className="flex items-center gap-3 pl-4 border-l border-slate-700/50">
-                  <span className="text-sm text-slate-400 hidden sm:block max-w-[200px] truncate">
+                  <Link
+                    href="/settings"
+                    title={tNav('settings')}
+                    className="hidden md:inline-block text-sm text-slate-400 hover:text-indigo-300 max-w-[220px] truncate hover:underline underline-offset-2 transition-colors"
+                  >
                     {user?.email}
-                  </span>
+                  </Link>
                   <button
+                    type="button"
                     onClick={signOut}
                     className="px-4 py-2 text-sm text-slate-300 hover:text-white hover:bg-slate-800/70 rounded-lg transition-all duration-200 border border-slate-700/50 hover:border-slate-600/50 font-medium"
                   >

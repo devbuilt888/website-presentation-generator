@@ -7,7 +7,14 @@ import * as THREE from 'three';
 import { Presentation } from '@/data/presentations';
 import { getAssetUrl } from '@/config/assets';
 import { saveUserResponse, logStoreLinkClick } from '@/lib/services/instances';
+import { isOmega63RatioHealthy } from '@/lib/utils/omega-balance-ratio';
+import { getOmegaPresentationProgressLabel } from '@/lib/utils/omega-presentation-progress';
 import { useMobileTapNavigation, isInputSlide } from '@/hooks/useMobileTapNavigation';
+import VimondHealthProtocolEmbed from '@/components/VimondHealthProtocolEmbed';
+import PresentationPhoneCopyButton from '@/components/PresentationPhoneCopyButton';
+import IframeEmbedWithSpinner from '@/components/IframeEmbedWithSpinner';
+import VideoFileWithSpinner from '@/components/VideoFileWithSpinner';
+import { resolvePresentationContactPhone } from '@/lib/utils/presentation-contact-phone';
 
 // CSS-based Pattern Background Component
 function PatternBackgroundCSS() {
@@ -492,7 +499,6 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
   const [userAnswers, setUserAnswers] = useState<Record<string, any>>({});
   const [omega3, setOmega3] = useState('');
   const [omega6, setOmega6] = useState('');
-  const [selectedConcerns, setSelectedConcerns] = useState<string[]>([]);
 
   // Define the slide flow based on answers (same as original)
   const getNextSlide = (currentSlideId: string, answer?: any): number => {
@@ -500,24 +506,21 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
       'slide-1': 1,
       'slide-2': (answer: string) => {
         if (answer === 'Sí') return 2;
-        if (answer === 'No') return 5;
+        if (answer === 'No') return 6;
         return 1;
       },
       'slide-3-input': () => {
         const o3 = parseFloat(omega3);
         const o6 = parseFloat(omega6);
-        if (o3 === 1 && o6 === 3) {
-          return 4;
-        } else {
-          return 3;
-        }
+        return isOmega63RatioHealthy(o3, o6) ? 4 : 3;
       },
-      'slide-4-unbalanced': 6,
-      'slide-5-balanced': 6,
-      'slide-6-apology': 6,
-      'slide-7-video1': 7,
-      'slide-8-question': 8,
-      'slide-9-video2': 9,
+      'slide-4-unbalanced': 7,
+      'slide-5-good-video': 5,
+      'slide-6-good-contact': 5,
+      'slide-6-apology': 7,
+      'slide-7-video1': 8,
+      'slide-8-question': 9,
+      'slide-9-video2': 10,
       'slide-10-final': 10,
       'slide-11-conveyor': 10, // Stay on conveyor slide
     };
@@ -564,14 +567,6 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
     
     const nextIndex = getNextSlide(currentSlide.id);
     setCurrentSlideIndex(nextIndex);
-  };
-
-  const toggleConcern = (concern: string) => {
-    setSelectedConcerns(prev => 
-      prev.includes(concern) 
-        ? prev.filter(c => c !== concern)
-        : [...prev, concern]
-    );
   };
 
   const handleContinue = () => {
@@ -625,9 +620,9 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
         </>
       )}
 
-      {/* Content area: sin scroll; encaja en viewport */}
-      <div className="relative z-10 flex-1 min-h-0 w-full flex items-center justify-center px-3 sm:px-6 pt-1 pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))]">
-        <div className="w-full min-w-0 max-w-4xl max-h-full min-h-0 overflow-hidden mx-auto flex flex-col justify-center">
+      {/* Content: scroll si la diapositiva es alta (p. ej. video + título) */}
+      <div className="relative z-10 flex-1 min-h-0 w-full flex items-start sm:items-center justify-center overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-1 pb-[calc(4.25rem+env(safe-area-inset-bottom,0px))]">
+        <div className="w-full min-w-0 max-w-4xl min-h-0 py-2 mx-auto flex flex-col justify-center">
         {/* Slide 1: Introduction with Play Button */}
         {currentSlide.id === 'slide-1' && (
           <div className="text-center text-white animate-fadeIn">
@@ -737,9 +732,14 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
             <h1 className="text-5xl font-bold mb-6 drop-shadow-2xl text-yellow-300">
               {currentSlide.title}
             </h1>
-            <p className="text-2xl mb-12 text-purple-200 max-w-2xl mx-auto drop-shadow-lg">
+            <p className="text-2xl mb-6 text-purple-200 max-w-2xl mx-auto drop-shadow-lg">
               {currentSlide.content}
             </p>
+            {currentSlide.contentFooter && (
+              <p className="text-xl mb-10 text-indigo-200/90 italic drop-shadow-lg max-w-2xl mx-auto">
+                {currentSlide.contentFooter}
+              </p>
+            )}
             
             <button
               onClick={handleContinue}
@@ -750,37 +750,17 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
           </div>
         )}
 
-        {/* Slide 5: Perfect Balance + Health Concerns */}
-        {currentSlide.id === 'slide-5-balanced' && (
-          <div className="text-center text-white animate-fadeIn">
-            <h1 className="text-5xl font-bold mb-4 drop-shadow-2xl text-emerald-300">
+        {/* Slide 5: Good balance — protocol video */}
+        {currentSlide.id === 'slide-5-good-video' && (
+          <div className="text-center text-white animate-fadeIn w-full max-w-[min(960px,96vw)] mx-auto px-2 sm:px-4">
+            <h1 className="text-4xl sm:text-5xl font-bold mb-6 drop-shadow-2xl text-emerald-300">
               {currentSlide.title}
             </h1>
-            <h2 className="text-2xl mb-6 text-indigo-300 drop-shadow-lg">
-              {currentSlide.subtitle}
-            </h2>
-            <p className="text-xl mb-8 text-purple-200 drop-shadow-lg">
-              {currentSlide.content}
-            </p>
-            
-            <div className="max-w-3xl mx-auto grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-              {currentSlide.questions && currentSlide.questions[0].options.map((concern, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => toggleConcern(concern)}
-                  className={`px-4 py-3 text-sm font-semibold rounded-lg shadow-lg transition-all duration-300 backdrop-blur-sm border-2 ${
-                    selectedConcerns.includes(concern)
-                      ? 'bg-indigo-600/90 text-white scale-105 border-indigo-400/50'
-                      : 'bg-white/10 text-white hover:bg-white/20 border-white/20'
-                  }`}
-                >
-                  {selectedConcerns.includes(concern) && '✓ '}
-                  {concern}
-                </button>
-              ))}
+            <div className="bg-black/50 backdrop-blur-sm rounded-2xl p-4 sm:p-6 mb-8 border-2 border-indigo-400/50 w-full">
+              <VimondHealthProtocolEmbed embedUrl={currentSlide.embedUrl} className="omega-video-shell" />
             </div>
-            
             <button
+              type="button"
               onClick={handleContinue}
               className="px-12 py-4 text-2xl font-bold bg-indigo-600/90 hover:bg-indigo-500/90 backdrop-blur-sm text-white rounded-xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-indigo-400/50"
             >
@@ -788,6 +768,58 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
             </button>
           </div>
         )}
+
+        {/* Slide 6: Good balance — contact sender */}
+        {currentSlide.id === 'slide-6-good-contact' && (() => {
+          const contact = resolvePresentationContactPhone(currentSlide.content);
+          const telHref = `tel:+1${contact.tel}`;
+          const copyText = `+1${contact.tel}`;
+          return (
+            <div className="text-center text-white animate-fadeIn w-full max-w-[min(900px,96vw)] mx-auto px-2 sm:px-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-10 leading-tight text-white drop-shadow-2xl">
+                {currentSlide.title}
+              </h1>
+              <div className="flex flex-col items-center gap-5">
+                <div className="relative flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
+                  <span
+                    className="sm:hidden text-3xl font-bold text-emerald-400 -mb-1"
+                    aria-hidden
+                  >
+                    ↓
+                  </span>
+                  <span
+                    className="hidden sm:block absolute -left-12 top-1/2 -translate-y-1/2 text-4xl font-bold text-emerald-400 pointer-events-none"
+                    aria-hidden
+                  >
+                    →
+                  </span>
+                  <a
+                    href={telHref}
+                    onClick={async () => {
+                      if (instanceId) {
+                        try {
+                          await logStoreLinkClick(instanceId, telHref, currentSlide.id);
+                        } catch (error) {
+                          console.error('Failed to log contact click:', error);
+                        }
+                      }
+                    }}
+                    className="inline-flex items-center gap-3 px-10 py-4 text-2xl sm:text-3xl font-bold bg-gradient-to-r from-emerald-600/90 to-teal-600/90 hover:from-emerald-500/90 hover:to-teal-500/90 backdrop-blur-sm text-white rounded-2xl shadow-2xl hover:scale-105 transition-all duration-300 border-2 border-emerald-400/50 ring-2 ring-emerald-400/20"
+                  >
+                    <span className="text-2xl" aria-hidden>
+                      📞
+                    </span>
+                    {contact.display}
+                  </a>
+                  <PresentationPhoneCopyButton
+                    textToCopy={copyText}
+                    className="inline-flex shrink-0 items-center justify-center px-6 py-4 text-lg sm:text-xl font-bold bg-white/15 hover:bg-white/25 backdrop-blur-sm text-white rounded-2xl shadow-xl transition-all duration-300 border-2 border-white/35"
+                  />
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Slide 6: Apology Message */}
         {currentSlide.id === 'slide-6-apology' && (
@@ -819,15 +851,11 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
             </h1>
             
             <div className="omega-tight-box bg-black/50 backdrop-blur-sm rounded-2xl p-12 mb-8 border-2 border-indigo-400/50 w-full max-w-full min-w-0 mx-auto">
-              <div className="omega-video-shell relative aspect-video w-full overflow-hidden rounded-xl bg-black">
-                <iframe
-                  src="https://www.zinzinoplay.com/embedded/assets/86"
-                  title="Balance Concept explained - ES"
-                  className="absolute inset-0 h-full w-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
-                  allowFullScreen
-                />
-              </div>
+              <IframeEmbedWithSpinner
+                src="https://www.zinzinoplay.com/embedded/assets/86"
+                title="Balance Concept explained - ES"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture;"
+              />
             </div>
             
             <button
@@ -874,15 +902,9 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
             </p>
             
             <div className="omega-tight-box bg-black/50 backdrop-blur-sm rounded-2xl p-12 mb-8 border-2 border-indigo-400/50 w-full max-w-full min-w-0 mx-auto">
-              <div className="omega-video-shell relative aspect-video w-full overflow-hidden rounded-xl bg-black">
-                <video
-                  src={getAssetUrl('assets/presentation-omega3-6/video2.mp4')}
-                  controls
-                  className="absolute inset-0 h-full w-full object-contain"
-                >
-                  Your browser does not support the video tag.
-                </video>
-              </div>
+              <VideoFileWithSpinner src={getAssetUrl('assets/presentation-omega3-6/video2.mp4')}>
+                Your browser does not support the video tag.
+              </VideoFileWithSpinner>
             </div>
             
             <button
@@ -936,7 +958,12 @@ export default function OmegaBalancePlusPresentationViewer({ presentation, insta
 
       <div className="fixed left-1/2 z-20 -translate-x-1/2 bottom-[max(1rem,env(safe-area-inset-bottom))] bg-black/50 backdrop-blur-sm rounded-full px-4 py-2 sm:px-6 sm:py-3 border border-indigo-400/50">
         <p className="text-white text-sm">
-          Paso {currentSlideIndex + 1} de {presentation.slides.length}
+          {getOmegaPresentationProgressLabel(
+            presentation,
+            currentSlideIndex,
+            currentSlide.id,
+            userAnswers,
+          )}
         </p>
       </div>
 

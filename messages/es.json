@@ -27,7 +27,8 @@
     "logout": "Cerrar sesión",
     "brand": "PresenT",
     "presentationEditor": "Editor de presentaciones",
-    "menu": "Menú"
+    "menu": "Menú",
+    "settings": "Cuenta"
   },
   "auth": {
     "email": "Correo electrónico",
@@ -50,12 +51,31 @@
     "signupSubtitle": "Regístrate para comenzar",
     "fullName": "Nombre completo",
     "fullNamePlaceholder": "María García",
+    "phone": "Número de teléfono",
+    "phonePlaceholder": "407-555-1234",
+    "phoneRequired": "El número de teléfono es obligatorio",
+    "phoneInvalid": "Introduce un número válido (mínimo 10 dígitos)",
     "emailPlaceholder": "tu@correo.com",
     "passwordMinHint": "Mínimo 6 caracteres",
     "creatingAccount": "Creando cuenta…",
     "signupError": "Ocurrió un error al registrarse",
     "confirmEmailMessage": "Revisa tu correo para confirmar tu cuenta antes de iniciar sesión.",
     "profileCreateError": "No se pudo crear el perfil de usuario. Contacta a soporte."
+  },
+  "settings": {
+    "title": "Configuración de la cuenta",
+    "subtitle": "Actualiza tu perfil. Tu teléfono se usa como número de contacto en presentaciones omega compartidas cuando no hay enlace de tienda.",
+    "emailLabel": "Correo electrónico",
+    "emailHint": "El correo no se puede cambiar aquí.",
+    "fullNameLabel": "Nombre completo",
+    "phoneLabel": "Número de teléfono",
+    "phoneHint": "Se muestra a los destinatarios en la última diapositiva de tus presentaciones omega compartidas (cuando aplica).",
+    "phoneInvalid": "Introduce un número válido (mínimo 10 dígitos).",
+    "save": "Guardar cambios",
+    "saving": "Guardando…",
+    "saved": "Perfil actualizado.",
+    "loadError": "No se pudo cargar tu perfil.",
+    "saveError": "No se pudieron guardar los cambios. Inténtalo de nuevo."
   },
   "home": {
     "title": "PresenT",

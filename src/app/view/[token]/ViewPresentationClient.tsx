@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { getInstanceByToken, markInstanceAsViewed } from '@/lib/services/instances';
+import { resolveViewerContactPhone } from '@/lib/utils/contact-phone';
 import { getTemplate } from '@/lib/presentations/template-registry';
 import { applySimpleCustomization } from '@/lib/presentations/customization';
 import { getInstanceQuestions, getInstanceAnswers } from '@/lib/services/questions';
@@ -52,9 +53,15 @@ export default function ViewPresentationClient() {
         throw new Error(t('templateNotFound'));
       }
 
+      const contactPhone = resolveViewerContactPhone(
+        templateIdFromDb,
+        instance.store_link,
+        null
+      );
+
       const customized = applySimpleCustomization(template, {
         recipientName: instance.recipient_name || '',
-        storeLink: instance.store_link || '',
+        storeLink: contactPhone,
         ...(instance.custom_fields as any || {}),
       });
 

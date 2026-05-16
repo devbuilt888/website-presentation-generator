@@ -12,6 +12,8 @@ export interface PresentationSlide {
   title: string;
   subtitle?: string;
   content: string;
+  contentFooter?: string;
+  embedUrl?: string;
   duration: number;
   backgroundGif?: string;
   userName?: string;
@@ -444,34 +446,25 @@ export const presentations: Presentation[] = [
         title: 'Estás desbalanceado',
         subtitle: '',
         content: 'Puede que no estés alcanzando tu máximo potencial de salud y bienestar por ello',
+        contentFooter: 'Déjame que le pregunte a ChatGPT si ese balance es importante:',
         duration: 0
       },
       {
-        id: 'slide-5-balanced',
-        type: 'quiz',
-        title: '¡Felicidades!',
-        subtitle: 'Tienes una proporción perfecta de balance',
-        content: '¿Alguno de estos otros problemas te preocupa?',
-        duration: 0,
-        questions: [
-          {
-            question: 'Selecciona los que apliquen:',
-            options: [
-              'Fortaleza del cabello',
-              'Problemas digestivos',
-              'Energía',
-              'Circulación',
-              'Claridad mental',
-              'Salud cardiovascular',
-              'Inflamación',
-              'Salud de la piel',
-              'Sistema inmunológico',
-              'Salud articular',
-              'Estado de ánimo',
-              'Calidad del sueño'
-            ]
-          }
-        ]
+        id: 'slide-5-good-video',
+        type: 'hero',
+        title: 'Mira este video',
+        subtitle: '',
+        content: '',
+        embedUrl: 'https://zinzino.vimondtv.com/embedded/assets/610?language=es',
+        duration: 0
+      },
+      {
+        id: 'slide-6-good-contact',
+        type: 'hero',
+        title: 'Contacta a la persona que te mandó esto:',
+        subtitle: '',
+        content: '{{storeLink}}',
+        duration: 0
       },
       {
         id: 'slide-6-apology',
@@ -531,7 +524,7 @@ export const presentations: Presentation[] = [
         id: 'slide-1',
         type: 'hero',
         title: 'Hola {{recipientName}}',
-        subtitle: '¿Estás interesado en tu salud?',
+        subtitle: '¿Quieres mejorar tu salud?',
         content: 'Tengo preguntas para ti',
         duration: 0
       },
@@ -573,34 +566,25 @@ export const presentations: Presentation[] = [
         title: 'Estás desbalanceado',
         subtitle: '',
         content: 'Puede que no estés alcanzando tu máximo potencial de salud y bienestar por ello',
+        contentFooter: 'Déjame que le pregunte a ChatGPT si ese balance es importante:',
         duration: 0
       },
       {
-        id: 'slide-5-balanced',
-        type: 'quiz',
-        title: '¡Felicidades!',
-        subtitle: 'Tienes una proporción perfecta de balance',
-        content: '¿Alguno de estos otros problemas te preocupa?',
-        duration: 0,
-        questions: [
-          {
-            question: 'Selecciona los que apliquen:',
-            options: [
-              'Fortaleza del cabello',
-              'Problemas digestivos',
-              'Energía',
-              'Circulación',
-              'Claridad mental',
-              'Salud cardiovascular',
-              'Inflamación',
-              'Salud de la piel',
-              'Sistema inmunológico',
-              'Salud articular',
-              'Estado de ánimo',
-              'Calidad del sueño'
-            ]
-          }
-        ]
+        id: 'slide-5-good-video',
+        type: 'hero',
+        title: 'Mira este video',
+        subtitle: '',
+        content: '',
+        embedUrl: 'https://zinzino.vimondtv.com/embedded/assets/610?language=es',
+        duration: 0
+      },
+      {
+        id: 'slide-6-good-contact',
+        type: 'hero',
+        title: 'Contacta a la persona que te mandó esto:',
+        subtitle: '',
+        content: '{{storeLink}}',
+        duration: 0
       },
       {
         id: 'slide-6-apology',
@@ -608,6 +592,7 @@ export const presentations: Presentation[] = [
         title: 'Perdón por preguntar',
         subtitle: 'Es normal',
         content: 'La mayoría de personas no lo sabe',
+        contentFooter: 'Déjame que le pregunte a ChatGPT si este balance es importante...',
         duration: 0
       },
       {
@@ -637,14 +622,15 @@ export const presentations: Presentation[] = [
         type: 'hero',
         title: 'No tengas miedo',
         subtitle: 'Es solo un pinchazito',
-        content: '[Video Placeholder 2 - Se actualizará con el enlace más tarde]',
+        content: '',
+        embedUrl: 'https://www.zinzinoplay.com/embedded/assets/297?language=es',
         duration: 0
       },
       {
         id: 'slide-10-final',
         type: 'hero',
-        title: 'Consigue tu test aquí:',
-        subtitle: '',
+        title: 'Conoce tu número de balance gratis',
+        subtitle: 'habla con la persona que te envió esta presentación:',
         content: '{{storeLink}}',
         duration: 0
       }
@@ -702,34 +688,25 @@ export const presentations: Presentation[] = [
         title: 'Estás desbalanceado',
         subtitle: '',
         content: 'Puede que no estés alcanzando tu máximo potencial de salud y bienestar por ello',
+        contentFooter: 'Déjame que le pregunte a ChatGPT si ese balance es importante:',
         duration: 0
       },
       {
-        id: 'slide-5-balanced',
-        type: 'quiz',
-        title: '¡Felicidades!',
-        subtitle: 'Tienes una proporción perfecta de balance',
-        content: '¿Alguno de estos otros problemas te preocupa?',
-        duration: 0,
-        questions: [
-          {
-            question: 'Selecciona los que apliquen:',
-            options: [
-              'Fortaleza del cabello',
-              'Problemas digestivos',
-              'Energía',
-              'Circulación',
-              'Claridad mental',
-              'Salud cardiovascular',
-              'Inflamación',
-              'Salud de la piel',
-              'Sistema inmunológico',
-              'Salud articular',
-              'Estado de ánimo',
-              'Calidad del sueño'
-            ]
-          }
-        ]
+        id: 'slide-5-good-video',
+        type: 'hero',
+        title: 'Mira este video',
+        subtitle: '',
+        content: '',
+        embedUrl: 'https://zinzino.vimondtv.com/embedded/assets/610?language=es',
+        duration: 0
+      },
+      {
+        id: 'slide-6-good-contact',
+        type: 'hero',
+        title: 'Contacta a la persona que te mandó esto:',
+        subtitle: '',
+        content: '{{storeLink}}',
+        duration: 0
       },
       {
         id: 'slide-6-apology',
@@ -831,34 +808,25 @@ export const presentations: Presentation[] = [
         title: 'Estás desbalanceado',
         subtitle: '',
         content: 'Puede que no estés alcanzando tu máximo potencial de salud y bienestar por ello',
+        contentFooter: 'Déjame que le pregunte a ChatGPT si ese balance es importante:',
         duration: 0
       },
       {
-        id: 'slide-5-balanced',
-        type: 'quiz',
-        title: '¡Felicidades!',
-        subtitle: 'Tienes una proporción perfecta de balance',
-        content: '¿Alguno de estos otros problemas te preocupa?',
-        duration: 0,
-        questions: [
-          {
-            question: 'Selecciona los que apliquen:',
-            options: [
-              'Fortaleza del cabello',
-              'Problemas digestivos',
-              'Energía',
-              'Circulación',
-              'Claridad mental',
-              'Salud cardiovascular',
-              'Inflamación',
-              'Salud de la piel',
-              'Sistema inmunológico',
-              'Salud articular',
-              'Estado de ánimo',
-              'Calidad del sueño'
-            ]
-          }
-        ]
+        id: 'slide-5-good-video',
+        type: 'hero',
+        title: 'Mira este video',
+        subtitle: '',
+        content: '',
+        embedUrl: 'https://zinzino.vimondtv.com/embedded/assets/610?language=es',
+        duration: 0
+      },
+      {
+        id: 'slide-6-good-contact',
+        type: 'hero',
+        title: 'Contacta a la persona que te mandó esto:',
+        subtitle: '',
+        content: '{{storeLink}}',
+        duration: 0
       },
       {
         id: 'slide-6-apology',

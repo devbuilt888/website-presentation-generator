@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getAssetUrl } from '@/config/assets';
 import { defaultLocale, locales, type Locale } from '@/i18n/constants';
 
 function normalizeStoredLocale(raw: string | null): Locale {
@@ -27,20 +28,19 @@ function FlagSpain({ className }: { className?: string }) {
   );
 }
 
-/** Cruz de San Jorge (Inglés / idioma inglés). */
+/** English flag from Supabase `assets` bucket: `general-assets/engflagsvg.png` (path via getAssetUrl). */
 function FlagEnglish({ className }: { className?: string }) {
   return (
-    <svg
-      viewBox="0 0 30 20"
-      className={className}
+    <img
+      src={getAssetUrl('assets/general-assets/engflagsvg.png')}
+      alt=""
       width={24}
       height={16}
+      className={`block object-cover ${className ?? ''}`}
+      loading="lazy"
+      decoding="async"
       aria-hidden
-    >
-      <rect width="30" height="20" fill="#ffffff" />
-      <rect x="13" width="4" height="20" fill="#ce1124" />
-      <rect y="8" width="30" height="4" fill="#ce1124" />
-    </svg>
+    />
   );
 }
 

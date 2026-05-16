@@ -24,6 +24,7 @@ export interface Database {
           id: string;
           email: string;
           full_name: string | null;
+          phone: string | null;
           created_at: string;
           updated_at: string;
           metadata: Json | null;
@@ -32,6 +33,7 @@ export interface Database {
           id: string;
           email: string;
           full_name?: string | null;
+          phone?: string | null;
           created_at?: string;
           updated_at?: string;
           metadata?: Json | null;
@@ -40,6 +42,7 @@ export interface Database {
           id?: string;
           email?: string;
           full_name?: string | null;
+          phone?: string | null;
           created_at?: string;
           updated_at?: string;
           metadata?: Json | null;

@@ -14,6 +14,7 @@ export interface PresentationSlide {
   title?: string;
   subtitle?: string;
   content?: string;
+  contentFooter?: string;
   backgroundGif?: string;
   image?: string;
   duration: number;
