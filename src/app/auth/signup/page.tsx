@@ -46,27 +46,10 @@ export default function SignupPage() {
 
       if (authError) throw authError;
 
-      if (authData.user) {
-        const { error: profileError } = await supabase.from('users').upsert(
-          {
-            id: authData.user.id,
-            email: authData.user.email!,
-            full_name: fullName || null,
-            phone: phoneTrimmed,
-          },
-          { onConflict: 'id' }
-        );
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-          throw new Error(t('profileCreateError'));
-        }
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
+      // Profile row is created by DB trigger handle_new_user() from auth metadata.
+      // When a session exists, sync phone/name via UPDATE (RLS allows update own row).
       const {
-        data: { session },
+        data: { session: sessionAfterSignup },
         error: sessionError,
       } = await supabase.auth.getSession();
 
@@ -74,12 +57,44 @@ export default function SignupPage() {
         throw sessionError;
       }
 
-      if (session && session.user) {
-        window.location.href = '/dashboard';
-      } else {
-        setError(t('confirmEmailMessage'));
-        setLoading(false);
+      if (authData.user && sessionAfterSignup) {
+        const { error: profileError } = await supabase
+          .from('users')
+          .update({
+            email: authData.user.email!,
+            full_name: fullName || null,
+            phone: phoneTrimmed,
+          })
+          .eq('id', authData.user.id);
+
+        if (profileError) {
+          console.error('Profile update error:', profileError);
+          throw new Error(t('profileCreateError'));
+        }
       }
+
+      const session = sessionAfterSignup;
+
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      const {
+        data: { session: sessionRecheck },
+        error: sessionRecheckError,
+      } = await supabase.auth.getSession();
+
+      if (sessionRecheckError) {
+        throw sessionRecheckError;
+      }
+
+      const activeSession = sessionRecheck ?? session;
+
+      if (activeSession?.user) {
+        window.location.href = '/dashboard';
+        return;
+      }
+
+      setError(t('confirmEmailMessage'));
+      setLoading(false);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : t('signupError');
       setError(message || t('signupError'));

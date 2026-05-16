@@ -80,6 +80,8 @@
   "home": {
     "title": "PresenT",
     "subtitle": "Create stunning presentations with our advanced editor. Design, customize, and share with ease.",
+    "tutorialLead": "Use the arrows, keyboard, or tap the sides of the slide to step through the same interactive tutorial as in the app.",
+    "openTutorialNewTab": "Open tutorial in full screen",
     "editorCardTitle": "Presentation editor",
     "editorCardDesc": "Create and customize presentations with professional tools. Pick templates, animations, and tailored content.",
     "presentationsCardTitle": "My presentations",

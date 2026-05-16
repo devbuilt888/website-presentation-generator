@@ -1,16 +1,27 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useTranslations } from 'next-intl';
+import { presentations } from '@/data/presentations';
+import ForestPresentationViewer from '@/components/ForestPresentationViewer';
+
+/** Same forest night tutorial as `/presentations/forest-night-journey` and the dashboard tutorial card. */
+const LANDING_TUTORIAL_ID = 'forest-night-journey' as const;
 
 export default function Home() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const t = useTranslations('home');
+  const tNav = useTranslations('nav');
   const tCommon = useTranslations('common');
+
+  const tutorialPresentation = useMemo(
+    () => presentations.find((p) => p.id === LANDING_TUTORIAL_ID),
+    [],
+  );
 
   useEffect(() => {
     if (!loading && user) {
@@ -20,10 +31,10 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-950">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600 text-sm">{tCommon('loading')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto" />
+          <p className="mt-4 text-slate-400 text-sm">{tCommon('loading')}</p>
         </div>
       </div>
     );
@@ -33,56 +44,69 @@ export default function Home() {
     return null;
   }
 
+  if (!tutorialPresentation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 px-4">
+        <p className="text-red-400 text-center text-sm">Tutorial content is not available.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="max-w-4xl mx-auto px-6 text-center">
-        <div className="mb-12">
-          <h1 className="text-6xl font-bold text-gray-900 mb-6">{t('title')}</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">{t('subtitle')}</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
+    <div className="flex min-h-screen flex-col bg-slate-950">
+      <header className="relative z-20 border-b border-white/10 bg-gradient-to-b from-slate-900 via-slate-900/95 to-slate-900/90 px-4 py-5 text-center shadow-lg sm:py-6">
+        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">{t('title')}</h1>
+        <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-slate-300 sm:text-base">
+          {t('subtitle')}
+        </p>
+        <p className="mx-auto mt-2 max-w-xl text-xs leading-relaxed text-slate-400 sm:text-sm">
+          {t('tutorialLead')}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           <Link
-            href="/editor"
-            className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+            href="/auth/signup"
+            className="inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-md transition-colors hover:from-indigo-500 hover:to-purple-500"
           >
-            <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('editorCardTitle')}</h3>
-            <p className="text-gray-600 leading-relaxed">{t('editorCardDesc')}</p>
+            {tNav('signup')}
           </Link>
-
+          <Link
+            href="/auth/login"
+            className="inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/5 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10"
+          >
+            {tNav('login')}
+          </Link>
+          <Link
+            href={`/presentations/${LANDING_TUTORIAL_ID}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-lg border border-emerald-500/40 px-4 py-2 text-sm font-medium text-emerald-200 transition-colors hover:bg-emerald-500/10"
+          >
+            {t('openTutorialNewTab')}
+          </Link>
+        </div>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-slate-500">
+          <Link href="/editor" className="text-slate-400 underline-offset-2 hover:text-white hover:underline">
+            {t('editorCardTitle')}
+          </Link>
+          <span className="text-slate-600" aria-hidden>
+            ·
+          </span>
           <Link
             href="/presentations"
-            className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+            className="text-slate-400 underline-offset-2 hover:text-white hover:underline"
           >
-            <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-teal-600 rounded-xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
-            </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">{t('presentationsCardTitle')}</h3>
-            <p className="text-gray-600 leading-relaxed">{t('presentationsCardDesc')}</p>
+            {t('presentationsCardTitle')}
           </Link>
         </div>
+      </header>
 
-        <div className="mt-16 text-center">
-          <p className="text-gray-500 text-sm">{t('footerTech')}</p>
-        </div>
-      </div>
+      <main className="relative min-h-0 w-full flex-1">
+        <ForestPresentationViewer presentation={tutorialPresentation} embedded />
+      </main>
+
+      <footer className="border-t border-white/5 bg-slate-950 py-3 text-center text-xs text-slate-500">
+        {t('footerTech')}
+      </footer>
     </div>
   );
 }

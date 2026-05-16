@@ -80,6 +80,8 @@
   "home": {
     "title": "PresenT",
     "subtitle": "Crea presentaciones impactantes con nuestro editor avanzado. Diseña, personaliza y comparte con facilidad.",
+    "tutorialLead": "Avanza con las flechas, el teclado o tocando los lados de la diapositiva. Es el mismo tutorial interactivo que en la aplicación.",
+    "openTutorialNewTab": "Abrir tutorial a pantalla completa",
     "editorCardTitle": "Editor de presentaciones",
     "editorCardDesc": "Crea y personaliza tus presentaciones con herramientas profesionales. Elige plantillas, animaciones y contenido a medida.",
     "presentationsCardTitle": "Mis presentaciones",

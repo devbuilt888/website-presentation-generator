@@ -12,6 +12,8 @@ import { useMobileTapNavigation, isInputSlide } from '@/hooks/useMobileTapNaviga
 interface ForestPresentationViewerProps {
   presentation: Presentation;
   instanceId?: string;
+  /** When true, height fits under the main nav instead of full viewport (e.g. landing page). */
+  embedded?: boolean;
 }
 
 // Tree component with teal/green gradients
@@ -378,7 +380,7 @@ function ForestScene({ currentSlide, totalSlides, slideData }: { currentSlide: n
   );
 }
 
-export default function ForestPresentationViewer({ presentation, instanceId }: ForestPresentationViewerProps) {
+export default function ForestPresentationViewer({ presentation, instanceId, embedded = false }: ForestPresentationViewerProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -505,10 +507,18 @@ export default function ForestPresentationViewer({ presentation, instanceId }: F
     isInputSlide: isInput,
   });
 
+  const heightClass = embedded
+    ? 'h-[min(70vh,840px)] min-h-[320px] w-full sm:h-[min(72vh,880px)]'
+    : 'h-screen';
+
   return (
     <div 
       ref={mobileTapRef}
-      className={`w-full h-screen bg-black ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}
+      className={
+        isFullscreen
+          ? 'fixed inset-0 z-50 h-screen w-full bg-black'
+          : `w-full ${heightClass} bg-black`
+      }
       onMouseMove={handleMouseMove}
       onKeyDown={handleKeyDown}
       tabIndex={0}
